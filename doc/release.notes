@@ -1,0 +1,6 @@
+v0
+
+Assuming all ACD tiles are installed around full LAT, the code uses 
+reconstructed muon direction to correct energy deposited in the ACD tiles.
+Note the code assumes the data is NOT zero suppressed, it also assumes 
+pedestal lies between 0 and 400 ACD counts.
