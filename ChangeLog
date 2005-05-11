@@ -1,0 +1,50 @@
+------------------------------------------------------------
+User: xchen  Wed May 11 10:29:30 PDT 2005
+calibGenACD
+
+Log Message:
+import calibGenACD code
+
+Status:
+
+Vendor Tag:	xchen
+Release Tags:	v0
+		
+I calibGenACD/output
+I calibGenACD/rh9_gcc32
+N calibGenACD/.cvsignore
+I calibGenACD/.cvsignore~
+I calibGenACD/cmt/Makefile
+N calibGenACD/cmt/requirements
+I calibGenACD/cmt/cleanup.csh
+I calibGenACD/cmt/setup.csh
+I calibGenACD/cmt/setup.sh
+I calibGenACD/cmt/rh9_gcc32.make
+I calibGenACD/cmt/cleanup.sh
+I calibGenACD/cmt/requirements~
+N calibGenACD/cmt/GlastRelease.env
+I calibGenACD/cmt/GlastRelease.env~
+N calibGenACD/cmt/.cvsignore
+I calibGenACD/cmt/.cvsignore~
+N calibGenACD/src/muonCalib.h
+N calibGenACD/src/muonCalib.cxx
+N calibGenACD/src/runMuonCalib.cxx
+I calibGenACD/src/muonCalib.cxx~
+I calibGenACD/src/muonCalib.h~
+I calibGenACD/src/runMuonCalib.cxx~
+N calibGenACD/src/muonCalibOption.xml
+I calibGenACD/src/muonCalibChain_option.dat~
+N calibGenACD/src/.cvsignore
+N calibGenACD/src/mainpage.h
+I calibGenACD/src/.cvsignore~
+I calibGenACD/src/muonCalib_option.dat~
+I calibGenACD/src/muonCalibOption.xml~
+I calibGenACD/src/mainpage.h~
+N calibGenACD/xml/ifile.dtd
+N calibGenACD/xml/.cvsignore
+N calibGenACD/doc/.cvsignore
+N calibGenACD/doc/release.notes
+
+No conflicts created by this import
+
+    *
