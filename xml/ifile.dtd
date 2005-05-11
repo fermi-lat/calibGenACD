@@ -1,0 +1,12 @@
+<!-- dtd suitable for use with xml::IFile -->
+<!-- local copy until Engineering model moves to new xml stuff -->
+<!-- $Header$ -->
+
+<!ELEMENT ifile (section)* >
+<!ATTLIST ifile  cvs_Header CDATA #REQUIRED
+                     cvs_Revision CDATA #REQUIRED>
+<!ELEMENT section (#PCDATA | item | section)*  >
+<!ATTLIST section name CDATA #REQUIRED>
+<!ELEMENT item   (#PCDATA)>
+<!ATTLIST item  name CDATA #REQUIRED
+                value CDATA #REQUIRED>

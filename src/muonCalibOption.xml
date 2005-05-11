@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!-- job optin file for runMuonCalib.exe -->
+
+<!DOCTYPE ifile SYSTEM "$(CALIBGENACDROOT)/xml/ifile.dtd" >
+
+<ifile cvs_Header="$Header$" cvs_Revision="$Revision$" >
+
+  <section name="parameters"> input parameters for ACD pedestal and gain calibration	
+   <item name="instrument" value="LAT">instrument type to be calibrated </item>
+   <item name="timeStamp" value="2005-5-9-12:56">time of calibration </item>
+   <item name="fmtVersion" value="v0">format version of calibration constant xm </item>
+   <item name="digiFileList" value="/nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_0_digi.root /nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_1_digi.root"> blank-delimited list of input digi root files </item>
+   <item name="reconFileList" value="/nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_0_recon.root /nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_1_recon.root"> blank-delimited list of input recon root files </item>
+   <item name="pedTextFile" value="../output/test_ped.tex"> output pedestal asci text file </item>
+   <item name="pedXmlFile" value="../output/test_ped.xml"> output pedestal xml file </item>
+   <item name="gainTextFile" value="../output/test_gain.tex"> output gain asci text file </item>
+   <item name="gainXmlFile" value="../output/test_gain.xml"> output gain xml file </item>
+   <item name="outputHistFile" value="../output/test.root"> output root file </item>
+  </section>
+</ifile>
