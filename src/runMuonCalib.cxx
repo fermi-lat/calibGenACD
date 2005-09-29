@@ -4,7 +4,7 @@
 #include <fstream>
 #include "muonCalib.h"
 #include "TSystem.h"
-#include "xml/IFile.h"
+#include "xmlBase/IFile.h"
 #include "facilities/Util.h"
 
 using std::cout;
@@ -25,7 +25,7 @@ int main(int argn, char** argc) {
 	 << std::endl << endl;
   }
 
-  xml::IFile myFile(jobOptionXmlFile.c_str());
+  xmlBase::IFile myFile(jobOptionXmlFile.c_str());
 
   string inputDigiFileStr;
   if (myFile.contains("parameters","digiFileList")) {
@@ -45,20 +45,20 @@ int main(int argn, char** argc) {
     cout << "   " << i+1 << ") " << token[i] << endl;
   }
 
-  string inputReconFileStr;
-  if (myFile.contains("parameters","reconFileList")) {
-    inputReconFileStr = myFile.getString("parameters", "reconFileList");
+  string inputMeritFileStr;
+  if (myFile.contains("parameters","meritFileList")) {
+    inputMeritFileStr = myFile.getString("parameters", "meritFileList");
   }
 
   token.resize(0);
-  facilities::Util::stringTokenize(inputReconFileStr, ";, ", token);
+  facilities::Util::stringTokenize(inputMeritFileStr, ";, ", token);
   nFiles = token.size();
-  TChain* reconChain = new TChain("Recon");
+  TChain* meritChain = new TChain("MeritTuple");
 
-  cout << "Input recon files:" << endl;
+  cout << "Input merit files:" << endl;
   for (i=0; i!=nFiles; ++i) {
     if (token[i]=="") break;
-    reconChain->Add(token[i].c_str());
+    meritChain->Add(token[i].c_str());
     cout << "   " << i+1 << ") " << token[i] << endl;
   }
 
@@ -106,7 +106,7 @@ int main(int argn, char** argc) {
     cout << "format version: " << fmtVersion << endl;
   }
 
-  muonCalib r(digiChain, reconChain, 0, outputHistFile.c_str());
+  muonCalib r(digiChain, meritChain, outputHistFile.c_str());
   r.setInstrument(instrument.c_str());
   r.setTimeStamp(timeStamp.c_str());
   r.setVersion(fmtVersion.c_str());
@@ -125,7 +125,7 @@ int main(int argn, char** argc) {
   r.writeGainXml(gainXmlFile.c_str());
 
   delete digiChain;
-  delete reconChain;
+  delete meritChain;
 
   return 0;
 }

@@ -4,13 +4,14 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1.h"
 #include "TChain.h"
 #include "TMath.h"
 #include "TCollection.h"  // Declares TIter
 #include "digiRootData/DigiEvent.h"
-#include "reconRootData/ReconEvent.h"
-#include "mcRootData/McEvent.h"
 #include <iostream>
+
+#include <vector>
 
 class muonCalib {
 
@@ -18,11 +19,11 @@ public :
 
   enum CALTYPE{PEDESTAL, GAIN};
  
-  enum {g_nFace=6, g_nRow=4, g_nCol=4, g_nPmt=2, g_nRange=2};
+  enum {g_nFace=6, g_nRow=5, g_nCol=5, g_nPmt=2, g_nRange=2};
     
 // Standard ctor, where user provides the names of the input root files
 // and optionally the name of the output ROOT histogram file
- muonCalib(TChain *digiChain, TChain *recChain = 0, TChain *mcChain = 0, 
+ muonCalib(TChain *digiChain, TChain *meritChain = 0, 
 	   const char *histFileName="Histograms.root");
 
  ~muonCalib();  
@@ -82,9 +83,9 @@ public :
 
  CALTYPE m_calType;
 
- TObjArray* m_pedHists;
- TObjArray* m_rawHists;
- TObjArray* m_gainHists;
+ std::vector<TH1F*> m_pedHists;
+ std::vector<TH1F*> m_rawHists;
+ std::vector<TH1F*> m_gainHists;
 
  float m_gainPeak[g_nFace][g_nRow][g_nCol][g_nPmt][g_nRange];
  float m_gainWidth[g_nFace][g_nRow][g_nCol][g_nPmt][g_nRange];
@@ -92,16 +93,10 @@ public :
  float m_pedRms[g_nFace][g_nRow][g_nCol][g_nPmt][g_nRange];
      
  /// Optional TChain input
- TChain      *m_digiChain, *m_recChain, *m_mcChain;
+ TChain      *m_digiChain, *m_meritChain;
 
  /// pointer to a DigiEvent
  DigiEvent* m_digiEvent;
-
- /// pointer to a ReconEvent
- ReconEvent* m_reconEvent;
-
- /// Pointer to a McEvent
- McEvent* m_mcEvent;
 
  /// name of the output histogram ROOT file
  TFile* m_histFile; 
@@ -110,7 +105,7 @@ public :
  Int_t m_startEvent;
 
  // reconstructed event direction along the z axis, defaulted as -9999
- float m_reconDirZ;
+ Double_t m_reconDirZ;
 
  std::string m_instrument;
 
