@@ -1,4 +1,20 @@
 ------------------------------------------------------------
+User: echarles  Thu Sep 29 14:05:52 PDT 2005
+calibGenACD/src
+
+Modified Files:
+	muonCalib.cxx muonCalib.h muonCalibOption.xml runMuonCalib.cxx 
+Log Message:
+
+Removed dependency on reconRootData and mcRootData from requirements file
+
+Changed muonCalib to get track direction of merit ntuple instead of recon root 
+file as this is about 20 times faster.
+
+Got rid on unneeded stuff pointing at mc and recon root files.  
+
+    *
+------------------------------------------------------------
 User: echarles  Thu Sep 29 14:04:18 PDT 2005
 calibGenACD/cmt
 
