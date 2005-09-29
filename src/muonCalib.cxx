@@ -7,17 +7,14 @@ using std::cout;
 using std::endl;
 using std::string;
 
-muonCalib::muonCalib(TChain *digiChain, TChain *recChain, TChain *mcChain, 
+muonCalib::muonCalib(TChain *digiChain, TChain *meritChain, 
 		     const char *histFileName): 
-  m_digiChain(0), m_recChain(0), m_mcChain(0), m_digiEvent(0), m_reconEvent(0),
-  m_mcEvent(0), m_histFile(0), m_startEvent(0), m_reconDirZ(-9999)
+  m_digiChain(0), m_meritChain(0), m_digiEvent(0),
+  m_histFile(0), m_startEvent(0), m_reconDirZ(-9999)
 {    
   m_histFile = new TFile(histFileName, "RECREATE");
 
   int size = g_nFace * g_nRow * g_nCol * g_nPmt * g_nRange;
-  m_pedHists = new TObjArray(size);
-  m_rawHists = new TObjArray(size);
-  m_gainHists = new TObjArray(size);
 
   for(int iFace = 0; iFace != g_nFace; ++iFace) {
     for(int iRow = 0; iRow != g_nRow; ++iRow) {
@@ -30,15 +27,15 @@ muonCalib::muonCalib(TChain *digiChain, TChain *recChain, TChain *mcChain,
 	    char pedName[]="ped00000";
 	    sprintf(pedName, "ped%1d%1d%1d%1d%1d", iFace, iRow, iCol, iPmt,
 		    iRange);
-	    m_pedHists->AddAt(new TH1F(pedName,pedName,200,0,400), histId);
+	    m_pedHists.push_back(new TH1F(pedName,pedName,200,0,400));
 	    char rawName[]="raw00000";
 	    sprintf(rawName, "raw%1d%1d%1d%1d%1d", iFace, iRow, iCol, iPmt,
 		    iRange);
-	    m_rawHists->AddAt(new TH1F(rawName,rawName,220,0,2200),histId);
+	    m_rawHists.push_back(new TH1F(rawName,rawName,220,0,2200));
 	    char peakName[]="peak00000";
 	    sprintf(peakName, "peak%1d%1d%1d%1d%1d", iFace, iRow, iCol, iPmt,
 		    iRange);
-	    m_gainHists->AddAt(new TH1F(peakName,peakName,220,0,2200),histId);
+	    m_gainHists.push_back(new TH1F(peakName,peakName,220,0,2200));
 
 	    m_pedPeak[iFace][iRow][iCol][iPmt][iRange] = -9999;
 	    m_pedRms[iFace][iRow][iCol][iPmt][iRange] = -9999;
@@ -52,22 +49,23 @@ muonCalib::muonCalib(TChain *digiChain, TChain *recChain, TChain *mcChain,
     }
   }
 
-  if (mcChain != 0) {
-    m_mcChain = mcChain;
-    m_mcEvent = 0;
-    m_mcChain->SetBranchAddress("McEvent", &m_mcEvent);
-  }
-
   if (digiChain != 0) {
     m_digiEvent = 0;
     m_digiChain = digiChain;
     m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
+    m_digiChain->SetBranchStatus("*",0);  // disable all branches
+    // activate desired brances
+    m_digiChain->SetBranchStatus("m_acd*",1);
+    m_digiChain->SetBranchStatus("m_eventId", 1); 
+    m_digiChain->SetBranchStatus("m_runId", 1);
   }
     
-  if (recChain != 0) {
-    m_recChain = recChain;
-    m_reconEvent = 0;
-    m_recChain->SetBranchAddress("ReconEvent", &m_reconEvent);
+  if (meritChain != 0) {
+    m_meritChain = meritChain;
+    m_meritChain->SetBranchStatus("*",0);  // disable all branches
+    m_meritChain->SetBranchAddress("VtxZDir", &m_reconDirZ);
+    // activate desired branches
+    m_meritChain->SetBranchStatus("VtxZDir", 1);
   }
     
 }
@@ -78,16 +76,11 @@ muonCalib::~muonCalib()
   if(m_histFile) {
     m_histFile->Write();
   
-    for(int i = 0; i != m_pedHists->GetLast()+1; ++i) {
-      delete m_pedHists->At(i);
-      delete m_rawHists->At(i);
-      delete m_gainHists->At(i);
+    for(unsigned i = 0; i < m_pedHists.size(); i++) {
+      delete m_pedHists[i];
+      delete m_rawHists[i];
+      delete m_gainHists[i];
     }
-    
-
-    delete m_pedHists;
-    delete m_rawHists;
-    delete m_gainHists;
 
     m_histFile->Close();
 
@@ -95,8 +88,6 @@ muonCalib::~muonCalib()
   }
     
   if (m_digiEvent) delete m_digiEvent;	
-  if (m_reconEvent) delete m_reconEvent;
-  if (m_mcEvent) delete m_mcEvent;
 }
 
 void muonCalib::fitGainHist()
@@ -107,8 +98,8 @@ void muonCalib::fitGainHist()
 	for(int iPmt = 0; iPmt != g_nPmt; ++iPmt) {
 	  for(int iRange = 0; iRange != g_nRange; ++iRange) {
 	    int histId = calHistId(iFace, iRow, iCol, iPmt, iRange);
-	    TH1F* h = (TH1F*) m_gainHists->At(histId);
-
+	    TH1F* h = m_gainHists[histId];
+	    
 	    if(h->GetEntries() == 0) continue;
 
 	    float ave = h->GetMean();
@@ -209,10 +200,10 @@ void muonCalib::fitPedHist()
 	for(int iPmt = 0; iPmt != g_nPmt; ++iPmt) {
 	  for(int iRange = 0; iRange != g_nRange; ++iRange) {
 	    int histId = calHistId(iFace, iRow, iCol, iPmt, iRange);
-	    TH1F* h = (TH1F*) m_pedHists->At(histId);
+	    TH1F* h = m_pedHists[histId];
 
 	    if(h->GetEntries() == 0) continue;
-
+	    
 	    float av = h->GetMean(); 
 	    float rms = h->GetRMS();
 	    h->SetAxisRange(av-5*rms,av+5*rms);
@@ -308,7 +299,8 @@ void muonCalib::digiAcd()
 
   int nAcdDigi = acdDigiCol->GetLast() + 1;
   for(int i = 0; i != nAcdDigi; ++i) {
-    AcdDigi* acdDigi = dynamic_cast<AcdDigi*>(acdDigiCol->At(i));
+
+    AcdDigi* acdDigi = static_cast<AcdDigi*>(acdDigiCol->At(i));
 
     assert(acdDigi != 0);
 
@@ -330,20 +322,20 @@ void muonCalib::fillPhaHist(int face, int row, int col, int pmtId, int range,
 			    int pha)
 {
   int histId = calHistId(face, row, col, pmtId, range); 
-  if(m_calType == PEDESTAL) { 
-    ((TH1F*) m_pedHists->At(histId))->Fill(pha);
-    ((TH1F*) m_rawHists->At(histId))->Fill(pha);
+  if (m_calType == PEDESTAL) {
+    m_pedHists[histId]->Fill(pha);
+    m_rawHists[histId]->Fill(pha);
   }
 
   if(m_calType == GAIN && pha > m_pedPeak[face][row][col][1][0] + 5.*m_pedRms[face][row][col][1][0] && m_reconDirZ > -9999) { // require to be reconstructed
 
     if(face == 0) { // tiles at top
       float corrPha = (pha-m_pedPeak[face][row][col][1][0]) * (-m_reconDirZ);
-      ((TH1F*) m_gainHists->At(histId))->Fill(corrPha);
+      m_gainHists[histId]->Fill(corrPha);
     }
     else { // tiles at side
       float corrPha = (pha-m_pedPeak[face][row][col][1][0]) * sqrt(1.- m_reconDirZ*m_reconDirZ);
-      ((TH1F*) m_gainHists->At(histId))->Fill(corrPha);
+      m_gainHists[histId]->Fill(corrPha);
     }
   }
 }
@@ -365,10 +357,9 @@ void muonCalib::go(int numEvents)
   for (Int_t ievent=m_startEvent; ievent!=nMax; ++ievent) {
         
     if(m_digiEvent) m_digiEvent->Clear();
-    if(m_reconEvent) m_reconEvent->Clear();
                
     if(m_digiChain) m_digiChain->GetEvent(ievent);
-    if(m_recChain) m_recChain->GetEvent(ievent);
+    if(m_meritChain) m_meritChain->GetEvent(ievent);
 
     if(m_digiEvent) {
       int digiEventId = m_digiEvent->getEventId(); 
@@ -392,21 +383,9 @@ void muonCalib::go(int numEvents)
 
 void muonCalib::getFitDir()
 {
-  m_reconDirZ = -9999;
 
-  if(m_reconEvent == 0) return;
+  if ( fabs(m_reconDirZ) < 0.0001 ) m_reconDirZ = -9999;
 
-  TkrRecon* tkrRecon = m_reconEvent->getTkrRecon();
-
-  TObjArray* vertices = tkrRecon->getVertexCol();
-  int nVertex = vertices->GetLast() + 1;
-
-  if(nVertex >= 1) {
-   TkrVertex* tkrVertex = dynamic_cast<TkrVertex*>(vertices->At(0));
-    if(tkrVertex) {
-      m_reconDirZ = tkrVertex->getDirection().Z();
-    }
-  }
 }
 
 bool muonCalib::failCuts() 

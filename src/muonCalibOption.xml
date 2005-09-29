@@ -10,7 +10,7 @@
    <item name="timeStamp" value="2005-5-9-12:56">time of calibration </item>
    <item name="fmtVersion" value="v0">format version of calibration constant xm </item>
    <item name="digiFileList" value="/nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_0_digi.root /nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_1_digi.root"> blank-delimited list of input digi root files </item>
-   <item name="reconFileList" value="/nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_0_recon.root /nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_1_recon.root"> blank-delimited list of input recon root files </item>
+   <item name="meritFileList" value="/nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_0_merit.root /nfs/slac/g/svac/mc/em_v4r060302p23/flight/surface_muons_20000_1_merit.root"> blank-delimited list of input merit root files </item>
    <item name="pedTextFile" value="../output/test_ped.tex"> output pedestal asci text file </item>
    <item name="pedXmlFile" value="../output/test_ped.xml"> output pedestal xml file </item>
    <item name="gainTextFile" value="../output/test_gain.tex"> output gain asci text file </item>
