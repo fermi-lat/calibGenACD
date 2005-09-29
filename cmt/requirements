@@ -4,10 +4,8 @@ version v0
 branches src xml output
 
 use GlastPolicy v*
-use mcRootData v*
 use digiRootData v*
-use reconRootData v*
-use xml v*
+use xmlBase v*
 use facilities v*
 
 #the following prepend makes the includes folder available locally: avoid the package_include
