@@ -3,6 +3,9 @@
 #include "TF1.h"
 #include "muonCalib.h"
 
+#include <cassert>
+#include <cmath>
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -384,7 +387,7 @@ void muonCalib::go(int numEvents)
 void muonCalib::getFitDir()
 {
 
-  if ( fabs(m_reconDirZ) < 0.0001 ) m_reconDirZ = -9999;
+    if ( fabs(m_reconDirZ) < 0.0001 ) m_reconDirZ = -9999;
 
 }
 
