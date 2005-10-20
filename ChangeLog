@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: heather  Thu Oct 20 11:07:05 PDT 2005
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+minor Windows fixes
+    *
+------------------------------------------------------------
 TAG
 Tag name: v0r1p0, operation: add
 Package: calibGenACD
