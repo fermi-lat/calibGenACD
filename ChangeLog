@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: heather  Thu Oct 20 11:07:43 PDT 2005
+calibGenACD/src
+
+Modified Files:
+	muonCalib.cxx 
+Log Message:
+include cassert and cmath for windows
+    *
+------------------------------------------------------------
 User: heather  Thu Oct 20 11:07:05 PDT 2005
 calibGenACD/cmt
 
