@@ -1,4 +1,27 @@
 ------------------------------------------------------------
+TAG
+Tag name: v0r1p1, operation: add
+Package: calibGenACD
+User: heather  Sun Oct 23 22:46:02 2005
+Files:
+  calibGenACD/.cvsignore  1.1.1.1
+  calibGenACD/ChangeLog  1.7
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.3
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.1.1.1
+  calibGenACD/src/muonCalib.cxx  1.3
+  calibGenACD/src/.cvsignore  1.1.1.1
+  calibGenACD/src/mainpage.h  1.1.1.1
+  calibGenACD/src/muonCalibOption.xml  1.2
+  calibGenACD/src/runMuonCalib.cxx  1.2
+  calibGenACD/src/muonCalib.h  1.2
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
 User: heather  Thu Oct 20 11:07:43 PDT 2005
 calibGenACD/src
 
