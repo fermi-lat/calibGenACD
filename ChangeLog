@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Mon Oct 31 10:54:58 PST 2005
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+
+Added lines to use ROOT_CINT in requirements
+    *
+------------------------------------------------------------
 TAG
 Tag name: v0r1p1, operation: add
 Package: calibGenACD
