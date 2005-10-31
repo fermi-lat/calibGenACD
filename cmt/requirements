@@ -3,6 +3,7 @@ version v0
 
 branches src xml output
 
+use RootcintPolicy v* GlastPolicy
 use digiRootData v*
 use xmlBase v*
 use facilities v*
@@ -21,4 +22,20 @@ macro_append ROOT_linkopts " -lMinuit -lHist " \
 
 macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
 
-application runMuonCalib muonCalib.cxx runMuonCalib.cxx 
+apply_pattern root_package headers="\
+ ../src/AcdMap.h\
+ ../src/AcdCalibResult.h\
+ ../src/AcdCalibMap.h\
+ ../src/AcdGainFit.h\
+ ../src/AcdGainFitLibrary.h\
+ ../src/AcdPedestalFit.h\
+ ../src/AcdPedestalFitLibrary.h\
+ ../src/AcdHistCalibMap.h\
+ ../src/AcdCalibBase.h\
+ ../src/acdSel.h\
+ ../src/muonCalib.h\
+ ../src/AcdPedestalFit.h"\
+ includes="-I${DIGIROOTDATAROOT}"
+
+#application runMuonCalib_ped muonCalib.cxx runMuonCalib_ped.cxx 
+#application runMuonCalib_gain muonCalib.cxx runMuonCalib_gain.cxx 
