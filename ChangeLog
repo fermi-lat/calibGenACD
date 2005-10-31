@@ -1,4 +1,39 @@
 ------------------------------------------------------------
+User: echarles  Mon Oct 31 10:59:02 PST 2005
+calibGenACD/src
+
+Modified Files:
+	muonCalib.cxx muonCalib.h 
+Added Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.cxx AcdCalibMap.h 
+	AcdCalibResult.cxx AcdCalibResult.h AcdGainFit.cxx 
+	AcdGainFit.h AcdGainFitLibrary.cxx AcdGainFitLibrary.h 
+	AcdHistCalibMap.cxx AcdHistCalibMap.h AcdMap.cxx AcdMap.h 
+	AcdPedestalFit.cxx AcdPedestalFit.h AcdPedestalFitLibrary.cxx 
+	AcdPedestalFitLibrary.h AcdVetoCal.h acdSel.cxx acdSel.h 
+	muonCalibOption_gain.xml muonCalibOption_ped.xml 
+Log Message:
+
+Added lines to use ROOT_CINT in requirements
+
+
+Lots of additions.  Essentially adding framework for channel by channel calibrations of ACD.
+
+AcdMap is just a bunch of ids and mappings.  Name may have to change to avoid conflicts w/ other packages.
+
+AcdCalibResult, AcdGainFitResult and AcdPedFitResult are storage for calibration results on a single channel.
+
+AcdCalibMap, AcdGainCalibMap and AcdPedestalCalibMap are maps from channel ID -> result objects.
+
+AcdHistCalibMap is a map from channel ID -> histogram
+
+Acd*Library are the libraries of fitting functions.
+
+AcdCalibBase is the base class for the calibration drivers.
+
+acdSel and muonCalib are calibration drivers for offline ACD data and muon data respecteively.
+    *
+------------------------------------------------------------
 User: echarles  Mon Oct 31 10:54:58 PST 2005
 calibGenACD/cmt
 
