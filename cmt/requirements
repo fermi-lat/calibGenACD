@@ -3,12 +3,31 @@ version v0
 
 branches src xml output
 
-use RootcintPolicy v* GlastPolicy
+use commonRootData v*
 use digiRootData v*
+use reconRootData v*
 use xmlBase v*
 use facilities v*
 use ROOT v3r* IExternal
 use GlastPolicy v*
+use RootcintPolicy v* GlastPolicy
+
+# See RootPolicy for discussion of this pattern
+apply_pattern root_package headers="\
+ ../src/AcdCalibBase.h\
+ ../src/AcdCalibMap.h\
+ ../src/AcdCalibResult.h\
+ ../src/AcdGainFit.h\
+ ../src/AcdGainFitLibrary.h\
+ ../src/AcdHistCalibMap.h\
+ ../src/AcdMap.h\
+ ../src/AcdPedestalFit.h\
+ ../src/AcdPedestalFitLibrary.h\
+ ../src/AcdMuonBenchCalib.h\
+ ../src/AcdMuonRoiCalib.h\
+ ../src/AcdMuonTkrCalib.h"\
+ includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"\
+ test_source="test/testReconClasses.cxx"
 
 #the following prepend makes the includes folder available locally: avoid the package_include
 macro_prepend includes "-I $(CALIBGENACDROOT) " WIN32 "/I $(CALIBGENACDROOT) "
@@ -22,20 +41,4 @@ macro_append ROOT_linkopts " -lMinuit -lHist " \
 
 macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
 
-apply_pattern root_package headers="\
- ../src/AcdMap.h\
- ../src/AcdCalibResult.h\
- ../src/AcdCalibMap.h\
- ../src/AcdGainFit.h\
- ../src/AcdGainFitLibrary.h\
- ../src/AcdPedestalFit.h\
- ../src/AcdPedestalFitLibrary.h\
- ../src/AcdHistCalibMap.h\
- ../src/AcdCalibBase.h\
- ../src/acdSel.h\
- ../src/muonCalib.h\
- ../src/AcdPedestalFit.h"\
- includes="-I${DIGIROOTDATAROOT}"
-
-#application runMuonCalib_ped muonCalib.cxx runMuonCalib_ped.cxx 
-#application runMuonCalib_gain muonCalib.cxx runMuonCalib_gain.cxx 
+application runMuonCalib_Roi runMuonCalib_Roi.cxx 

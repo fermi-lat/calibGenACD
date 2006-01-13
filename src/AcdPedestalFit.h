@@ -39,9 +39,16 @@ public:
   virtual ~AcdPedestalFitMap();
   
   virtual AcdCalibResult* createHolder() const { return new AcdPedestalFitResult; }
+
+  AcdPedestalFitResult* find(UInt_t key) {
+    AcdCalibResult* res = get(key);
+    if ( res == 0 ) return 0;
+    AcdPedestalFitResult* fr = static_cast<AcdPedestalFitResult*>(res);
+    return fr;
+  }
  
 private:  
-
+  
   ClassDef(AcdPedestalFitMap,0) ;
 };
 

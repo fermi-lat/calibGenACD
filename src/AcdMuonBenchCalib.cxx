@@ -1,5 +1,5 @@
-#define acdSel_cxx
-#include "acdSel.h"
+#define AcdMuonBenchCalib_cxx
+#include "AcdMuonBenchCalib.h"
 
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -9,13 +9,13 @@
 #include <algorithm>
 #include <iterator>
 
-ClassImp(acdSel) ;
+ClassImp(AcdMuonBenchCalib) ;
 
-void acdSel::Loop()
+void AcdMuonBenchCalib::Loop()
 {
 //   In a ROOT session, you can do:
-//      Root > .L acdSel.C
-//      Root > acdSel t
+//      Root > .L AcdMuonBenchCalib.C
+//      Root > AcdMuonBenchCalib t
 //      Root > t.GetEntry(12); // Fill t data members with entry number 12
 //      Root > t.Show();       // Show values of entry 12
 //      Root > t.Show(16);     // Read and show values of entry 16
@@ -72,23 +72,24 @@ void acdSel::Loop()
 	  for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
 	    
 	    UInt_t iLocal = localIndex(iFace,iPmt,iRow,iCol);
-	    UInt_t iTile = AcdMap::makeKey(0,0,iFace,iRow,iCol);	    
+	    UInt_t iTile = AcdMap::makeId(iFace,iRow,iCol);	    
 
 	    Int_t adcCounts = adcPtr[iLocal];
 	    if ( adcCounts == 0 ) { continue; }
 	    
 	    Short_t rangeVal = rangePtr[iLocal];
-	    
+	    if ( rangeVal != 0 ) continue;
+
 	    hitTiles.insert(iTile);
-	    UInt_t iTileFull = AcdMap::makeKey(rangeVal,iPmt,iFace,iRow,iCol);	    
+	    UInt_t iTileFull = AcdMap::makeKey(iPmt,iFace,iRow,iCol);	    
 	  
 	    hitMap[iTileFull] = adcCounts;
-
+	    
 	    Short_t isHit = hitPtr[iLocal];
 	    if ( isHit > 0 ) { continue; }	      
 	    
 	    if ( calType() == PEDESTAL ) {
-	      fillPedestalHist(iFace, iRow, iCol, iPmt, 0, adcCounts);	   
+	      fillPedestalHist(iTile, iPmt, adcCounts);	   
 	    }
 	  }
 	}
@@ -103,7 +104,7 @@ void acdSel::Loop()
   std::cout << std::endl;
 }
 
-Bool_t acdSel::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
+Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
 
   // These sets are supposed to emulate the cuts in readACDNtuple
   // 
@@ -326,13 +327,13 @@ Bool_t acdSel::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits
 }
 
 
-void acdSel::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
+void AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
   
   for ( std::map<UInt_t,Int_t>::const_iterator itr = hitMap.begin(); itr != hitMap.end(); itr++ ) {
     UInt_t key = itr->first;
+    UInt_t id = AcdMap::getId(key);
     UInt_t face = AcdMap::getFace(key);
-    UInt_t range = AcdMap::getRange(key);
-    if ( range != 0 ) continue;
+    UInt_t pmt = AcdMap::getPmt(key);
     Bool_t passesCut(kTRUE);
     switch ( face ) {
     case 1:
@@ -350,16 +351,6 @@ void acdSel::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt
     }
     if ( ! passesCut ) continue;
     
-    UInt_t pmt = AcdMap::getPmt(key);
-    UInt_t row = AcdMap::getRow(key);
-    UInt_t col = AcdMap::getCol(key);
-    
-    fillGainHist(face,row,col,pmt,range,itr->second);
+    fillGainHist(id,pmt,(Float_t)(itr->second) );
   }
-}
-
-// this should return a negative value if you don't want to use this value in the gain measurement
-Float_t acdSel::correctPhaForPedestal(int /* face */, int /*row*/, int /*col*/, int /*pmtId*/, int pha) const {
-  // this doesn't do pedestal subtraction but rather just returns the pha
-  return (Float_t)pha;
 }

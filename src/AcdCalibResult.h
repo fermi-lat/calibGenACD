@@ -22,9 +22,9 @@ public:
   AcdCalibResult();
   virtual ~AcdCalibResult(){;}
 
-  virtual void printXmlLine(ostream& os) const {;};
-  virtual void printTxtLine(ostream& os) const {;};
-  virtual Bool_t readTxt(istream& is) { return kFALSE; };
+  virtual void printXmlLine(ostream& /* os */) const {;};
+  virtual void printTxtLine(ostream& /* os */) const {;};
+  virtual Bool_t readTxt(istream& /* is */) { return kFALSE; };
   
   inline void setStatus(STATUS stat) { _status = stat; };
   inline STATUS getStatus() const { return _status; }

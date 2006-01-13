@@ -11,7 +11,7 @@ UInt_t AcdPedestalFitLibrary::fit(AcdPedestalFitResult& result, const TH1& hist)
   UInt_t returnCode(0);
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,0);
+    result.setVals(0.,0.,AcdCalibResult::NOFIT);
     break;
   case PeakValue:
     returnCode = fitPeak(result,hist);
@@ -32,7 +32,7 @@ UInt_t AcdPedestalFitLibrary::fitMean(AcdPedestalFitResult& result, const TH1& h
   av = theHist.GetMean(); rms = theHist.GetRMS();
   theHist.SetAxisRange(av-5*rms,av+5*rms);
   av = theHist.GetMean(); rms = theHist.GetRMS();
-  result.setVals(av,rms,1);
+  result.setVals(av,rms,AcdCalibResult::OK);
   return 1;
 }
 
@@ -40,6 +40,6 @@ UInt_t AcdPedestalFitLibrary::fitMean(AcdPedestalFitResult& result, const TH1& h
 UInt_t AcdPedestalFitLibrary::fitPeak(AcdPedestalFitResult& result, const TH1& hist) {
   Long64_t maxbin = hist.GetMaximumBin(); //finds tallest bin
   float pedestal = hist.GetBinCenter(maxbin); 
-  result.setVals(pedestal,0.,1);
+  result.setVals(pedestal,0.,AcdCalibResult::OK);
   return 1;
 }

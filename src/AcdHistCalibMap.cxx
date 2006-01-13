@@ -28,7 +28,7 @@ void AcdHistCalibMap::bookHists(const char* prefix) {
       for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
 	UInt_t nCol = AcdMap::getNCol(iFace,iRow);
 	for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
-	  UInt_t key = AcdMap::makeKey(0,iPmt,iFace,iRow,iCol);
+	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
 	  std::string suffix;
 	  AcdMap::makeSuffix(suffix,iPmt,iFace,iRow,iCol);
 	  std::string histName(prefix); histName += suffix;
