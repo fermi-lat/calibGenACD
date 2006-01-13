@@ -1,4 +1,23 @@
 ------------------------------------------------------------
+User: echarles  Thu Jan 12 16:43:59 PST 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.cxx 
+	AcdCalibResult.h AcdHistCalibMap.cxx AcdMap.h 
+	AcdPedestalFit.cxx AcdPedestalFit.h AcdPedestalFitLibrary.cxx 
+	muonCalibOption_gain.xml 
+Added Files:
+	AcdMuonBenchCalib.cxx AcdMuonBenchCalib.h AcdMuonRoiCalib.cxx 
+	AcdMuonRoiCalib.cxx~ AcdMuonRoiCalib.h AcdMuonTkrCalib.cxx 
+	AcdMuonTkrCalib.h runMuonCalib_Roi.cxx 
+Removed Files:
+	AcdVetoCal.h acdSel.cxx acdSel.h muonCalib.cxx muonCalib.h 
+	runMuonCalib.cxx 
+Log Message:
+Lots of changes
+    *
+------------------------------------------------------------
 User: echarles  Thu Jan 12 16:43:58 PST 2006
 calibGenACD/doc
 
