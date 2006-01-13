@@ -1,4 +1,53 @@
 ------------------------------------------------------------
+TAG
+Tag name: v1, operation: add
+Package: calibGenACD
+User: echarles  Thu Jan 12 16:44:21 2006
+Files:
+  calibGenACD/.cvsignore  1.1.1.1
+  calibGenACD/ChangeLog  1.11
+  calibGenACD/calibGenACD/LinkDef.h  1.1
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.5
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.2
+  calibGenACD/src/AcdPedestalFitLibrary.h  1.1
+  calibGenACD/src/AcdCalibBase.cxx  1.2
+  calibGenACD/src/AcdHistCalibMap.h  1.1
+  calibGenACD/src/AcdPedestalFit.cxx  1.2
+  calibGenACD/src/AcdMuonTkrCalib.h  1.1
+  calibGenACD/src/AcdPedestalFitLibrary.cxx  1.2
+  calibGenACD/src/AcdPedestalFit.h  1.2
+  calibGenACD/src/mainpage.h  1.1.1.1
+  calibGenACD/src/muonCalibOption.xml  1.2
+  calibGenACD/src/AcdMuonTkrCalib.cxx  1.1
+  calibGenACD/src/AcdHistCalibMap.cxx  1.2
+  calibGenACD/src/AcdCalibBase.h  1.2
+  calibGenACD/src/AcdCalibResult.cxx  1.1
+  calibGenACD/src/muonCalibOption_gain.xml  1.2
+  calibGenACD/src/AcdMuonRoiCalib.cxx~  1.1
+  calibGenACD/src/muonCalibOption_ped.xml  1.1
+  calibGenACD/src/AcdGainFit.h  1.1
+  calibGenACD/src/AcdGainFitLibrary.cxx  1.1
+  calibGenACD/src/AcdMuonBenchCalib.cxx  1.1
+  calibGenACD/src/AcdMuonBenchCalib.h  1.1
+  calibGenACD/src/runMuonCalib_Roi.cxx  1.1
+  calibGenACD/src/AcdMap.h  1.2
+  calibGenACD/src/AcdMap.cxx  1.1
+  calibGenACD/src/AcdCalibMap.h  1.1
+  calibGenACD/src/AcdCalibResult.h  1.2
+  calibGenACD/src/.cvsignore  1.1.1.1
+  calibGenACD/src/AcdMuonRoiCalib.cxx  1.1
+  calibGenACD/src/AcdGainFitLibrary.h  1.1
+  calibGenACD/src/AcdMuonRoiCalib.h  1.1
+  calibGenACD/src/AcdCalibMap.cxx  1.2
+  calibGenACD/src/AcdGainFit.cxx  1.1
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
 User: echarles  Thu Jan 12 16:43:59 PST 2006
 calibGenACD/src
 
