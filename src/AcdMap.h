@@ -11,19 +11,24 @@ class AcdMap {
 public:
 
   enum { nPmt = 2 } PMT;
-  enum { nRange = 2 } RANGE;
   enum { nFace = 8 } FACE;
   enum { nRow = 5 } ROW;
   enum { nCol = 5 } COLUMN;
 
-  static UInt_t makeKey(UInt_t range, UInt_t pmt, UInt_t face, UInt_t row, UInt_t col) {
-    return 10000 * range + 1000 * pmt + 100 * face + 10 * row + col;
+  static UInt_t makeId(UInt_t face, UInt_t row, UInt_t col) {
+    return 100*face + 10*row + col;
   }
-  static UInt_t getRange(UInt_t key) {
-    return (key / 10000);
+  static UInt_t makeKey(UInt_t pmt, UInt_t face, UInt_t row, UInt_t col) {
+    return 1000 * pmt + makeId(face,row,col);
+  }
+  static UInt_t makeKey(UInt_t pmt, UInt_t id) {
+    return 1000 * pmt + id;
+  }
+  static UInt_t getId(UInt_t key) {
+    return key % 1000;
   }
   static UInt_t getPmt(UInt_t key) {
-    return (key % 10000) / 1000;
+    return key / 1000;
   }
   static UInt_t getFace(UInt_t key) {
     return (key % 1000) / 100;
@@ -39,6 +44,9 @@ public:
   
   static UInt_t getNCol(UInt_t face,UInt_t row);
 
+  static Bool_t channelExists(int id) {
+    return channelExists( getFace(id), getRow(id), getCol(id) );
+  }
   static Bool_t channelExists(int iFace,int iRow,int iCol);
 
   static void makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol);
@@ -122,6 +130,12 @@ Bool_t AcdMap::channelExists(int iFace,int iRow,int iCol) {
   case 6:
     if ( iRow > 0 ) return false;
     if ( iCol > 3 ) return false;
+    break;
+  case 7:
+    if ( iRow * 10 + iCol > 10 ) return false;
+    break;    
+  default:
+    return false;
     break;
   }
   return true;

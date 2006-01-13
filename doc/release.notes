@@ -1,3 +1,8 @@
+v1
+Major re-write.  Brings in some code from the ACD.  Uses polynomials to
+smooth pha distributions and find the peak values.  Uses a simple algorithm
+to decide what range to fit over.  Supports both ped-subrtracted and raw values.
+
 v0
 
 Assuming all ACD tiles are installed around full LAT, the code uses 

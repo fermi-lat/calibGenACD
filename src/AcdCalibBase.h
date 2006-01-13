@@ -47,6 +47,9 @@ public :
   // Which type of calibration are we running
   inline CALTYPE calType() const { return m_calType; }
   inline void setCalType(CALTYPE t) { m_calType = t; }
+
+  // read the pedestals from a file
+  Bool_t readPedestals(const char* fileName);
   
   // these two just call down to the fitAll() routines in the fitters
   AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
@@ -57,10 +60,7 @@ public :
     return 1.;
   }
 
-  // this should return a negative value if you don't want to use this value in the gain measurement
-  virtual Float_t correctPhaForPedestal(int face, int row, int col, int pmtId, int pha) const;
-
-  // this writes the output histograms if newFileName is not set, they will be writing to the currently open file
+   // this writes the output histograms if newFileName is not set, they will be writing to the currently open file
   Bool_t writeHistograms(CALTYPE type, const char* newFileName = 0);
 
 protected:
@@ -71,9 +71,9 @@ protected:
 		   UInt_t nBinPed = 4096, Float_t lowPed = -0.5, Float_t hiPed = 4095.5);  
 
   // filling various histogram depending on m_calType
-  void fillPedestalHist(int face, int row, int col, int pmtId, int range, int pha);
-  void fillGainHist(int face, int row, int col, int pmtId, int range, int pha);
-  void fillUnpairedHist(int face, int row, int col, int pmtId, int range, int pha);
+  void fillPedestalHist(int id, int pmtId, int pha);
+  void fillGainHist(int id, int pmtId, float phaCorrect);
+  void fillUnpairedHist(int id, int pmtId, int pha);
 
   // select events used to calibrate gain
   virtual Bool_t failCuts() { return kFALSE; }

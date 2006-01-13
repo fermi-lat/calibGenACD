@@ -76,7 +76,7 @@ ClassImp(AcdPedestalFit) ;
 AcdPedestalFit::AcdPedestalFit() {
 }
 
-UInt_t AcdPedestalFit::fit(AcdPedestalFitResult& result, const TH1& hist) {
+UInt_t AcdPedestalFit::fit(AcdPedestalFitResult& result, const TH1& /* hist */) {
   result.setVals(0.,0.,AcdCalibResult::NOFIT);
   return result.getStatus();
 }

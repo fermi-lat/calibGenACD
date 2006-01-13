@@ -33,60 +33,45 @@ AcdCalibBase::~AcdCalibBase()
   delete m_gains;
 }
 
-void AcdCalibBase::fillPedestalHist(int face, int row, int col, int pmtId, int range, int pha)
+void AcdCalibBase::fillPedestalHist(int id, int pmtId, int pha)
 {
   
-  UInt_t histId = AcdMap::makeKey(range,pmtId,face,row,col);
+  UInt_t histId = AcdMap::makeKey(pmtId,id);
   
-  if ( ! AcdMap::channelExists(face,row,col) ) {
-    cout << "Missing " << face << ' ' << row << ' ' << col << endl;
+  if ( ! AcdMap::channelExists(id) ) {
+    cout << "Missing " << id << endl;
     return;
   }
-  if ( range != 0 ) return;
-  
   m_rawMap->getHist(histId)->Fill(pha);
 }
 
-Float_t AcdCalibBase::correctPhaForPedestal(int face, int row, int col, int pmtId, int pha) const {
 
-  UInt_t histId_lowRange = AcdMap::makeKey(0,pmtId,face,row,col);
-  
-  const AcdPedestalFitResult* pedestal = m_pedestals == 0 ? 0 : m_pedestals->get(histId_lowRange);
-  Float_t pedestalMean = pedestal == 0 ? 0. : pedestal->mean();
+void AcdCalibBase::fillGainHist(int id, int pmtId, float phaCorrect) {
 
-  Float_t corrValue = (Float_t)(pha) - pedestalMean;
-
-  Float_t pedestalWidth = pedestal == 0 ? 0. : pedestal->rms();
-  Float_t pedestalCutValue = 2. * pedestalWidth;
-
-  return ( corrValue < pedestalCutValue ) ? -1.*corrValue : corrValue;
-}
-
-void AcdCalibBase::fillGainHist(int face, int row, int col, int pmtId, int range, int pha) {
-  Float_t corrPha = correctPhaForPedestal(face,row,col,pmtId,pha);
-  if ( corrPha < 0 ) return;
-  corrPha *= reconCorrection(face);
-  UInt_t histId = AcdMap::makeKey(range,pmtId,face,row,col);  
-  TH1* aHist = m_peakMap->getHist(histId);
-  if ( ! AcdMap::channelExists(face,row,col) ) {
-    cout << "Missing " << face << ' ' << row << ' ' << col << endl;
+  if ( !  AcdMap::channelExists(id) ) {
+    cout << "Missing " << id << endl;
+    return;
   }
+
+  UInt_t histId = AcdMap::makeKey(pmtId,id);
+  TH1* aHist = m_peakMap->getHist(histId);
   if ( aHist == 0 ) {
-    std::cout << "Missing channel " << face << ' ' << row << ' ' << col << ' ' << pmtId << ' ' << range << std::endl;
+    std::cout << "Missing channel " << id << ' ' << pmtId << std::endl;
     return;
   }  
-  aHist->Fill(corrPha);
+  aHist->Fill(phaCorrect);
 }
 
 
-void AcdCalibBase::fillUnpairedHist(int face, int row, int col, int pmtId, int range, int pha) {
-  UInt_t histId = AcdMap::makeKey(range,pmtId,face,row,col);  
-  TH1* aHist = m_unpairedMap->getHist(histId);
-  if ( ! AcdMap::channelExists(face,row,col) ) {
-    cout << "Missing " << face << ' ' << row << ' ' << col << endl;
+void AcdCalibBase::fillUnpairedHist(int id, int pmtId, int pha) {
+
+  if ( ! AcdMap::channelExists(id) ) {
+    cout << "Missing " << id << endl;
   }
+  UInt_t histId = AcdMap::makeKey(pmtId,id);  
+  TH1* aHist = m_unpairedMap->getHist(histId);
   if ( aHist == 0 ) {
-    std::cout << "Missing channel " << face << ' ' << row << ' ' << col << ' ' << pmtId << ' ' << range << std::endl;
+    std::cout << "Missing channel " << id << ' ' << pmtId << std::endl;
     return;
   }
   aHist->Fill((Float_t)pha);
@@ -147,4 +132,13 @@ Bool_t AcdCalibBase::writeHistograms(CALTYPE type, const char* newFileName ) {
   } 
 
   return kTRUE;
+}
+
+Bool_t AcdCalibBase::readPedestals(const char* fileName) {
+  if ( m_pedestals != 0 ) {
+    std::cout << "Warning: replacing old pedestal fits" << std::endl;
+    delete m_pedestals;
+  }
+  m_pedestals = new AcdPedestalFitMap;
+  return m_pedestals->readTxtFile(fileName);
 }

@@ -5,8 +5,8 @@
 // found on file: acd_raw/Thermal_2_TrigOp_0726.root
 //////////////////////////////////////////////////////////
 
-#ifndef acdSel_h
-#define acdSel_h
+#ifndef AcdMuonBenchCalib_h
+#define AcdMuonBenchCalib_h
 
 #include "AcdCalibBase.h"
 
@@ -24,7 +24,7 @@
 #include <map>
 #include <string>
 
-class acdSel : public AcdCalibBase {
+class AcdMuonBenchCalib : public AcdCalibBase {
 
 public :
 
@@ -82,8 +82,8 @@ private:
 
 public:
 
-  acdSel(TTree *tree=0,const char* histFilename = "histograms.root");
-  virtual ~acdSel();
+  AcdMuonBenchCalib(TTree *tree=0,const char* histFilename = "histograms.root");
+  virtual ~AcdMuonBenchCalib();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
@@ -91,9 +91,6 @@ public:
   virtual void     Loop();
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
-
-  // this should return a negative value if you don't want to use this value in the gain measurement
-  virtual Float_t correctPhaForPedestal(int face, int row, int col, int pmtId, int pha) const;
 
 protected:
 
@@ -110,15 +107,15 @@ protected:
 
 private:
 
-  ClassDef(acdSel,0) ;
+  ClassDef(AcdMuonBenchCalib,0) ;
 
 };
 
 #endif
 
-#ifdef acdSel_cxx
+#ifdef AcdMuonBenchCalib_cxx
 
-acdSel::acdSel(TTree *tree, const char* histFileName)
+AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree, const char* histFileName)
   :AcdCalibBase()
 {
   Bool_t ok = bookHists(histFileName);
@@ -129,20 +126,20 @@ acdSel::acdSel(TTree *tree, const char* histFileName)
   Init(tree);
 }
 
-acdSel::~acdSel()
+AcdMuonBenchCalib::~AcdMuonBenchCalib()
 {
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
 
-Int_t acdSel::GetEntry(Long64_t entry)
+Int_t AcdMuonBenchCalib::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
 }
 
-Long64_t acdSel::LoadTree(Long64_t entry)
+Long64_t AcdMuonBenchCalib::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
   if (!fChain) return -5;
@@ -157,7 +154,7 @@ Long64_t acdSel::LoadTree(Long64_t entry)
   return centry;
 }
 
-void acdSel::Init(TTree *tree)
+void AcdMuonBenchCalib::Init(TTree *tree)
 {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses of the tree
@@ -195,7 +192,7 @@ void acdSel::Init(TTree *tree)
   Notify();
 }
 
-Bool_t acdSel::Notify()
+Bool_t AcdMuonBenchCalib::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -230,14 +227,14 @@ Bool_t acdSel::Notify()
   return kTRUE;
 }
 
-void acdSel::Show(Long64_t entry)
+void AcdMuonBenchCalib::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t acdSel::Cut(Long64_t entry)
+Int_t AcdMuonBenchCalib::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
@@ -246,7 +243,7 @@ Int_t acdSel::Cut(Long64_t entry)
 }
 
 
-UInt_t acdSel::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol) {
+UInt_t AcdMuonBenchCalib::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol) {
   switch (face) {
   case 0: 
     return 25*iPmt + 5*iRow + iCol;
@@ -267,7 +264,7 @@ UInt_t acdSel::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol) {
   return 0;
 }
 
-Int_t* acdSel::getAdcPtr(UInt_t face) {
+Int_t* AcdMuonBenchCalib::getAdcPtr(UInt_t face) {
   switch (face){
   case 0: return TOP;
   case 1: return NegX;
@@ -282,7 +279,7 @@ Int_t* acdSel::getAdcPtr(UInt_t face) {
   return 0;
 }
 
-Short_t* acdSel::getHitPtr(UInt_t face) {
+Short_t* AcdMuonBenchCalib::getHitPtr(UInt_t face) {
   switch (face){
   case 0: return TOP_hit;
   case 1: return NegX_hit;
@@ -297,7 +294,7 @@ Short_t* acdSel::getHitPtr(UInt_t face) {
   return 0;
 }
 
-Short_t* acdSel::getRangePtr(UInt_t face) {
+Short_t* AcdMuonBenchCalib::getRangePtr(UInt_t face) {
   switch (face){
   case 0: return TOP_range;
   case 1: return NegX_range;
@@ -312,4 +309,4 @@ Short_t* acdSel::getRangePtr(UInt_t face) {
   return 0;
 }
 
-#endif // #ifdef acdSel_cxx
+#endif // #ifdef AcdMuonBenchCalib_cxx
