@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Thu Jan 12 16:45:37 PST 2006
+calibGenACD/src
+
+Removed Files:
+	AcdMuonRoiCalib.cxx~ muonCalibOption.xml 
+	muonCalibOption_ped.xml 
+Log Message:
+remove superflous files
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1, operation: add
 Package: calibGenACD
