@@ -11,99 +11,6 @@
 
 ClassImp(AcdMuonBenchCalib) ;
 
-void AcdMuonBenchCalib::Loop()
-{
-//   In a ROOT session, you can do:
-//      Root > .L AcdMuonBenchCalib.C
-//      Root > AcdMuonBenchCalib t
-//      Root > t.GetEntry(12); // Fill t data members with entry number 12
-//      Root > t.Show();       // Show values of entry 12
-//      Root > t.Show(16);     // Read and show values of entry 16
-//      Root > t.Loop();       // Loop on all entries
-//
-
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
-  if (fChain == 0) return;
-  
-  Long64_t nentries = fChain->GetEntriesFast();
-  
-  Int_t nbytes = 0, nb = 0;
-
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
-    Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0) break;
-
-    nb = fChain->GetEntry(jentry);   nbytes += nb;      
-    if (Cut(ientry) < 0) continue;
-    
-    if ( jentry == 0 ) { ;}
-    else if ( jentry % 100000 == 0 ) { std::cout << 'x' << std::endl; }
-    else if ( jentry % 10000 == 0 ) { std::cout << 'x' << std::flush; }
-    else if ( jentry % 1000 == 0 ) { std::cout << '.' << std::flush; }
-    
-    std::set<UInt_t> hitTiles;
-    std::map<UInt_t,Int_t> hitMap;
-
-    for ( UInt_t iPmt(0); iPmt < 2; iPmt++ ) {
-      for ( UInt_t iFace(0); iFace < 8; iFace++ ) {
-	UInt_t nRow = AcdMap::getNRow(iFace);
-	
-	Int_t* adcPtr = getAdcPtr(iFace);
-	Short_t* hitPtr = getHitPtr(iFace);
-	Short_t* rangePtr = getRangePtr(iFace);
-	
-	for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
-	  
-	  UInt_t nCol = AcdMap::getNCol(iFace,iRow);
-	   
-	  for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
-	    
-	    UInt_t iLocal = localIndex(iFace,iPmt,iRow,iCol);
-	    UInt_t iTile = AcdMap::makeId(iFace,iRow,iCol);	    
-
-	    Int_t adcCounts = adcPtr[iLocal];
-	    if ( adcCounts == 0 ) { continue; }
-	    
-	    Short_t rangeVal = rangePtr[iLocal];
-	    if ( rangeVal != 0 ) continue;
-
-	    hitTiles.insert(iTile);
-	    UInt_t iTileFull = AcdMap::makeKey(iPmt,iFace,iRow,iCol);	    
-	  
-	    hitMap[iTileFull] = adcCounts;
-	    
-	    Short_t isHit = hitPtr[iLocal];
-	    if ( isHit > 0 ) { continue; }	      
-	    
-	    if ( calType() == PEDESTAL ) {
-	      fillPedestalHist(iTile, iPmt, adcCounts);	   
-	    }
-	  }
-	}
-      }
-    }
-
-    if ( calType() == GAIN ) {
-      fillGainHists(hitTiles,hitMap);
-    }
-
-  }
-  std::cout << std::endl;
-}
-
 Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
 
   // These sets are supposed to emulate the cuts in readACDNtuple
@@ -327,8 +234,9 @@ Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UI
 }
 
 
-void AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
-  
+Bool_t AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
+
+  Bool_t retVal(kFALSE);
   for ( std::map<UInt_t,Int_t>::const_iterator itr = hitMap.begin(); itr != hitMap.end(); itr++ ) {
     UInt_t key = itr->first;
     UInt_t id = AcdMap::getId(key);
@@ -350,7 +258,71 @@ void AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const st
       break;    
     }
     if ( ! passesCut ) continue;
-    
+    retVal = kTRUE;
     fillGainHist(id,pmt,(Float_t)(itr->second) );
   }
+  return retVal;
+}
+
+Bool_t AcdMuonBenchCalib::readEvent(int ievent, Bool_t& filtered, 
+				    int& /*runId*/, int& /*evtId*/) {
+
+  filtered = kFALSE;
+  Long64_t ientry = LoadTree(ievent);
+  if (ientry < 0) return kFALSE;
+
+  int nb = fChain->GetEntry(ientry);
+  if ( nb == 0 ) return kFALSE;
+  return kTRUE;
+}
+
+void AcdMuonBenchCalib::useEvent(Bool_t& used) {
+
+  used = kFALSE;
+  std::set<UInt_t> hitTiles;
+  std::map<UInt_t,Int_t> hitMap;
+  
+  for ( UInt_t iPmt(0); iPmt < 2; iPmt++ ) {
+    for ( UInt_t iFace(0); iFace < 8; iFace++ ) {
+      UInt_t nRow = AcdMap::getNRow(iFace);
+      
+      Int_t* adcPtr = getAdcPtr(iFace);
+      Short_t* hitPtr = getHitPtr(iFace);
+      Short_t* rangePtr = getRangePtr(iFace);
+      
+      for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
+	
+	UInt_t nCol = AcdMap::getNCol(iFace,iRow);
+	
+	for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
+	  
+	  UInt_t iLocal = localIndex(iFace,iPmt,iRow,iCol);
+	  UInt_t iTile = AcdMap::makeId(iFace,iRow,iCol);	    
+	  
+	  Int_t adcCounts = adcPtr[iLocal];
+	  if ( adcCounts == 0 ) { continue; }
+	  
+	  Short_t rangeVal = rangePtr[iLocal];
+	  if ( rangeVal != 0 ) continue;
+	  
+	  hitTiles.insert(iTile);
+	  UInt_t iTileFull = AcdMap::makeKey(iPmt,iFace,iRow,iCol);	    
+	  
+	  hitMap[iTileFull] = adcCounts;
+	  
+	  Short_t isHit = hitPtr[iLocal];
+	  if ( isHit > 0 ) { continue; }	      
+	  
+	  if ( calType() == PEDESTAL ) {
+	    fillPedestalHist(iTile, iPmt, adcCounts);	   
+	  }
+	}
+      }
+    }
+  }
+  
+  if ( calType() == GAIN ) {
+    used = fillGainHists(hitTiles,hitMap);
+  }
+
 }

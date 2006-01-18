@@ -3,6 +3,8 @@
 #include "AcdHistCalibMap.h"
 #include "AcdGainFit.h"
 #include "AcdMap.h"
+#include "AcdCalibVersion.h"
+#include "AcdCalibBase.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,21 +40,42 @@ AcdCalibResult* AcdCalibMap::get(UInt_t key) {
   return itr == m_map.end()  ? 0 : itr->second;
 }
 
-Bool_t AcdCalibMap::writeTxtFile(const char* fileName) const {
-  std::ofstream gain(fileName);
-  if ( !gain.good() ) {
+Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
+				 const char* instrument,
+				 const char* timestamp,
+				 const AcdCalibBase& calib) {
+  std::ofstream os(fileName);
+  if ( !os.good() ) {
     std::cerr << "Problems opening text output file " << fileName << std::endl;
     return kFALSE;
   }
-  writeTxt(gain);
-  gain.close();
+  using std::endl;
+  os << "#SYSTEM = " << "acdCalib" << endl
+     << "#instrument= " << instrument << endl
+     << "#timestamp = " << timestamp << endl
+     << "#calibType = " << calibType() << endl
+     << "#fmtVersion = " << AcdCalibVersion::version() << endl
+     << "#startTime = " << calib.runId_first() << ':'  << calib.evtId_first() << endl
+     << "#stopTime = " << calib.runId_last() << ':'  << calib.evtId_last() << endl
+     << "#triggers = " << calib.nUsed() << '/' << calib.nTrigger() << endl;
+  //calib.printFilesTxt(os);
+  os << "#source = " << 0 << endl
+     << "#mode = " << 0 << endl;
+
+  // this line is needed as a tag
+  os << "#START" << endl;
+  // skip this line
+  os << txtFormat() << endl;
+    
+  writeTxt(os);
+  os.close();
   return kTRUE;
 }
 
 void AcdCalibMap::writeTxt(ostream& os) const {
   for(int iFace = 0; iFace != AcdMap::nFace; ++iFace) {
-    for(int iRow = 0; iRow != AcdMap::nRow; ++iRow) {
-      for(int iCol = 0; iCol != AcdMap::nCol; ++iCol) {	
+    for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
+      for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
 	if ( ! AcdMap::channelExists(iFace,iRow,iCol) ) continue;
 	for(int iPmt = 0; iPmt != AcdMap::nPmt; ++iPmt) {
 
@@ -71,18 +94,17 @@ void AcdCalibMap::writeTxt(ostream& os) const {
 }
 
 
-Bool_t AcdCalibMap::writeXmlFile(const char* fileName, 
-				 const char* system,
+Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
-				 const char* version) const {
+				 const AcdCalibBase& calib) const {
   
   std::ofstream os(fileName);
   if ( !os.good() ) {
     std::cerr << "Problems opening XML output file " << fileName << std::endl;
     return kFALSE;
   }
-  writeXmlHeader(os,system,instrument,timestamp,version);
+  writeXmlHeader(os,instrument,timestamp,calib);
   writeXmlBody(os);
   writeXmlFooter(os);
   os.close();
@@ -90,26 +112,25 @@ Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 }
 
 void AcdCalibMap::writeXmlHeader(ostream& os,
-				 const char* system,
 				 const char* instrument,
 				 const char* timestamp,
-				 const char* version) const {  
+				 const AcdCalibBase& calib) const {  
   using std::endl;
-  os << "<!DOCTYPE acdCalib SYSTEM \"" << system << "\" [] >" << endl;
+  os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::version()  << ".dtd\" [] >" << endl;
   os << "<acdCalib>" << endl;
   os << "<generic instrument=\"" << instrument 
      << "\" timestamp=\"" << timestamp 
-     << "\" calibType=\"ACD_ElecGain\" "
-     << "fmtVersion=\"" << version 
+     << "\" calibType=\"" << calibType() 
+     << "\" fmtVersion=\"" << AcdCalibVersion::version()
      << "\">" << endl;\
-  os << "  <inputSample startTime=\"" << 0
-     << "\" stopTime=\"" << 0
-     << "\" triggers=\"" << 0
+  os << "  <inputSample startTime=\"" << calib.runId_first() << ':'  << calib.evtId_first() 
+     << "\" stopTime=\"" << calib.runId_last() << ':'  << calib.evtId_last() 
+     << "\" triggers=\"" << calib.nUsed() << '/' << calib.nTrigger()
      << "\" source=\"" << 0
      << "\" mode=\"" << 0
      << "\"/>" << endl;
   os << "</generic>" << endl;
-  os << "<dimension nFace=\"7\" nRow=\"5\" nCol=\"5\"/>" << endl;    
+  os << "<dimension nTile=\"216\"/>" << endl;    
 }
 
 
@@ -123,8 +144,9 @@ void AcdCalibMap::writeXmlBody(ostream& os) const {
   using std::endl;
 
   for(int iFace = 0; iFace != AcdMap::nFace; iFace++) {
-    for(int iRow = 0; iRow != AcdMap::nRow; iRow++) {
-      for(int iCol = 0; iCol != AcdMap::nCol; iCol++) {
+    for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
+      for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
+	if ( ! AcdMap::channelExists(iFace,iRow,iCol) ) continue;
 	UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
 	AcdMap::nSpaces(os,2); os << "<tile tileId=\"" << id << "\">" << endl; 
 	for(int iPmt = 0; iPmt != AcdMap::nPmt; iPmt++) {
@@ -134,10 +156,9 @@ void AcdCalibMap::writeXmlBody(ostream& os) const {
 	  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);   
 	  if ( itr == m_map.end() ) continue;
 	  
-	    
-	  AcdMap::nSpaces(os,10); 
-
+	  AcdMap::nSpaces(os,6); 
 	  itr->second->printXmlLine(os);
+
 	  AcdMap::nSpaces(os,4); os << "</pmt>" << endl;
 	}
 	AcdMap::nSpaces(os,2); os << "</tile>" << endl;
@@ -150,6 +171,24 @@ void AcdCalibMap::writeXmlBody(ostream& os) const {
 Bool_t AcdCalibMap::readTxtFile(const char* fileName) {
   std::ifstream infile(fileName);
   if ( ! infile.good() ) return kFALSE;
+
+  bool foundTag(kFALSE);
+  while ( ! infile.eof() ) {
+    std::string aLine;
+    infile >> aLine;
+    if ( !infile.good() ) return kFALSE;
+    
+    //look for the tag to start
+    if ( aLine.find("#START") ) {
+      foundTag = kTRUE;      
+      break;
+    }
+  }
+
+  if ( !foundTag ) return kFALSE;
+  std::string formatLine;
+  infile >> formatLine;
+
   Bool_t result = readTxt(infile);
   infile.close();
   return result;

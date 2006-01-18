@@ -21,12 +21,6 @@ public :
   
   virtual ~AcdMuonRoiCalib();  
   
-  // reset for next Go to start at beginning of file 
-  void rewind() { m_startEvent = 0; }; 
-
-  /// process events
-  void go(int numEvents=100000); 
-
 protected:
 
   Bool_t attachChains();
@@ -34,33 +28,36 @@ protected:
   // get reconstruction direction 
   void getFitDir();
   
-  // select events used to calibrate gain
-  virtual Bool_t failCuts();
-  
-  // process digi data in ACD
-  void digiAcd();
-
   // correct for pedestal, direction
   void fillGainHistCorrect(Int_t id, Int_t pmt, Int_t range, Int_t pha);
+
+  // return the total number of events in the chains
+  virtual int getTotalEvents() const { 
+    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }    
+    if ( m_meritChain!= 0 ) { return (int)(m_meritChain->GetEntries()); }
+    return 0;
+  } 
+
+  // read in 1 event
+  virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
+			   int& runId, int& evtId);    
+
+  virtual void useEvent(Bool_t& used);
+
 
 private:
 
   /// Optional TChain input
-  TChain      *m_digiChain, *m_meritChain;
+  TChain     *m_digiChain, *m_meritChain;
   
   /// pointer to a DigiEvent
   DigiEvent* m_digiEvent;
     
-  /// starting event number
-  Int_t m_startEvent;
-  
   // reconstructed event direction along the x,y,z axis, defaulted as -9999
   Float_t m_reconDirX;
   Float_t m_reconDirY;
   Float_t m_reconDirZ;
-  
-  UInt_t m_nVals;
-
+ 
   ClassDef(AcdMuonRoiCalib,0) ;
     
 };

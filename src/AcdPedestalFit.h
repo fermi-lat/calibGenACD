@@ -46,7 +46,15 @@ public:
     AcdPedestalFitResult* fr = static_cast<AcdPedestalFitResult*>(res);
     return fr;
   }
- 
+
+  virtual const char* calibType() {
+    return "ACD_Ped";
+  }
+
+  virtual const char* txtFormat() {
+      return "TILE PMT PED RMS STATUS";
+  }
+  
 private:  
   
   ClassDef(AcdPedestalFitMap,0) ;

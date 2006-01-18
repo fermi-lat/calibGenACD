@@ -21,6 +21,7 @@ AcdCalibBase::AcdCalibBase()
    m_rawMap(0),m_peakMap(0),m_unpairedMap(0),
    m_pedestals(0),m_gains(0),
    m_histFile(0) {
+  resetCounters();
 }
 
 
@@ -31,6 +32,38 @@ AcdCalibBase::~AcdCalibBase()
   delete m_unpairedMap;
   delete m_pedestals;
   delete m_gains;
+}
+
+void AcdCalibBase::go(int numEvents, int startEvent) {
+
+  m_startEvent = startEvent;
+  int nTotal = getTotalEvents();
+  int nLast = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
+
+  cout << "Number of events in the chain: " << nTotal << endl;
+  cout << "Number of events used: " << nLast-startEvent << endl;
+  cout << "Starting at event: " << startEvent << endl;
+
+  for (Int_t ievent= startEvent; ievent!=nLast; ievent++ ) {
+    
+    Bool_t filtered(kFALSE);
+    Bool_t ok = readEvent(ievent,filtered,m_runId,m_evtId);
+
+    if ( !ok ) {
+      cout << "Failed to read event " << ievent << " aborting" << endl;
+      break;
+    }
+
+    Bool_t used(kFALSE);
+    if ( !filtered ) {
+      useEvent(used);
+    }
+    
+    logEvent(ievent,used,m_runId,m_evtId);
+  }
+
+  lastEvent(m_runId,m_evtId);
+
 }
 
 void AcdCalibBase::fillPedestalHist(int id, int pmtId, int pha)
@@ -141,4 +174,18 @@ Bool_t AcdCalibBase::readPedestals(const char* fileName) {
   }
   m_pedestals = new AcdPedestalFitMap;
   return m_pedestals->readTxtFile(fileName);
+}
+
+void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
+
+  m_evtId = evtId;
+  m_runId = runId;
+  m_nTrigger++;
+  if ( passedCut ) m_nUsed++;  
+  if ( ievent == m_startEvent ) { 
+    firstEvent(runId,evtId);
+  }
+  else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
+  else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
+  else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }
 }
