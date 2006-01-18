@@ -1,3 +1,7 @@
+v1r0p0 EAC 060117
+Minor update.  Add information about the datasets used to generate calibrations to the txt and xml output files.
+Also, added apps/ subdir for application main() routines.
+
 v1
 Major re-write.  Brings in some code from the ACD.  Uses polynomials to
 smooth pha distributions and find the peak values.  Uses a simple algorithm

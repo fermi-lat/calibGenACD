@@ -14,16 +14,15 @@ class AcdGainFitResult : public AcdCalibResult {
 
 public:
 
-  AcdGainFitResult(Float_t ped, Float_t peak, Float_t width, STATUS status, Int_t type);
+  AcdGainFitResult(Float_t peak, Float_t width, STATUS status, Int_t type);
   AcdGainFitResult();
 
-  inline Float_t ped() const { return _ped; }
   inline Float_t peak() const { return _peak; }
   inline Float_t width() const { return _width; }
   inline Int_t type() const { return _type; }
   
-  inline void setVals(Float_t ped, Float_t peak, Float_t width, STATUS status, Int_t type) {
-    _ped = ped; _peak = peak; _width = width; _type = type;
+  inline void setVals(Float_t peak, Float_t width, STATUS status, Int_t type) {
+    _peak = peak; _width = width; _type = type;
     setStatus(status);
   }
 
@@ -32,7 +31,6 @@ public:
   virtual Bool_t readTxt(istream& is);
 
 private:
-  Float_t _ped;
   Float_t _peak;
   Float_t _width;
   Int_t _type;
@@ -47,6 +45,14 @@ public:
   virtual ~AcdGainFitMap();
 
   virtual AcdCalibResult* createHolder() const { return new AcdGainFitResult; }
+
+  virtual const char* calibType() {
+    return "ACD_ElecGain";
+  }
+
+  virtual const char* txtFormat() {
+    return "TILE PMT PEAK WIDTH STATUS TYPE";
+  }
 
 private:  
 

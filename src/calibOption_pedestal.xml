@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- job optin file for runMuonCalib.exe -->
+<!-- job optin file for runMuonCalib_ped.exe -->
 
 <!DOCTYPE ifile SYSTEM "$(CALIBGENACDROOT)/xml/ifile.dtd" >
 
@@ -7,10 +7,8 @@
 
   <section name="parameters"> input parameters for ACD pedestal and gain calibration	
    <item name="instrument" value="LAT">instrument type to be calibrated </item>
-   <item name="fmtVersion" value="v0">format version of calibration constant xml</item>
-   <item name="digiFileList" value="/nfs/farm/g/glast/u27/Integration/rootData/135005097/v5r0703p6/grRoot/digitization-v3r4p4_135005097_digi_DIGI.root"> blank-delimited list of input digi root files </item>
+   <item name="digiFileList" value="/nfs/farm/g/glast/u27/Integration/rootData/135005325/v5r0703p6/grRoot/digitization-v3r4p4_135005325_digi_DIGI.root"> blank-delimited list of input digi root files </item>
    <item name="meritFileList" value=""> blank-delimited list of input merit root files </item>
-   <item name="pedTextFile" value="test_ped.tex"> output pedestal asci text file </item>
    <item name="outputPrefix" value="test"> output file prefix </item>
   </section>
 </ifile>

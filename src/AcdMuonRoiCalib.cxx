@@ -24,14 +24,13 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, TChain *meritChain,
   :AcdCalibBase(), 
    m_digiChain(digiChain), m_meritChain(meritChain), 
    m_digiEvent(0),
-   m_startEvent(0),
    m_reconDirZ(-9999){
 
   Bool_t ok = bookHists(histFileName);
   if ( !ok ) {
     cerr << "ERR:  Failed to book histograms to file " << histFileName <<endl;
   }
-  
+
   ok = attachChains();
   if ( ! ok ) {
     cerr << "ERR:  Failed to attach to input chains."  << endl;
@@ -42,96 +41,6 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, TChain *meritChain,
 AcdMuonRoiCalib::~AcdMuonRoiCalib() 
 {
   if (m_digiEvent) delete m_digiEvent;	
-}
-
-void AcdMuonRoiCalib::digiAcd() 
-{
-  const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
-  if (!acdDigiCol) return;
-
-  int nAcdDigi = acdDigiCol->GetLast() + 1;
-  for(int i = 0; i != nAcdDigi; ++i) {
-
-    AcdDigi* acdDigi = static_cast<AcdDigi*>(acdDigiCol->At(i));
-
-    assert(acdDigi != 0);
-
-    const AcdId& acdId = acdDigi->getId();
-    int id = acdId.getId();
-    int face = acdId.getFace();
-    //int row = face < 5 ? acdId.getRow() : 0;
-    //int col = face < 5 ? acdId.getColumn() : acdId.getRibbonNumber();
-
-    if ( ! AcdMap::channelExists( id ) ) continue;
-    
-    int rng0 = acdDigi->getRange(AcdDigi::A);    
-    int pmt0 = acdDigi->getPulseHeight(AcdDigi::A);
-
-    int rng1 = acdDigi->getRange(AcdDigi::B);
-    int pmt1 = acdDigi->getPulseHeight(AcdDigi::B);
-
-    switch ( calType () ) {
-    case PEDESTAL:
-      if ( rng0 == 0 ) fillPedestalHist(id, AcdDigi::A, pmt0);
-      if ( rng1 == 0 ) fillPedestalHist(id, AcdDigi::B, pmt1);
-      break;
-    case GAIN:
-      fillGainHistCorrect(id, AcdDigi::A, rng0, pmt0);
-      fillGainHistCorrect(id, AcdDigi::B, rng1, pmt1);
-      break;
-    case UNPAIRED:
-      if ( pmt1 == 0 && rng0 == 0) fillUnpairedHist(id, AcdDigi::A, pmt0);
-      if ( pmt0 == 0 && rng1 == 0) fillUnpairedHist(id, AcdDigi::B, pmt1);
-      break;
-    }
- }
-}
-
-void AcdMuonRoiCalib::go(int numEvents)
-{        
-
-  // determine how many events to process
-  int nEntries = (int) m_digiChain->GetEntries();
-  cout << "Number of events in the digi chain: " << nEntries << endl;
-  int nMax = TMath::Min(numEvents+m_startEvent,nEntries);
-  cout << "Number of events used: " << nMax-m_startEvent << endl;
-  if (m_startEvent == nEntries) {
-    cout << " all events in file read" << endl;
-    return;
-  }
-  if (nEntries <= 0) return;
-    
-  // BEGINNING OF EVENT LOOP
-  for (Int_t ievent=m_startEvent; ievent!=nMax; ++ievent) {
-        
-    if(m_digiEvent) m_digiEvent->Clear();
-               
-    if(m_digiChain) m_digiChain->GetEvent(ievent);
-    if(m_meritChain) {
-      Long64_t localEvt = m_meritChain->LoadTree(ievent);
-      if ( localEvt == 0 ) {
-	attachChains();
-      }
-      m_meritChain->GetEntry(localEvt);
-    }
-
-    if(m_digiEvent) {
-      // int digiEventId = m_digiEvent->getEventId(); 
-      // int digiRunNum = m_digiEvent->getRunId();
-
-      if ( ievent == 0 ) { ;}
-      else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
-      else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
-      else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }
-
-      if( calType() == GAIN) getFitDir();
-      
-      if( calType() == GAIN && failCuts() ) continue;
- 
-      digiAcd();
-    }
-        
-  }  // end analysis code in event loop    
 }
 
 Bool_t AcdMuonRoiCalib::attachChains() {
@@ -166,17 +75,6 @@ void AcdMuonRoiCalib::getFitDir()
   if ( fabs(m_reconDirZ) < 0.000001 ) m_reconDirZ = -9999;  
 }
 
-Bool_t AcdMuonRoiCalib::failCuts() 
-{
-  if ( m_meritChain == 0 ) return false;
-  if(m_reconDirX < -9990) return true;
-  if(m_reconDirY < -9990) return true;
-  if(m_reconDirZ < -9990) return true;
-  if(m_reconDirZ > -0.1 ) return true;
-  else return false;
-}
-
-
 void AcdMuonRoiCalib::fillGainHistCorrect(Int_t id, Int_t pmt, Int_t range, Int_t pha) {
 
   Float_t phaCorrect(0.);
@@ -205,4 +103,78 @@ void AcdMuonRoiCalib::fillGainHistCorrect(Int_t id, Int_t pmt, Int_t range, Int_
     phaCorrect = redPha * angleCorr;    
   }
   fillGainHist(id,pmt,phaCorrect);  
+}
+
+
+Bool_t AcdMuonRoiCalib::readEvent(int ievent, Bool_t& filtered, 
+				  int& runId, int& evtId) {
+  
+  if(m_digiEvent) m_digiEvent->Clear();
+  
+  if(m_digiChain) { 
+    m_digiChain->GetEvent(ievent);
+    evtId = m_digiEvent->getEventId(); 
+    runId = m_digiEvent->getRunId();
+  }
+  if(m_meritChain) m_meritChain->GetEvent(ievent);
+  
+  filtered = kFALSE;
+  
+  return kTRUE;
+}
+
+
+void AcdMuonRoiCalib::useEvent(Bool_t& used) {
+
+  used = kFALSE;
+  const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
+  if (!acdDigiCol) return;
+
+  int nAcdDigi = acdDigiCol->GetLast() + 1;
+  for(int i = 0; i != nAcdDigi; ++i) {
+
+    AcdDigi* acdDigi = static_cast<AcdDigi*>(acdDigiCol->At(i));
+
+    assert(acdDigi != 0);
+
+    const AcdId& acdId = acdDigi->getId();
+    int id = acdId.getId();
+    //int face = acdId.getFace();
+    //int row = face < 5 ? acdId.getRow() : 0;
+    //int col = face < 5 ? acdId.getColumn() : acdId.getRibbonNumber();
+
+    if ( ! AcdMap::channelExists( id ) ) continue;
+    
+    int rng0 = acdDigi->getRange(AcdDigi::A);    
+    int pmt0 = acdDigi->getPulseHeight(AcdDigi::A);
+
+    int rng1 = acdDigi->getRange(AcdDigi::B);
+    int pmt1 = acdDigi->getPulseHeight(AcdDigi::B);
+
+    if ( calType() == GAIN ) {
+      if ( m_meritChain !=  0 ) {
+	if(m_reconDirX < -9990) continue;
+	if(m_reconDirY < -9990) continue;
+	if(m_reconDirZ < -9990) continue;
+	if(m_reconDirZ > -0.1 ) continue;
+      }
+    }
+
+    switch ( calType () ) {
+    case PEDESTAL:
+      if ( rng0 == 0 ) fillPedestalHist(id, AcdDigi::A, pmt0);
+      if ( rng1 == 0 ) fillPedestalHist(id, AcdDigi::B, pmt1);
+      break;
+    case GAIN:
+      fillGainHistCorrect(id, AcdDigi::A, rng0, pmt0);
+      fillGainHistCorrect(id, AcdDigi::B, rng1, pmt1);
+      break;
+    case UNPAIRED:
+      if ( pmt1 == 0 && rng0 == 0) fillUnpairedHist(id, AcdDigi::A, pmt0);
+      if ( pmt0 == 0 && rng1 == 0) fillUnpairedHist(id, AcdDigi::B, pmt1);
+      break;
+    }
+    
+    used = kTRUE;
+  }
 }

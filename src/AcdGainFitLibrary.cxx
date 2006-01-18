@@ -93,7 +93,7 @@ Int_t AcdGainFitLibrary::fit(AcdGainFitResult& result, const TH1& hist) {
   Int_t returnCode = AcdGainFitResult::NOFIT;
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,0.,AcdGainFitResult::NOFIT,_type);
+    result.setVals(0.,0.,AcdGainFitResult::NOFIT,_type);
     break;
   case Stats:
     returnCode = stats(result,hist);
@@ -120,7 +120,7 @@ Int_t AcdGainFitLibrary::stats(AcdGainFitResult& result, const TH1& hist) {
 
   float ave = theHist.GetMean();
   float rms = theHist.GetRMS();
-  result.setVals(0,ave,rms,AcdGainFitResult::OK,Stats);
+  result.setVals(ave,rms,AcdGainFitResult::OK,Stats);
   return AcdGainFitResult::OK;
 }
 
@@ -130,14 +130,14 @@ Int_t AcdGainFitLibrary::fallback(AcdGainFitResult& result, const TH1& hist) {
   Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   if ( status != 0 ) return AcdGainFitResult::PREFIT_FAILED;
-  Float_t pedValue = hist.GetBinCenter(4*ped);
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
   //Float_t minValue = hist.GetBinCenter(4*min);
   Float_t peakValue = hist.GetBinCenter(4*peak);
   Float_t endValue = hist.GetBinCenter(4*halfMax);
 
   Float_t width = endValue - peakValue;
 
-  result.setVals(pedValue,peakValue,width,AcdGainFitResult::OK,Fallback);
+  result.setVals(peakValue,width,AcdGainFitResult::OK,Fallback);
   return AcdGainFitResult::OK;
 
 }
@@ -155,7 +155,7 @@ Int_t AcdGainFitLibrary::fitLandau(AcdGainFitResult& result, const TH1& hist) {
   double* par = (theHist.GetFunction("landau"))->GetParameters();
   float mean = *(par+1); 
   float sigma = *(par+2);
-  result.setVals(0,mean,sigma,(AcdGainFitResult::STATUS)status,Landau);
+  result.setVals(mean,sigma,(AcdGainFitResult::STATUS)status,Landau);
   return status;
 }
 
@@ -168,7 +168,7 @@ Int_t AcdGainFitLibrary::fitP7(AcdGainFitResult& result, const TH1& hist) {
   TH1& theHist = const_cast<TH1&>(hist);
 
   if ( status != 0 ) return status;
-  Float_t pedValue = hist.GetBinCenter(4*ped);
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
   Float_t minValue = hist.GetBinCenter(4*min);
   Float_t endValue = hist.GetBinCenter(4*halfMax);
 
@@ -180,7 +180,7 @@ Int_t AcdGainFitLibrary::fitP7(AcdGainFitResult& result, const TH1& hist) {
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;
 
-  result.setVals(pedValue,peakValue,width,(AcdGainFitResult::STATUS)status,P7);
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,P7);
   return status;
 }
 
@@ -191,7 +191,7 @@ Int_t AcdGainFitLibrary::fitLogNormal(AcdGainFitResult& result, const TH1& hist)
   Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   if ( status != 0 ) return status;
-  Float_t pedValue = hist.GetBinCenter(4*ped);
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
   Float_t minValue = hist.GetBinCenter(4*min);
   Float_t endValue = hist.GetBinCenter(4*halfMax);
   Float_t integ = hist.Integral(4*min,4*halfMax);
@@ -220,7 +220,7 @@ Int_t AcdGainFitLibrary::fitLogNormal(AcdGainFitResult& result, const TH1& hist)
   Double_t m = logNorm.GetParameter(3);
 
   Double_t width = m * es2 * ( es2 - 1 );
-  result.setVals(pedValue,peakValue,width,(AcdGainFitResult::STATUS)status,LogNormal);
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,LogNormal);
 
   return status;
 

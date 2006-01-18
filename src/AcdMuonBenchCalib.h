@@ -84,17 +84,15 @@ public:
 
   AcdMuonBenchCalib(TTree *tree=0,const char* histFilename = "histograms.root");
   virtual ~AcdMuonBenchCalib();
-  virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
-  virtual void     Loop();
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
 
 protected:
 
-  void fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap);
+  Bool_t fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap);
 
   UInt_t localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol);
 
@@ -104,6 +102,17 @@ protected:
 
   // these is emulate the cuts in ReadActNtuple
   Bool_t applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits);
+
+  // return the total number of events in the chains
+  virtual int getTotalEvents() const { 
+    return fChain != 0 ? (int)(fChain->GetEntries()) : 0; 
+  } 
+
+  // read in 1 event
+  virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
+			   int& /*runId*/, int& /*evtId*/);
+
+  virtual void useEvent(Bool_t& used);
 
 private:
 
@@ -233,13 +242,6 @@ void AcdMuonBenchCalib::Show(Long64_t entry)
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
-}
-Int_t AcdMuonBenchCalib::Cut(Long64_t entry)
-{
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns -1 otherwise.
-  return 1;
 }
 
 

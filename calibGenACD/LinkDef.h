@@ -9,6 +9,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ class AcdCalibVersion;
 #pragma link C++ class AcdMap;
 #pragma link C++ class AcdHistCalibMap;
 

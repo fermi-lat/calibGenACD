@@ -24,27 +24,28 @@ public :
   
   virtual ~AcdMuonTkrCalib();  
   
-  // reset for next Go to start at beginning of file 
-  void rewind() { m_startEvent = 0; }; 
-
-  /// process events
-  void go(int numEvents=100000); 
-
-  // 
-  
 protected:
 
   Bool_t attachChains();
 
   // get reconstruction direction 
   void getFitDir();
-  
-  
-  // process recon data in ACD
-  void doAcd();
-
+    
   // 
   void fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi);
+
+  // return the total number of events in the chains
+  virtual int getTotalEvents() const { 
+    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
+    if ( m_reconChain != 0 ) { return (int)(m_reconChain->GetEntries()); }
+    return 0;
+  } 
+
+  // read in 1 event
+  virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
+			   int& runId, int& evtId);    
+
+  virtual void useEvent(Bool_t& used);
 
 private:
 
@@ -58,11 +59,6 @@ private:
   /// pointer to a ReconEvent
   ReconEvent* m_reconEvent;
     
-  /// starting event number
-  Int_t m_startEvent;
-  
-  UInt_t m_nVals;
-
   ClassDef(AcdMuonTkrCalib,0) ;
     
 };

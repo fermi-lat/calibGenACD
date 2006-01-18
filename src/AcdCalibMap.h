@@ -7,6 +7,7 @@
 #include <map>
 
 class AcdHistCalibMap;
+class AcdCalibBase;
 
 class AcdCalibMap {
 public:
@@ -17,19 +18,20 @@ public:
   const AcdCalibResult* get(UInt_t key) const;
   AcdCalibResult* get(UInt_t key);
 
-  Bool_t writeTxtFile(const char* fileName) const;
+  Bool_t writeTxtFile(const char* fileName,
+		      const char* instrument,
+		      const char* timestamp,
+		      const AcdCalibBase& calib);
   void writeTxt(ostream& os) const;
 
   Bool_t writeXmlFile(const char* fileName,
-		      const char* system,
 		      const char* instrument,
 		      const char* timestamp,
-		      const char* version) const;
+		      const AcdCalibBase& calib) const;
   void writeXmlHeader(ostream& os, 
-		      const char* system,
 		      const char* instrument,
 		      const char* timestamp,
-		      const char* version) const;
+		      const AcdCalibBase& calib) const;
   void writeXmlFooter(ostream& os) const;
   void writeXmlBody(ostream& os) const;
   
@@ -37,6 +39,14 @@ public:
 
   Bool_t readTxtFile(const char* fileName);
   Bool_t readTxt(istream& is);
+
+  virtual const char* calibType() {
+    return "NONE";
+  }
+
+  virtual const char* txtFormat() {
+    return "NONE";
+  }
 
 private:  
 
