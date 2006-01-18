@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 17 17:38:09 PST 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibVersion.h 
+Removed Files:
+      Tag: v1r0p0
+	runMuonCalib_Roi.cxx 
+Log Message:
+remove old copy of runMuonCalib_Roi.cxx from src directory
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r0p0, operation: add
 Package: calibGenACD
