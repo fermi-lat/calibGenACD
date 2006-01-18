@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 17 17:31:17 PST 2006
+calibGenACD/apps
+
+Added Files:
+	runMuonCalib_Roi.cxx runPedestal.cxx 
+Log Message:
+ v1r0p0 EAC 060117
+ Minor update.  Add information about the datasets used to generate calibrations to the txt and xml output files.
+ Also, added apps/ subdir for application main() routines.
+ 
+
+    *
+------------------------------------------------------------
 User: echarles  Tue Jan 17 17:30:14 PST 2006
 calibGenACD/apps
 
