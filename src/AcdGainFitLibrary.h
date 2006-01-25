@@ -17,7 +17,8 @@ public:
   static Int_t findHalfMaxHigh(const TH1& hist, Int_t maxBin);
   static Int_t findHalfMaxLow(const TH1& hist, Int_t maxBin);
 
-  static Int_t extractFeatures(const TH1& hist, Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax);
+  static Int_t extractFeatures(Bool_t removePed, const TH1& hist, Int_t rebin, 
+			       Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax);
 
 public:
 
@@ -30,8 +31,8 @@ public:
 
 public:
 
-  AcdGainFitLibrary(FitType type)
-    :_type(type){}
+  AcdGainFitLibrary(FitType type, Bool_t pedRemove = kTRUE)
+    :_type(type),_pedRemove(pedRemove){}
 
   AcdGainFitLibrary(){}
 
@@ -41,6 +42,9 @@ public:
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
+
+  inline Bool_t pedRemove() const { return _pedRemove; };
+  inline void setPedRemove(Bool_t val) { _pedRemove = val; };
 
 protected:
 
@@ -53,6 +57,7 @@ protected:
 private:
   
   FitType _type;
+  Bool_t _pedRemove;
 
   ClassDef(AcdGainFitLibrary,0) ;
 };

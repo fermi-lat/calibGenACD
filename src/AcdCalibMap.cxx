@@ -173,21 +173,20 @@ Bool_t AcdCalibMap::readTxtFile(const char* fileName) {
   if ( ! infile.good() ) return kFALSE;
 
   bool foundTag(kFALSE);
+  char formatLine[512];
   while ( ! infile.eof() ) {
-    std::string aLine;
-    infile >> aLine;
+    infile.getline(formatLine,512);
     if ( !infile.good() ) return kFALSE;
-    
+    std::string aLine(&formatLine[0]);
     //look for the tag to start
-    if ( aLine.find("#START") ) {
+    if ( aLine.find("#START") != std::string::npos) {
       foundTag = kTRUE;      
       break;
     }
   }
 
   if ( !foundTag ) return kFALSE;
-  std::string formatLine;
-  infile >> formatLine;
+  infile.getline(formatLine,512);
 
   Bool_t result = readTxt(infile);
   infile.close();

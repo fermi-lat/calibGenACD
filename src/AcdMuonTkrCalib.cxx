@@ -20,20 +20,19 @@ using std::string;
 
 ClassImp(AcdMuonTkrCalib) ;
 
-AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain,
-				 const char *histFileName)
+AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain)
   :AcdCalibBase(), 
    m_digiChain(digiChain),
    m_reconChain(reconChain), 
    m_digiEvent(0),
-   m_reconEvent(0){
+   m_reconEvent(0),
+   m_gainHists(0),
+   m_gains(0),
+   m_peds(0){
 
-  Bool_t ok = bookHists(histFileName);
-  if ( !ok ) {
-    cerr << "ERR:  Failed to book histograms to file " << histFileName <<endl;
-  }
+  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
   
-  ok = attachChains();
+  Bool_t ok = attachChains();
   if ( ! ok ) {
     cerr << "ERR:  Failed to attach to input chains."  << endl;
   }
@@ -66,6 +65,7 @@ Bool_t AcdMuonTkrCalib::attachChains() {
     m_reconChain->SetBranchStatus("m_eventId", 1); 
     m_reconChain->SetBranchStatus("m_runId", 1);
   }
+    
   return kTRUE;
 }
 
@@ -81,13 +81,12 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
 
   int id = digi.getId().getId();
 
-  AcdPedestalFitMap* peds = getPedestals();
-  if ( peds == 0 ) return;
+  if ( m_peds == 0 ) return;
   UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
 
-  AcdPedestalFitResult* pedRes_A = peds->find(keyA);
-  AcdPedestalFitResult* pedRes_B = peds->find(keyB);
+  AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
+  AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);
   if ( pedRes_A == 0 && pedRes_B == 0 ) return;
 
   Float_t redPha_A = ((Float_t)(pmt0)) - pedRes_A->mean();
@@ -96,9 +95,9 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
   redPha_A /= pathFactor;
   redPha_B /= pathFactor;
 
-  if ( rng0 == 0 ) fillGainHist(id,AcdDigi::A,redPha_A);
-  if ( rng1 == 0 ) fillGainHist(id,AcdDigi::B,redPha_B);
-  
+  if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A);
+  if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B);
+
 }
 
 
@@ -121,7 +120,7 @@ Bool_t AcdMuonTkrCalib::readEvent(int ievent, Bool_t& filtered,
     assert ( evtId == reconEventId );
     assert ( runId == reconRunNum );
   }
-  
+
   filtered = kFALSE;
   
   return kTRUE;
@@ -159,3 +158,11 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
     }
   }
 }
+
+AcdGainFitMap* AcdMuonTkrCalib::fitGains(AcdGainFit& fitter) {
+  m_gains = new AcdGainFitMap;
+  addCalibration(GAIN,*m_gains);
+  AcdHistCalibMap* hists = getHistMap(GAIN);
+  fitter.fitAll(*m_gains,*hists);
+  return m_gains;
+}  
