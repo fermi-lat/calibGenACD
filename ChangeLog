@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 24 16:10:22 PST 2006
+calibGenACD/apps
+
+Modified Files:
+	runMuonCalib_Roi.cxx runPedestal.cxx 
+Added Files:
+	runVetoCalib.cxx 
+Log Message:
+Fairly big update, added AcdVetoCalib, changed the structure a bit
+    *
+------------------------------------------------------------
 User: echarles  Tue Jan 17 17:38:09 PST 2006
 calibGenACD/src
 
