@@ -5,8 +5,12 @@
 
 #include "TTree.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TChain.h"
 #include <iostream>
+#include "./AcdGainFit.h"
+#include "./AcdPedestalFit.h"
+#include "./AcdVetoFit.h"
 
 class DigiEvent;
 
@@ -14,27 +18,32 @@ class AcdMuonRoiCalib : public AcdCalibBase {
 
 public :
   
-  // Standard ctor, where user provides the names of the input root files
-  // and optionally the name of the output ROOT histogram file
-  AcdMuonRoiCalib(TChain *digiChain, TChain *meritChain = 0, 
-	    const char *histFileName="Histograms.root");
+  // Standard ctor, where user provides the input data
+  AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic = kFALSE);
   
   virtual ~AcdMuonRoiCalib();  
-  
+
+  // these two just call down to the fitAll() routines in the fitters
+  AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
+  AcdGainFitMap* fitGains(AcdGainFit& fitter);
+  AcdVetoFitMap* fitVetos(AcdVetoFit& fitter);
+
+  TH2* getHitMapHist() {
+    return m_hitMapHist;
+  }
+  TH2* getCondArrHist() {
+    return m_condArrHist;
+  }
+
+  AcdHistCalibMap* makeVetoRatio();
+
 protected:
 
   Bool_t attachChains();
 
-  // get reconstruction direction 
-  void getFitDir();
-  
-  // correct for pedestal, direction
-  void fillGainHistCorrect(Int_t id, Int_t pmt, Int_t range, Int_t pha);
-
   // return the total number of events in the chains
   virtual int getTotalEvents() const { 
     if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }    
-    if ( m_meritChain!= 0 ) { return (int)(m_meritChain->GetEntries()); }
     return 0;
   } 
 
@@ -44,20 +53,34 @@ protected:
 
   virtual void useEvent(Bool_t& used);
 
+  void compareDigiToGem();
 
 private:
 
   /// Optional TChain input
-  TChain     *m_digiChain, *m_meritChain;
+  TChain     *m_digiChain;
   
   /// pointer to a DigiEvent
   DigiEvent* m_digiEvent;
-    
-  // reconstructed event direction along the x,y,z axis, defaulted as -9999
-  Float_t m_reconDirX;
-  Float_t m_reconDirY;
-  Float_t m_reconDirZ;
- 
+  
+  // 
+  Bool_t m_requirePeriodic;
+
+  // 
+  AcdHistCalibMap* m_pedHists;
+  AcdHistCalibMap* m_gainHists;
+  AcdHistCalibMap* m_unPairHists;
+  AcdHistCalibMap* m_rawHists;
+  AcdHistCalibMap* m_vetoHists;
+  AcdHistCalibMap* m_vfHists;
+
+  TH2* m_hitMapHist;
+  TH2* m_condArrHist;
+  
+  AcdGainFitMap* m_gains;
+  AcdPedestalFitMap* m_peds;
+  AcdVetoFitMap* m_vetos;
+
   ClassDef(AcdMuonRoiCalib,0) ;
     
 };

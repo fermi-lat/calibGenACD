@@ -10,18 +10,16 @@
 #include "TCollection.h"  // Declares TIter
 #include <iostream>
 
+#include <map>
+
 class AcdHistCalibMap;
-class AcdPedestalFit;
-class AcdPedestalFitMap;
-class AcdGainFit;
-class AcdGainFitMap;
-class DigiEvent;
+class AcdCalibMap;
 
 class AcdCalibBase {
 
 public :
 
-  enum CALTYPE{PEDESTAL, GAIN, UNPAIRED};
+  enum CALTYPE{PEDESTAL, GAIN, UNPAIRED, RAW, VETO, VETO_FRAC, HITMAP};
 
 public :
 
@@ -33,14 +31,10 @@ public :
   // access functions
 
   // get the maps of the histograms to be fit
-  inline AcdHistCalibMap* rawMap() { return m_rawMap; }
-  inline AcdHistCalibMap* peakMap() { return m_peakMap; }
-  inline AcdHistCalibMap* unPairedMap() { return m_unpairedMap; }
+  AcdHistCalibMap* getHistMap(int key);
   
   // get the results maps
-  inline AcdPedestalFitMap* getPedestals() { return m_pedestals; }
-  inline AcdGainFitMap* getGains() { return m_gains; } 
-   
+  AcdCalibMap* getCalibMap(int key);
 
   // trivial setting functions
 
@@ -49,15 +43,11 @@ public :
   inline void setCalType(CALTYPE t) { m_calType = t; }
 
   // read the pedestals from a file
-  Bool_t readPedestals(const char* fileName);
+  Bool_t readCalib(int histType, const char* fileName);
   
-  // these two just call down to the fitAll() routines in the fitters
-  AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
-  AcdGainFitMap* fitGains(AcdGainFit& fitter);
-
   // this writes the output histograms if newFileName is not set, 
   // they will be writing to the currently open file
-  Bool_t writeHistograms(CALTYPE type, const char* newFileName = 0);
+  Bool_t writeHistograms(int histType, const char* newFileName = 0);
 
   // get the id of the first and last events used
   Int_t evtId_first() const { return m_evtId_first; }
@@ -79,15 +69,14 @@ public :
 
 protected:
 
+  // a calibration
+  void addCalibration(int calibKey, AcdCalibMap& newCal);
+
   // This opens the output file and fills books the output histograms
-  Bool_t bookHists(const char* fileName,
-		   UInt_t nBinGain = 256, Float_t lowGain = -0.5, Float_t hiGain = 4095.5,
-		   UInt_t nBinPed = 4096, Float_t lowPed = -0.5, Float_t hiPed = 4095.5);  
+  AcdHistCalibMap* bookHists(int histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5);
 
   // filling various histogram depending on m_calType
-  void fillPedestalHist(int id, int pmtId, int pha);
-  void fillGainHist(int id, int pmtId, float phaCorrect);
-  void fillUnpairedHist(int id, int pmtId, int pha);
+  void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val);
   
   // print stuff every 1k events, keep track of the current event
   void logEvent(int ievent, Bool_t passedCut,int runId,int evtId); 
@@ -147,21 +136,14 @@ private:
   /// number of events we used
   Int_t m_nUsed;
 
-
   // Which type of calibration are we getting the histograms for?
   CALTYPE m_calType;
   
   // These are the histograms
-  AcdHistCalibMap* m_rawMap;
-  AcdHistCalibMap* m_peakMap;
-  AcdHistCalibMap* m_unpairedMap;
+  std::map<int,AcdHistCalibMap*> m_histMaps;
 
   // These are the results of the fits
-  AcdPedestalFitMap* m_pedestals;
-  AcdGainFitMap* m_gains;
-
-  // This is the output file
-  TFile* m_histFile;
+  std::map<int,AcdCalibMap*> m_fitMaps;
 
   ClassDef(AcdCalibBase,0) ;
     

@@ -1,3 +1,6 @@
+v1r1 EAC 060123
+Fairly big update, added AcdVetoCalib, changed the structure a bit.
+
 v1r0p0 EAC 060117
 Minor update.  Add information about the datasets used to generate calibrations to the txt and xml output files.
 Also, added apps/ subdir for application main() routines.

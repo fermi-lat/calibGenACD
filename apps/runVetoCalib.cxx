@@ -9,7 +9,7 @@
 
 #include "TList.h"
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdGainFitLibrary.h"
+#include "../src/AcdVetoFitLibrary.h"
 #include "../src/AcdMuonRoiCalib.h"
 
 #include <time.h>
@@ -48,7 +48,7 @@ int main(int argn, char** argc) {
 
   string path = ::getenv("CALIBGENACDROOT");
 
-  string jobOptionXmlFile(path + "/src/muonCalibOption_gain.xml");
+  string jobOptionXmlFile(path + "/src/muonCalibOption_veto.xml");
 
   string inputDigiFileStr;
   string outputPrefix;
@@ -117,15 +117,13 @@ int main(int argn, char** argc) {
     instrument = myFile.getString("parameters", "instrument");    
   }
 
-  string gainTextFile, gainXmlFile, outputHistFile, psFile;  
   if (myFile.contains("parameters","outputPrefix") && outputPrefix == "" ) {
     outputPrefix = myFile.getString("parameters", "outputPrefix");
   }
     
-  gainTextFile = outputPrefix + "_gain.txt";
-  gainXmlFile = outputPrefix + "_gain.xml";
-  outputHistFile = outputPrefix + "_gain.root";
-  psFile = outputPrefix + "_gain_";
+  string textFile = outputPrefix + "_veto.txt";
+  string xmlFile = outputPrefix + "_veto.xml";
+  string outputHistFile = outputPrefix + "_veto.root";
 
   std::time_t theTime = std::time(0);
   const char* timeString = std::ctime(&theTime);
@@ -138,25 +136,17 @@ int main(int argn, char** argc) {
   
 
   AcdMuonRoiCalib r(digiChain);
-  r.setCalType(AcdCalibBase::GAIN);        
+  r.setCalType(AcdCalibBase::VETO);        
   r.go(optval_n,optval_s);    
 
-  AcdGainFitLibrary gainFitter(AcdGainFitLibrary::P7);
-  AcdGainFitMap* gains = r.fitGains(gainFitter);
+  r.makeVetoRatio();
 
-  r.writeHistograms(AcdCalibBase::GAIN, outputHistFile.c_str());
-  gains->writeTxtFile(gainTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
-  gains->writeXmlFile(gainXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  AcdVetoFitLibrary vetoFitter(AcdVetoFitLibrary::Counting);
+  AcdVetoFitMap* vetos = r.fitVetos(vetoFitter);
 
-  TList cl_log;
-  std::string psFile_log = psFile + "log_";
-  AcdCalibUtil::drawMips(cl_log,*(r.getHistMap(AcdCalibBase::GAIN)),*gains,kTRUE,psFile_log.c_str());
-  AcdCalibUtil::saveCanvases(cl_log);
-
-  TList cl_lin;
-  std::string psFile_lin = psFile + "lin_";
-  AcdCalibUtil::drawMips(cl_lin,*(r.getHistMap(AcdCalibBase::GAIN)),*gains,kFALSE,psFile_lin.c_str());
-  AcdCalibUtil::saveCanvases(cl_lin);  
+  r.writeHistograms(AcdCalibBase::VETO_FRAC, outputHistFile.c_str());
+  vetos->writeTxtFile(textFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  vetos->writeXmlFile(xmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
 
   delete digiChain;
 

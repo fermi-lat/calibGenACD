@@ -17,6 +17,9 @@
 
 #include "AcdHistCalibMap.h"
 
+#include "./AcdGainFit.h"
+#include "./AcdPedestalFit.h"
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -26,7 +29,7 @@
 
 class AcdMuonBenchCalib : public AcdCalibBase {
 
-public :
+public:
 
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain  
@@ -82,13 +85,17 @@ private:
 
 public:
 
-  AcdMuonBenchCalib(TTree *tree=0,const char* histFilename = "histograms.root");
+  AcdMuonBenchCalib(TTree *tree=0);
   virtual ~AcdMuonBenchCalib();
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
+
+  // these two just call down to the fitAll() routines in the fitters
+  AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
+  AcdGainFitMap* fitGains(AcdGainFit& fitter);
 
 protected:
 
@@ -116,6 +123,12 @@ protected:
 
 private:
 
+  AcdHistCalibMap* m_pedHists;
+  AcdHistCalibMap* m_gainHists;
+  
+  AcdGainFitMap* m_gains;
+  AcdPedestalFitMap* m_peds;
+
   ClassDef(AcdMuonBenchCalib,0) ;
 
 };
@@ -124,14 +137,11 @@ private:
 
 #ifdef AcdMuonBenchCalib_cxx
 
-AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree, const char* histFileName)
+AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree)
   :AcdCalibBase()
 {
-  Bool_t ok = bookHists(histFileName);
-  if ( !ok ) {
-    std::cerr << "ERR:  Failed to book histograms to file " << histFileName <<  std::endl;
-  }  
-
+  m_pedHists =  bookHists(PEDESTAL,4096,-0.5,4095.5);
+  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
   Init(tree);
 }
 

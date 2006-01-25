@@ -8,7 +8,7 @@ class AcdCalibVersion {
 public:
 
   static const char* version() {
-    return "v1r0p0";
+    return "v1r1";
   }
   
 public:

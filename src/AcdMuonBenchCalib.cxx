@@ -21,115 +21,6 @@ Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UI
   //  have to change this a lot, so i'm doing it this way for now
   //
 
-  /*
-    static std::set<UInt_t> set1; // top -x-y corner
-    if ( set1.size() == 0 ) {
-    set1.insert(000); set1.insert(001); set1.insert(002); 
-    set1.insert(010); set1.insert(011); set1.insert(012); 
-    set1.insert(020); set1.insert(021); set1.insert(022); 
-    }
-  */
-  /*
-    static std::set<UInt_t> set2; // top +x-y corner
-    if ( set2.size() == 0 ) {
-    set2.insert(002); set2.insert(003); set2.insert(004); 
-    set2.insert(012); set2.insert(013); set2.insert(014); 
-    set2.insert(022); set2.insert(023); set2.insert(024);
-    }
-  */
-  /*
-    static std::set<UInt_t> set3; // top -x+y corner
-    if ( set3.size() == 0 ) {
-    set3.insert(020); set3.insert(021); set3.insert(022); 
-    set3.insert(030); set3.insert(031); set3.insert(032); 
-    set3.insert(040); set3.insert(041); set3.insert(042);
-    } 
-  */
-  /*
-    static std::set<UInt_t> set4; // top +x+y corner
-    if ( set4.size() == 0 ) { 
-    set4.insert(022); set4.insert(023); set4.insert(024); 
-    set4.insert(032); set4.insert(033); set4.insert(034); 
-    set4.insert(042); set4.insert(043); set4.insert(044);
-    }
-  */
-  /*
-    static std::set<UInt_t> set5; // -x side, -y tiles
-    if ( set5.size() == 0 ) {  
-    set5.insert(100); set5.insert(101); set5.insert(102); 
-    set5.insert(110); set5.insert(111); set5.insert(112); 
-    set5.insert(120); set5.insert(121); set5.insert(122); 
-    }
-  */
-  /*
-    static std::set<UInt_t> set6; // -x side, +y tiles
-    if ( set6.size() == 0 ) {  
-    set6.insert(102); set6.insert(103); set6.insert(104); 
-    set6.insert(112); set6.insert(113); set6.insert(114); 
-    set6.insert(122); set6.insert(123); set6.insert(124); 
-    }
-  */
-  /*static std::set<UInt_t> set7; // -y side, -x tiles
-    if ( set7.size() == 0 ) { 
-    set7.insert(200); set7.insert(201); set7.insert(202); 
-    set7.insert(210); set7.insert(211); set7.insert(212); 
-    set7.insert(220); set7.insert(221); set7.insert(222); 
-    }
-  */
-  /*
-    static std::set<UInt_t> set8; // -y side, +x tiles
-    if ( set8.size() == 0 ) { 
-    set8.insert(202); set8.insert(203); set8.insert(204); 
-    set8.insert(212); set8.insert(213); set8.insert(214); 
-    set8.insert(222); set8.insert(223); set8.insert(224); 
-    }  
-  */
-  /*
-    static std::set<UInt_t> set9; // +x side, -y tiles
-    if ( set9.size() == 0 ) { 
-    set9.insert(300); set9.insert(301); set9.insert(302); 
-    set9.insert(310); set9.insert(311); set9.insert(312); 
-    set9.insert(320); set9.insert(321); set9.insert(322); 
-    }
-  */
-  /*
-    static std::set<UInt_t> setA; // +x side, +y tiles
-    if ( setA.size() == 0 ) { 
-    setA.insert(302); setA.insert(303); setA.insert(304); 
-    setA.insert(312); setA.insert(313); setA.insert(314); 
-    setA.insert(322); setA.insert(323); setA.insert(324); 
-    }  
-  */
-  /*
-    static std::set<UInt_t> setB; // +y side, -x tiles
-    if ( setB.size() == 0 ) { 
-    setB.insert(400); setB.insert(401); setB.insert(402); 
-    setB.insert(410); setB.insert(411); setB.insert(412); 
-    setB.insert(420); setB.insert(421); setB.insert(422); 
-    }
-  */
-  /*
-    static std::set<UInt_t> setC; // +y side, +x tiles
-    if ( setC.size() == 0 ) { 
-    setC.insert(402); setC.insert(403); setC.insert(404); 
-    setC.insert(412); setC.insert(413); setC.insert(414); 
-    setC.insert(422); setC.insert(423); setC.insert(424); 
-    }   
-  */ 
-  /*
-    static std::set<UInt_t> setD; // -x bottom
-    if ( setD.size() == 0 ) {  setD.insert(130); }
-
-    static std::set<UInt_t> setE; // -y bottom
-    if ( setE.size() == 0 ) {  setD.insert(230); }
-   
-    static std::set<UInt_t> setF; // +x bottom 
-    if ( setF.size() == 0 ) {  setF.insert(330); }
-
-    static std::set<UInt_t> setG; // +y bottom
-    if ( setG.size() == 0 ) {  setG.insert(430); }
-  */
-
   // these are the only ones that are used
   static std::set<UInt_t> negXSide; 
   if ( negXSide.size() == 0 ) {
@@ -166,57 +57,7 @@ Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UI
   std::list<UInt_t> output;
   std::back_insert_iterator< std::list<UInt_t> > ii(output);
 
-  switch ( whichCut ) {
-    /*
-      case 1:
-      std::set_intersection(set1.begin(),set1.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 2:
-      std::set_intersection(set2.begin(),set2.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 3:
-      std::set_intersection(set3.begin(),set3.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 4:
-      std::set_intersection(set4.begin(),set4.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 5:
-      std::set_intersection(set5.begin(),set5.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 6:
-      std::set_intersection(set6.begin(),set6.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 7:
-      std::set_intersection(set7.begin(),set7.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 8:
-      std::set_intersection(set8.begin(),set8.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 9:
-      std::set_intersection(set9.begin(),set9.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 10:
-      std::set_intersection(setA.begin(),setA.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 11:
-      std::set_intersection(setB.begin(),setB.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 12:
-      std::set_intersection(setC.begin(),setC.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 13:
-      std::set_intersection(setD.begin(),setD.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 14:
-      std::set_intersection(setE.begin(),setE.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 15:
-      std::set_intersection(setF.begin(),setF.end(),hits.begin(),hits.end(),ii);
-      break;
-      case 16:
-      std::set_intersection(setG.begin(),setG.end(),hits.begin(),hits.end(),ii);
-      break;
-    */
+  switch ( whichCut ) { 
   case 100:
     std::set_intersection(negXSide.begin(),negXSide.end(),hits.begin(),hits.end(),ii);
     break;
@@ -259,7 +100,7 @@ Bool_t AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const 
     }
     if ( ! passesCut ) continue;
     retVal = kTRUE;
-    fillGainHist(id,pmt,(Float_t)(itr->second) );
+    fillHist(*m_gainHists,id,pmt,(Float_t)(itr->second) );
   }
   return retVal;
 }
@@ -314,7 +155,7 @@ void AcdMuonBenchCalib::useEvent(Bool_t& used) {
 	  if ( isHit > 0 ) { continue; }	      
 	  
 	  if ( calType() == PEDESTAL ) {
-	    fillPedestalHist(iTile, iPmt, adcCounts);	   
+	    fillHist(*m_pedHists,iTile, iPmt, adcCounts);	   
 	  }
 	}
       }
@@ -326,3 +167,20 @@ void AcdMuonBenchCalib::useEvent(Bool_t& used) {
   }
 
 }
+
+AcdPedestalFitMap* AcdMuonBenchCalib::fitPedestals(AcdPedestalFit& fitter) { 
+  m_peds = new AcdPedestalFitMap;
+  addCalibration(PEDESTAL,*m_peds);
+  AcdHistCalibMap* hists = getHistMap(PEDESTAL);
+  fitter.fitAll(*m_peds,*hists);
+  return m_peds;
+}
+
+AcdGainFitMap* AcdMuonBenchCalib::fitGains(AcdGainFit& fitter) {
+  m_gains = new AcdGainFitMap;
+  addCalibration(GAIN,*m_gains);
+  AcdHistCalibMap* hists = getHistMap(GAIN);
+  fitter.fitAll(*m_gains,*hists);
+  return m_gains;
+}  
+

@@ -3,9 +3,9 @@
 #include "TF1.h"
 #include "AcdCalibBase.h"
 
-#include "AcdHistCalibMap.h"
-#include "AcdPedestalFit.h"
-#include "AcdGainFit.h"
+#include "./AcdHistCalibMap.h"
+#include "./AcdPedestalFit.h"
+#include "./AcdCalibMap.h"
 
 #include "digiRootData/DigiEvent.h"
 
@@ -17,22 +17,23 @@ using std::string;
 ClassImp(AcdCalibBase) ;
 
 AcdCalibBase::AcdCalibBase()
-  :m_calType(PEDESTAL),
-   m_rawMap(0),m_peakMap(0),m_unpairedMap(0),
-   m_pedestals(0),m_gains(0),
-   m_histFile(0) {
+  :m_calType(PEDESTAL) {
   resetCounters();
 }
 
 
 AcdCalibBase::~AcdCalibBase() 
 {
-  delete m_rawMap;
-  delete m_peakMap;
-  delete m_unpairedMap;
-  delete m_pedestals;
-  delete m_gains;
+  for ( std::map<int,AcdHistCalibMap*>::iterator itr = m_histMaps.begin(); itr != m_histMaps.end(); itr++ ) {
+    AcdHistCalibMap* aMap = itr->second;
+    delete aMap;
+  }
+  for ( std::map<int,AcdCalibMap*>::iterator itr2 = m_fitMaps.begin(); itr2 != m_fitMaps.end(); itr2++ ) {
+    AcdCalibMap* aMap2 = itr2->second;
+    delete aMap2;
+  }
 }
+
 
 void AcdCalibBase::go(int numEvents, int startEvent) {
 
@@ -63,117 +64,80 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
   }
 
   lastEvent(m_runId,m_evtId);
-
 }
 
-void AcdCalibBase::fillPedestalHist(int id, int pmtId, int pha)
+void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val)
 {
-  
   UInt_t histId = AcdMap::makeKey(pmtId,id);
   
   if ( ! AcdMap::channelExists(id) ) {
     cout << "Missing " << id << endl;
     return;
   }
-  m_rawMap->getHist(histId)->Fill(pha);
+  TH1* hist = histMap.getHist(histId);
+  if ( hist == 0 ) {
+    cout << "No histogram " << id << endl;
+  }
+  hist->Fill(val);
 }
 
-
-void AcdCalibBase::fillGainHist(int id, int pmtId, float phaCorrect) {
-
-  if ( !  AcdMap::channelExists(id) ) {
-    cout << "Missing " << id << endl;
-    return;
+AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low, Float_t hi ) {
+  AcdHistCalibMap* map = getHistMap(histType);
+  if ( map != 0 ) {
+    std::cout << "Warning: replacing old histograms" << std::endl;
+    delete map;
+  }
+  TString name;
+  switch (histType) {
+  case PEDESTAL: name += "PED"; break;
+  case GAIN: name += "GAIN"; break;
+  case UNPAIRED: name += "UNPAIRED"; break;
+  case RAW: name += "RAW"; break;
+  case VETO: name += "VETO"; break;
+  case VETO_FRAC: name += "VETO_FRAC"; break;
   }
 
-  UInt_t histId = AcdMap::makeKey(pmtId,id);
-  TH1* aHist = m_peakMap->getHist(histId);
-  if ( aHist == 0 ) {
-    std::cout << "Missing channel " << id << ' ' << pmtId << std::endl;
-    return;
-  }  
-  aHist->Fill(phaCorrect);
-}
-
-
-void AcdCalibBase::fillUnpairedHist(int id, int pmtId, int pha) {
-
-  if ( ! AcdMap::channelExists(id) ) {
-    cout << "Missing " << id << endl;
-  }
-  UInt_t histId = AcdMap::makeKey(pmtId,id);  
-  TH1* aHist = m_unpairedMap->getHist(histId);
-  if ( aHist == 0 ) {
-    std::cout << "Missing channel " << id << ' ' << pmtId << std::endl;
-    return;
-  }
-  aHist->Fill((Float_t)pha);
-}
-
-Bool_t AcdCalibBase::bookHists(const char* fileName,
-			       UInt_t nBinGain, Float_t lowGain, Float_t hiGain,
-			       UInt_t nBinPed, Float_t lowPed, Float_t hiPed) {
-  if ( fileName != 0 ) {
-    m_histFile = TFile::Open(fileName, "RECREATE");
-    if ( m_histFile == 0 ) return kFALSE;
-  }
-  m_rawMap = new AcdHistCalibMap("Raw",nBinPed,lowPed,hiPed);
-  m_unpairedMap = new AcdHistCalibMap("Unpaired",nBinPed,lowPed,hiPed);
-  m_peakMap = new AcdHistCalibMap("Peak",nBinGain,lowGain,hiGain);
-  return kTRUE;
+  map = new AcdHistCalibMap(name,nBin,low,hi);
+  m_histMaps[histType] = map;
+  return map;
 } 
 
-AcdPedestalFitMap* AcdCalibBase::fitPedestals(AcdPedestalFit& fitter) {
-  if ( m_pedestals != 0 ) {
-    std::cout << "Warning: replacing old pedestal fits" << std::endl;
-    delete m_pedestals;
+void AcdCalibBase::addCalibration(int calibKey, AcdCalibMap& newCal) {  
+  AcdCalibMap* old = getCalibMap(calibKey);
+  if ( old != 0 ) {
+    std::cout << "Warning: replacing calibration" << std::endl;
+    delete old;
   }
-  m_pedestals = new AcdPedestalFitMap;
-  fitter.fitAll(*m_pedestals,*m_rawMap);
-  return m_pedestals;
+  m_fitMaps[calibKey] = &newCal;
 }
 
-AcdGainFitMap* AcdCalibBase::fitGains(AcdGainFit& fitter) {
-  if ( m_gains != 0 ) {
-    std::cout << "Warning: replacing old gain fits" << std::endl;
-    delete m_gains;
-  }
-  m_gains = new AcdGainFitMap;
-  fitter.fitAll(*m_gains,*m_peakMap);
-  return m_gains;
-}  
-
-Bool_t AcdCalibBase::writeHistograms(CALTYPE type, const char* newFileName ) {
+Bool_t AcdCalibBase::writeHistograms(int histType, const char* newFileName ) {
+  AcdHistCalibMap* map = getHistMap(histType);
+  if ( map == 0 ) return kFALSE;
+  TFile * histFile(0);
   if ( newFileName != 0 ) {
-     m_histFile = TFile::Open(newFileName, "RECREATE");
-     if ( m_histFile == 0 ) return kFALSE;
+     histFile = TFile::Open(newFileName, "RECREATE");
+     if ( histFile == 0 ) return kFALSE;
   }
-  if(m_histFile == 0 ) return kFALSE;
-  
-  m_histFile->cd();
-  
-  switch ( type ) {
-  case PEDESTAL:  
-    if ( m_rawMap != 0 ) m_rawMap->histograms().Write();
-    break;
-  case GAIN:
-    if ( m_peakMap != 0 ) m_peakMap->histograms().Write();
-    break;
-  case UNPAIRED:
-    if ( m_unpairedMap != 0 ) m_unpairedMap->histograms().Write();
-    break;
-  } 
-
+  if( histFile == 0 ) return kFALSE;
+  map->histograms().Write();
+  histFile->Close();
   return kTRUE;
 }
 
-Bool_t AcdCalibBase::readPedestals(const char* fileName) {
-  if ( m_pedestals != 0 ) {
-    std::cout << "Warning: replacing old pedestal fits" << std::endl;
-    delete m_pedestals;
+Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
+  AcdCalibMap* map = getCalibMap(calKey);
+  if ( map != 0 ) {
+    std::cout << "Warning: replacing old calibration" << std::endl;
+    delete map;
   }
-  m_pedestals = new AcdPedestalFitMap;
-  return m_pedestals->readTxtFile(fileName);
+  switch ( calKey ) {
+  case 0:
+    map = new AcdPedestalFitMap;
+    break;
+  }
+  if ( map == 0 ) return kFALSE;
+  return map->readTxtFile(fileName);
 }
 
 void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
@@ -181,11 +145,25 @@ void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
   m_evtId = evtId;
   m_runId = runId;
   m_nTrigger++;
-  if ( passedCut ) m_nUsed++;  
+  if ( passedCut ) {
+    m_nUsed++;  
+  }
   if ( ievent == m_startEvent ) { 
     firstEvent(runId,evtId);
   }
   else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
   else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
   else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }
+}
+
+// get the maps of the histograms to be fit
+AcdHistCalibMap* AcdCalibBase::getHistMap(int key) {
+  std::map<int,AcdHistCalibMap*>::iterator itr = m_histMaps.find(key);
+  return itr == m_histMaps.end() ? 0 : itr->second;
+}
+
+// get the results maps
+AcdCalibMap* AcdCalibBase::getCalibMap(int key) {
+  std::map<int,AcdCalibMap*>::iterator itr = m_fitMaps.find(key);
+  return itr == m_fitMaps.end() ? 0 : itr->second;
 }

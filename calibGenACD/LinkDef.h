@@ -10,6 +10,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class AcdCalibVersion;
+#pragma link C++ class AcdCalibUtil;
 #pragma link C++ class AcdMap;
 #pragma link C++ class AcdHistCalibMap;
 
@@ -25,6 +26,11 @@
 #pragma link C++ class AcdPedestalFitMap;
 #pragma link C++ class AcdPedestalFit;
 #pragma link C++ class AcdPedestalFitLibrary;
+
+#pragma link C++ class AcdVetoFitResult;
+#pragma link C++ class AcdVetoFitMap;
+#pragma link C++ class AcdVetoFit;
+#pragma link C++ class AcdVetoFitLibrary;
 
 #pragma link C++ class AcdCalibBase;
 #pragma link C++ class AcdMuonBenchCalib;
