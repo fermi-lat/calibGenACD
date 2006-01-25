@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 24 16:10:26 PST 2006
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Fairly big update, added AcdVetoCalib, changed the structure a bit
+    *
+------------------------------------------------------------
 User: echarles  Tue Jan 24 16:10:24 PST 2006
 calibGenACD/cmt
 
