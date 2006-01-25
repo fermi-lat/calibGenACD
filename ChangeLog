@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 24 16:10:23 PST 2006
+calibGenACD/calibGenACD
+
+Modified Files:
+	LinkDef.h 
+Log Message:
+Fairly big update, added AcdVetoCalib, changed the structure a bit
+    *
+------------------------------------------------------------
 User: echarles  Tue Jan 24 16:10:22 PST 2006
 calibGenACD/apps
 
