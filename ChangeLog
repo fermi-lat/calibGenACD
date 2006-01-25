@@ -1,4 +1,20 @@
 ------------------------------------------------------------
+User: echarles  Tue Jan 24 16:10:27 PST 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.cxx 
+	AcdCalibVersion.h AcdGainFitLibrary.cxx AcdGainFitLibrary.h 
+	AcdMuonBenchCalib.cxx AcdMuonBenchCalib.h AcdMuonRoiCalib.cxx 
+	AcdMuonRoiCalib.h AcdMuonTkrCalib.cxx AcdMuonTkrCalib.h 
+	muonCalibOption_gain.xml 
+Added Files:
+	AcdCalibUtil.cxx AcdCalibUtil.h AcdVetoFit.cxx AcdVetoFit.h 
+	AcdVetoFitLibrary.cxx AcdVetoFitLibrary.h 
+Log Message:
+Fairly big update, added AcdVetoCalib, changed the structure a bit
+    *
+------------------------------------------------------------
 User: echarles  Tue Jan 24 16:10:26 PST 2006
 calibGenACD/doc
 
