@@ -46,6 +46,13 @@ public:
 
   virtual AcdCalibResult* createHolder() const { return new AcdGainFitResult; }
 
+  AcdGainFitResult* find(UInt_t key) {
+    AcdCalibResult* res = get(key);
+    if ( res == 0 ) return 0;
+    AcdGainFitResult* fr = static_cast<AcdGainFitResult*>(res);
+    return fr;
+  }
+
   virtual const char* calibType() {
     return "ACD_ElecGain";
   }

@@ -36,6 +36,7 @@
 #pragma link C++ class AcdMuonBenchCalib;
 #pragma link C++ class AcdMuonRoiCalib;
 #pragma link C++ class AcdMuonTkrCalib;
+#pragma link C++ class AcdMeritCalib;
 
 
 #endif

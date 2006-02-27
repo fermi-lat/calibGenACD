@@ -1,15 +1,15 @@
-#ifndef AcdMuonTkrCalib_h
-#define AcdMuonTkrCalib_h 
+#ifndef AcdMeritCalib_h
+#define AcdMeritCalib_h 
 
 #include "AcdCalibBase.h"
-
-#include "./AcdGainFit.h"
-#include "./AcdPedestalFit.h"
 
 #include "TTree.h"
 #include "TH1.h"
 #include "TChain.h"
 #include <iostream>
+
+#include "./AcdGainFit.h"
+#include "./AcdPedestalFit.h"
 
 class AcdTkrIntersection;
 class AcdDigi;
@@ -17,39 +17,33 @@ class DigiEvent;
 class ReconEvent;
 
 
-class AcdMuonTkrCalib : public AcdCalibBase {
+class AcdMeritCalib : public AcdCalibBase {
 
 public :
   
   // Standard ctor, where user provides the names of the input root files
-  // and optionally the name of the output ROOT histogram file
-  AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain);
+  AcdMeritCalib(TChain& digiChain, TChain& reconChain, TChain& meritChain);
   
-  virtual ~AcdMuonTkrCalib();  
-
-  // this just call down to the fitAll() routine in the fitter
-  AcdGainFitMap* fitGains(AcdGainFit& fitter);
-  
-  Bool_t readPedestals(const char* fileName);
+  virtual ~AcdMeritCalib();  
 
   /// for writing output files
   virtual void writeXmlHeader(ostream& os) const;
   virtual void writeTxtHeader(ostream& os) const;
+  
+  Bool_t readPedestals(const char* fileName);
+  Bool_t readGains(const char* fileName);    
+
+  inline TTree* outputTree() { return m_outputTree; }
 
 protected:
 
   Bool_t attachChains();
 
-  // get reconstruction direction 
-  void getFitDir();
-    
-  // 
-  void fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi);
-
   // return the total number of events in the chains
   virtual int getTotalEvents() const { 
     if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
     if ( m_reconChain != 0 ) { return (int)(m_reconChain->GetEntries()); }
+    if ( m_meritChain != 0 ) { return (int)(m_meritChain->GetEntries()); }
     return 0;
   } 
 
@@ -59,12 +53,14 @@ protected:
 
   virtual void useEvent(Bool_t& used);
 
+  Float_t toMip(UInt_t channel, Int_t pha) const;
 
 private:
 
   /// TChain input
   TChain      *m_digiChain;
   TChain      *m_reconChain;
+  TChain      *m_meritChain;
 
   /// pointer to a ReconEvent
   DigiEvent* m_digiEvent;
@@ -72,13 +68,33 @@ private:
   /// pointer to a ReconEvent
   ReconEvent* m_reconEvent;
 
-  // 
-  AcdHistCalibMap* m_gainHists;
-    
+  /// Some stuff from merit
+  Float_t m_TkrNumTracks;    // why is this a float?
+  Float_t m_Tkr1SSDVeto;     // why is this a float?
+  Float_t m_Tkr1Hits;        // why is this a float?
+  Float_t m_Tkr1Chisq;
+  Float_t m_CalMIPRatio;     
+
+  // stuff for output  
+  Int_t m_runIdOut;
+  Int_t m_evtIdOut;
+  Int_t m_acdIdOut;
+  Float_t m_weight;
+  Float_t m_sToX;
+  Float_t m_doca;
+  Float_t m_gX;
+  Float_t m_gY;
+  Float_t m_gZ;
+  Float_t m_mipA;
+  Float_t m_mipB;
+  Int_t m_hit;
+
+  TTree* m_outputTree;
+ 
   AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
-
-  ClassDef(AcdMuonTkrCalib,0) ;
+  
+  ClassDef(AcdMeritCalib,0) ;
     
 };
 

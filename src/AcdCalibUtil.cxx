@@ -55,12 +55,20 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
       UInt_t idB = 1000 + idA;
       TH1* hA = h.getHist(idA);
       TH1* hB = h.getHist(idB);
+      if ( hA == 0 || hB == 0 ) continue;
+      
       TF1* fA = hA->GetFunction("pol7");
+      TF1* fB = hB->GetFunction("pol7");
+      if ( fA == 0 || fB == 0 ) {
+	fA = hA->GetFunction("pol5");
+	fB = hB->GetFunction("pol5");
+	if ( fA == 0 || fB == 0 ) continue;
+      }
+
       fA->GetRange(xmin,xmax);
       width = xmax - xmin;
       hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
-      hA->SetMinimum(ymin);
-      TF1* fB = hB->GetFunction("pol7");
+      hA->SetMinimum(ymin);     
       fB->GetRange(xmin,xmax);
       width = xmax - xmin;
       hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
@@ -108,12 +116,20 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
 	UInt_t idB = 1000 + idA;
 	TH1* hA = h.getHist(idA);
 	TH1* hB = h.getHist(idB);
-	TF1* fA = hA->GetFunction("pol7");	
+	if ( hA == 0 || hB == 0 ) continue;
+	
+	TF1* fA = hA->GetFunction("pol7");
+	TF1* fB = hB->GetFunction("pol7");
+	if ( fA == 0 || fB == 0 ) {
+	  fA = hA->GetFunction("pol5");
+	  fB = hB->GetFunction("pol5");
+	  if ( fA == 0 || fB == 0 ) continue;
+	}
+
 	fA->GetRange(xmin,xmax);
 	width = xmax - xmin;
 	hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
 	hA->SetMinimum(ymin);
-	TF1* fB = hB->GetFunction("pol7");
 	fB->GetRange(xmin,xmax);
 	width = xmax - xmin;
 	hB->SetMinimum(ymin);
@@ -144,12 +160,21 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
     UInt_t idB = 1000 + idA;
     TH1* hA = h.getHist(idA);
     TH1* hB = h.getHist(idB);
+
+    if ( hA == 0 || hB == 0 ) continue;
+    
     TF1* fA = hA->GetFunction("pol7");
+    TF1* fB = hB->GetFunction("pol7");
+    if ( fA == 0 || fB == 0 ) {
+      fA = hA->GetFunction("pol5");
+      fB = hB->GetFunction("pol5");
+      if ( fA == 0 || fB == 0 ) continue;
+    }
+
     fA->GetRange(xmin,xmax);
     width = xmax - xmin;  
     hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
     hA->SetMinimum(ymin);
-    TF1* fB = hB->GetFunction("pol7");
     fB->GetRange(xmin,xmax);
     width = xmax - xmin;   
     hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
@@ -237,4 +262,28 @@ UShort_t AcdCalibUtil::gemId(UInt_t id) {
     return 100 + col;
   }
   return 0xFFFF;
+}
+
+
+Float_t AcdCalibUtil::width(UInt_t id) {
+  UInt_t face = id / 100;
+  UInt_t row = (id % 100 ) / 10;
+  //UInt_t col = (id % 10 );
+
+  // stupid temp hack
+  if ( id == 34 ) return 12.;
+
+  switch ( face ) {
+  case 0:
+    return row == 2 ? 12. : 10.;
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+    return 10.;
+  case 5:
+  case 6:
+    return 6.;
+  }
+  return -1.;
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- job optin file for runMuonCalib_ped.exe -->
+<!-- job optin file for runVetoCalib.exe -->
 
 <!DOCTYPE ifile SYSTEM "$(CALIBGENACDROOT)/xml/ifile.dtd" >
 
@@ -8,7 +8,6 @@
   <section name="parameters"> input parameters for ACD pedestal and gain calibration	
    <item name="instrument" value="LAT">instrument type to be calibrated </item>
    <item name="digiFileList" value=""> blank-delimited list of input digi root files </item>
-   <item name="meritFileList" value=""> blank-delimited list of input merit root files </item>
    <item name="outputPrefix" value="test"> output file prefix </item>
   </section>
 </ifile>

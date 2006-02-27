@@ -37,6 +37,10 @@ public :
 
   AcdHistCalibMap* makeVetoRatio();
 
+  /// for writing output files
+  virtual void writeXmlHeader(ostream& os) const;
+  virtual void writeTxtHeader(ostream& os) const;
+
 protected:
 
   Bool_t attachChains();

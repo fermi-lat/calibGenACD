@@ -30,6 +30,8 @@ public :
 
   static Float_t efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic);
 
+  static Float_t width(UInt_t id);
+
 private:
 
   ClassDef(AcdCalibUtil,0) ;

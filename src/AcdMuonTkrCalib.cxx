@@ -6,6 +6,7 @@
 #include "AcdHistCalibMap.h"
 #include "AcdPedestalFit.h"
 #include "AcdGainFit.h"
+#include "AcdCalibUtil.h"
 
 #include "digiRootData/DigiEvent.h"
 #include "reconRootData/ReconEvent.h"
@@ -76,17 +77,21 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
   
   int rng1 = digi.getRange(AcdDigi::B);
   int pmt1 = digi.getPulseHeight(AcdDigi::B);
-  
-  float pathFactor = inter.getPathLengthInTile() / 10.;
 
   int id = digi.getId().getId();
+  
+  float width = AcdCalibUtil::width(id);
+  float pathFactor = inter.getPathLengthInTile() / width;
+  
+  // if ( pathFactor < 0.99 || pathFactor > 1.2 ) return;
+  if ( pathFactor > 1.5 ) return;
 
-  if ( m_peds == 0 ) return;
   UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
 
   AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
   AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);
+
   if ( pedRes_A == 0 && pedRes_B == 0 ) return;
 
   Float_t redPha_A = ((Float_t)(pmt0)) - pedRes_A->mean();
@@ -94,6 +99,9 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
   
   redPha_A /= pathFactor;
   redPha_B /= pathFactor;
+
+  ///Float_t redPha_A = ((Float_t)(pmt0));
+  // Float_t redPha_B = ((Float_t)(pmt1));
 
   if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A);
   if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B);
@@ -137,7 +145,7 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
   if (!acdDigiCol) return;
 
   int nAcdInter = acdRecon->nAcdIntersections();
-  for(int i = 0; i != nAcdInter; ++i) {
+  for(int i = 0; i != nAcdInter; i++) {
 
     const AcdTkrIntersection* acdInter = acdRecon->getAcdTkrIntersection(i);
     if ( acdInter->getTrackIndex() > 0 ) continue;
@@ -148,9 +156,9 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
     unsigned id = acdId.getId();
 
     int nAcdDigi = acdDigiCol->GetLast() + 1;
-    for(int j = 0; j != nAcdDigi; ++j) {      
+    for(int j = 0; j != nAcdDigi; j++) {      
       const AcdDigi* acdDigi = static_cast<const AcdDigi*>(acdDigiCol->At(j));      
-      assert(acdDigi != 0);
+      assert(acdDigi != 0);      
       const AcdId& acdIdCheck = acdDigi->getId();
       if ( acdIdCheck.getId() != id ) continue;
       fillGainHistCorrect(*acdInter,*acdDigi);
@@ -166,3 +174,27 @@ AcdGainFitMap* AcdMuonTkrCalib::fitGains(AcdGainFit& fitter) {
   fitter.fitAll(*m_gains,*hists);
   return m_gains;
 }  
+
+Bool_t AcdMuonTkrCalib::readPedestals(const char* fileName) {
+  Bool_t latchVal = readCalib(PEDESTAL,fileName);
+  AcdCalibMap* map = getCalibMap(PEDESTAL);
+  m_peds = (AcdPedestalFitMap*)(map);
+  return latchVal;
+}
+
+
+/// for writing output files
+void AcdMuonTkrCalib::writeXmlHeader(ostream& os) const {
+  AcdCalibBase::writeXmlHeader(os);
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "  <pedestalFile value=\"" << pedFileName << "\"/>" << endl; 
+}
+
+void AcdMuonTkrCalib::writeTxtHeader(ostream& os) const {
+  AcdCalibBase::writeTxtHeader(os);
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "#pedestalFile = " << pedFileName << endl;
+}
+

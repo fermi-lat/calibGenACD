@@ -78,12 +78,19 @@ Bool_t AcdMuonRoiCalib::readEvent(int ievent, Bool_t& filtered,
     m_digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
-    if ( m_requirePeriodic ) {
-      const Gem& gem = m_digiEvent->getGem();
-      if ( gem.getConditionSummary() != 32 ) {
+    switch ( calType () ) {
+    case PEDESTAL:
+      if ( m_requirePeriodic &&
+	   m_digiEvent->getGem().getConditionSummary() != 32 ) 
 	filtered = kTRUE;
-      }
-    }
+      break;
+    case HITMAP:
+      if ( m_digiEvent->getGem().getConditionSummary() >= 32 ) 
+	filtered = kTRUE;
+      break;
+    default:
+      break;
+    } 
   }
   
   return kTRUE;
@@ -255,12 +262,37 @@ void AcdMuonRoiCalib::compareDigiToGem() {
 
 
   // exactly one hit, check the cond arrival times
-  if ( nGem == 1 ) {
+  if ( nGem == 1 && (gemSide[1] & (1 << 13)) ) {
+  //if ( nGem == 1 ) {
     UShort_t roiTime = gem.getCondArrTime().roi();
     if ( nMatch > 0 ) {
+      if ( roiTime > 8 && roiTime < 31 ) {
+	printf("\nBOTH %08x %08x %08x %08x %i\n",gemSide[3],gemSide[2],gemSide[1],gemSide[0],roiTime);
+      } 
       m_condArrHist->Fill((Float_t)roiTime,1.,1.);
     } else {
+      if ( roiTime < 6 || roiTime == 31 ) {
+	printf("\nGEM  %08x %08x %08x %08x %i\n",gemSide[3],gemSide[2],gemSide[1],gemSide[0],roiTime);
+      } 
       m_condArrHist->Fill((Float_t)roiTime,2.,1.);
     }
   }
 }
+
+
+
+/// for writing output files
+void AcdMuonRoiCalib::writeXmlHeader(ostream& os) const {
+  AcdCalibBase::writeXmlHeader(os);
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "  <pedestalFile value=\"" << pedFileName << "\"/>" << endl; 
+}
+
+void AcdMuonRoiCalib::writeTxtHeader(ostream& os) const {
+  AcdCalibBase::writeTxtHeader(os);
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "#pedestalFile = " << pedFileName << endl;
+}
+

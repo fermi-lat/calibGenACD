@@ -61,11 +61,18 @@ public :
   /// number of events we ran over
   Int_t nTrigger() const { return m_nTrigger; }
 
+  /// number of events that passed the filter
+  Int_t nFilter() const { return m_nFilter; }
+
   /// number of events we used
   Int_t nUsed() const { return m_nUsed; }
 
   /// run the event loop
   void go(int numEvents = 0, int startEvent = 0);
+
+  /// for writing output files
+  virtual void writeXmlHeader(ostream& os) const;
+  virtual void writeTxtHeader(ostream& os) const;
 
 protected:
 
@@ -89,6 +96,7 @@ protected:
     m_runId_last = 0;
     m_startEvent = 0;
     m_nTrigger = 0;
+    m_nFilter = 0;
     m_nUsed = 0;
   }
 
@@ -132,6 +140,9 @@ private:
   
   /// number of events we ran over
   Int_t m_nTrigger;
+
+  /// number of events that passed the filter
+  Int_t m_nFilter;
 
   /// number of events we used
   Int_t m_nUsed;
