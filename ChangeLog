@@ -1,4 +1,67 @@
 ------------------------------------------------------------
+TAG
+Tag name: v1r2, operation: add
+Package: calibGenACD
+User: echarles  Sun Feb 26 16:54:06 2006
+Files:
+  calibGenACD/.cvsignore  1.1.1.1
+  calibGenACD/ChangeLog  1.32
+  calibGenACD/apps/runVetoCalib.cxx  1.2
+  calibGenACD/apps/runPedestal.cxx  1.2
+  calibGenACD/apps/runMuonCalib_Tkr.cxx  1.1
+  calibGenACD/apps/runMuonCalib_Roi.cxx  1.3
+  calibGenACD/apps/runMeritCalib.cxx  1.1
+  calibGenACD/calibGenACD/LinkDef.h  1.4
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.8
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.5
+  calibGenACD/src/AcdPedestalFitLibrary.h  1.1
+  calibGenACD/src/AcdVetoFitLibrary.h  1.1
+  calibGenACD/src/AcdVetoFitLibrary.cxx  1.1
+  calibGenACD/src/AcdCalibBase.cxx  1.5
+  calibGenACD/src/AcdPedestalFit.cxx  1.2
+  calibGenACD/src/AcdCalibUtil.cxx  1.2
+  calibGenACD/src/AcdPedestalFit.h  1.3
+  calibGenACD/src/muonCalibOption.xml  1.4
+  calibGenACD/src/AcdMuonTkrCalib.cxx  1.4
+  calibGenACD/src/AcdHistCalibMap.cxx  1.2
+  calibGenACD/src/AcdMuonBenchCalib.cxx  1.3
+  calibGenACD/src/AcdGainFitLibrary.cxx  1.4
+  calibGenACD/src/AcdMap.h  1.2
+  calibGenACD/src/calibOption_pedestal.xml  1.2
+  calibGenACD/src/AcdCalibResult.h  1.2
+  calibGenACD/src/AcdCalibVersion.cxx  1.1
+  calibGenACD/src/AcdMuonRoiCalib.h  1.4
+  calibGenACD/src/AcdVetoFit.h  1.1
+  calibGenACD/src/AcdMeritCalib.cxx  1.1
+  calibGenACD/src/AcdHistCalibMap.h  1.1
+  calibGenACD/src/AcdMuonTkrCalib.h  1.4
+  calibGenACD/src/AcdPedestalFitLibrary.cxx  1.2
+  calibGenACD/src/mainpage.h  1.1.1.1
+  calibGenACD/src/AcdCalibResult.cxx  1.1
+  calibGenACD/src/AcdCalibBase.h  1.5
+  calibGenACD/src/muonCalibOption_gain.xml  1.4
+  calibGenACD/src/muonCalibOption_veto.xml  1.1
+  calibGenACD/src/AcdMeritCalib.h  1.1
+  calibGenACD/src/AcdGainFit.h  1.3
+  calibGenACD/src/AcdMuonBenchCalib.h  1.3
+  calibGenACD/src/AcdMap.cxx  1.1
+  calibGenACD/src/AcdCalibMap.h  1.3
+  calibGenACD/src/.cvsignore  1.1.1.1
+  calibGenACD/src/AcdMuonRoiCalib.cxx  1.4
+  calibGenACD/src/AcdGainFitLibrary.h  1.3
+  calibGenACD/src/AcdCalibMap.cxx  1.5
+  calibGenACD/src/AcdCalibUtil.h  1.2
+  calibGenACD/src/AcdCalibVersion.h  1.3
+  calibGenACD/src/AcdGainFit.cxx  1.2
+  calibGenACD/src/AcdVetoFit.cxx  1.1
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
 User: echarles  Sun Feb 26 16:53:45 PST 2006
 calibGenACD/src
 
