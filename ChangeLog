@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Sun Feb 26 16:53:44 PST 2006
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+v1r2 Fairly big update, added AcdMeritCalib, changed the structure a bit
+    *
+------------------------------------------------------------
+User: echarles  Sun Feb 26 16:53:44 PST 2006
 calibGenACD/cmt
 
 Modified Files:
