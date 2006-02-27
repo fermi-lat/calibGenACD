@@ -9,8 +9,8 @@
 
 #include "TList.h"
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdVetoFitLibrary.h"
-#include "../src/AcdMuonRoiCalib.h"
+#include "../src/AcdGainFitLibrary.h"
+#include "../src/AcdMuonTkrCalib.h"
 
 #include <time.h>
 
@@ -26,18 +26,19 @@ void usage(const char* argv) {
        << endl;
   
   cout << "Usage:" << endl
-       << "\t" << "runVetoCalib.exe" << " -c <configFile>" << endl 
+       << "\t" << "runMuonCalib_Tkr.exe" << " -c <configFile>" << endl 
        << endl
        << "\t   <configFile>      : name of xml file with job configuration" << endl
        << endl
-       << "\t" << "runMuonCalib_Roi.exe" << " [options] -d <digiFiles> -o <output>" << endl 
+       << "\t" << "runMuonCalib_Tkr.exe" << " [options] -d <digiFiles> -r <reconFiles> -o <output>" << endl 
        << endl
        << "\t   <digiFiles>       : comma seperated list of digi ROOT files" << endl
-       << "\t   <meritFiles>      : comma seperated list of merit ROOT files" << endl
+       << "\t   <reconFiles>      : comma seperated list of recon ROOT files" << endl
        << "\t   <output>          : prefix (path or filename) to add to output files" << endl
        << endl
        << "\tOPTIONS" << endl
        << "\t   -h                : print this message" << endl
+       << "\t   -p <pedFile>      : specify the file with the pedestals" << endl
        << "\t   -I <Instrument>   : specify instument being calibrated" << endl
        << "\t   -n <nEvents>      : run over <nEvents>" << endl
        << "\t   -s <startEvent>   : start with event <startEvent>" << endl
@@ -48,9 +49,11 @@ int main(int argn, char** argc) {
 
   string path = ::getenv("CALIBGENACDROOT");
 
-  string jobOptionXmlFile(path + "/src/muonCalibOption_veto.xml");
+  string jobOptionXmlFile(path + "/src/muonCalibOption_gain.xml");
 
   string inputDigiFileStr;
+  string inputReconFileStr;
+  string pedFileName;
   string outputPrefix;
   string instrument;
 
@@ -60,7 +63,7 @@ int main(int argn, char** argc) {
   char* endPtr;
   
   int opt;
-  while ( (opt = getopt(argn, argc, "ho:d:c:p:I:n:s:")) != EOF ) {
+  while ( (opt = getopt(argn, argc, "ho:d:r:c:p:I:n:s:")) != EOF ) {
     switch (opt) {
     case 'h':
       usage(argc[0]);
@@ -72,8 +75,15 @@ int main(int argn, char** argc) {
       inputDigiFileStr += string(optarg);
       inputDigiFileStr += ',';
       break;
+    case 'r':
+      inputReconFileStr += string(optarg);
+      inputReconFileStr += ',';
+      break;
     case 'c':
       jobOptionXmlFile = string(optarg);
+      break;
+    case 'p':
+      pedFileName = string(optarg);
       break;
     case 'I':
       instrument = string(optarg);
@@ -91,12 +101,19 @@ int main(int argn, char** argc) {
       std::cerr << argc[0] << " not parsable..." << endl;
     }
   }    
-
   
   xmlBase::IFile myFile(jobOptionXmlFile.c_str()); 
 
   if (myFile.contains("parameters","digiFileList")) {
     inputDigiFileStr += myFile.getString("parameters", "digiFileList");
+  }
+
+  if (myFile.contains("parameters","reconFileList")) {
+    inputReconFileStr += myFile.getString("parameters", "reconFileList");
+  }
+
+  if (myFile.contains("parameters","pedestalFile")  && pedFileName == "" ) {
+    pedFileName = myFile.getString("parameters", "pedestalFile");
   }
 
   std::vector <std::string> token;
@@ -113,17 +130,31 @@ int main(int argn, char** argc) {
     cout << "   " << i+1 << ") " << token[i] << endl;
   }
 
+  facilities::Util::stringTokenize(inputReconFileStr, ";, ", token);
+  nFiles = token.size();
+  TChain* reconChain(0);
+
+  cout << "Input recon files:" << endl;
+  for (i=0; i!=nFiles; ++i) {
+    if (token[i]=="") continue;
+    if ( reconChain == 0 ) reconChain = new TChain("Recon");
+    reconChain->Add(token[i].c_str());
+    cout << "   " << i+1 << ") " << token[i] << endl;
+  }
+
   if (myFile.contains("parameters","instrument") && instrument == "") {
     instrument = myFile.getString("parameters", "instrument");    
   }
 
+  string gainTextFile, gainXmlFile, outputHistFile, psFile;  
   if (myFile.contains("parameters","outputPrefix") && outputPrefix == "" ) {
     outputPrefix = myFile.getString("parameters", "outputPrefix");
   }
     
-  string textFile = outputPrefix + "_veto.txt";
-  string xmlFile = outputPrefix + "_veto.xml";
-  string outputHistFile = outputPrefix + "_veto.root";
+  gainTextFile = outputPrefix + "_gain.txt";
+  gainXmlFile = outputPrefix + "_gain.xml";
+  outputHistFile = outputPrefix + "_gain.root";
+  psFile = outputPrefix + "_gain_";
 
   std::time_t theTime = std::time(0);
   const char* timeString = std::ctime(&theTime);
@@ -133,22 +164,40 @@ int main(int argn, char** argc) {
   cout << "output file prefix: " << outputPrefix << endl;
   cout << "instrument: " << instrument << endl;
   cout << "timestamp: " << timeStamp << endl;
-  
+  cout << "pedestal file: " << pedFileName << endl;
 
-  AcdMuonRoiCalib r(digiChain);
-  r.setCalType(AcdCalibBase::VETO);        
+  AcdMuonTkrCalib r(digiChain,reconChain);
+  r.setCalType(AcdCalibBase::GAIN);        
+
+  bool removePeds(true);
+  if ( pedFileName != "" && reconChain != 0 ) {
+    r.readPedestals(pedFileName.c_str());
+    removePeds = false;
+  }
+
   r.go(optval_n,optval_s);    
 
-  r.makeVetoRatio();
+  AcdGainFitLibrary gainFitter(AcdGainFitLibrary::P5,removePeds);
+  AcdGainFitMap* gains = r.fitGains(gainFitter);
 
-  AcdVetoFitLibrary vetoFitter(AcdVetoFitLibrary::Counting);
-  AcdVetoFitMap* vetos = r.fitVetos(vetoFitter);
+  r.writeHistograms(AcdCalibBase::GAIN, outputHistFile.c_str());
+  gains->writeTxtFile(gainTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  gains->writeXmlFile(gainXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
 
-  r.writeHistograms(AcdCalibBase::VETO_FRAC, outputHistFile.c_str());
-  vetos->writeTxtFile(textFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
-  vetos->writeXmlFile(xmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  AcdHistCalibMap* hists = r.getHistMap(AcdCalibBase::GAIN);
+
+  TList cl_log;
+  std::string psFile_log = psFile + "log_";
+  AcdCalibUtil::drawMips(cl_log,*hists,*gains,kTRUE,psFile_log.c_str());
+  AcdCalibUtil::saveCanvases(cl_log);
+
+  TList cl_lin;
+  std::string psFile_lin = psFile + "lin_";
+  AcdCalibUtil::drawMips(cl_lin,*hists,*gains,kFALSE,psFile_lin.c_str());
+  AcdCalibUtil::saveCanvases(cl_lin);  
 
   delete digiChain;
+  delete reconChain;
 
   return 0;
 }

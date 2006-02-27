@@ -28,6 +28,7 @@ apply_pattern root_package headers="\
  ../src/AcdMuonBenchCalib.h\
  ../src/AcdMuonRoiCalib.h\
  ../src/AcdMuonTkrCalib.h\
+ ../src/AcdMeritCalib.h\
  ../src/AcdVetoFit.h\
  ../src/AcdVetoFitLibrary.h"\
  includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"\
@@ -46,5 +47,7 @@ macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf" \
 macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
 
 application runMuonCalib_Roi ../apps/runMuonCalib_Roi.cxx
+application runMuonCalib_Tkr ../apps/runMuonCalib_Tkr.cxx
 application runPedestal ../apps/runPedestal.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
+application runMeritCalib ../apps/runMeritCalib.cxx

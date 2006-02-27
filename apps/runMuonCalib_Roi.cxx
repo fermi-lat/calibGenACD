@@ -33,7 +33,6 @@ void usage(const char* argv) {
        << "\t" << "runMuonCalib_Roi.exe" << " [options] -d <digiFiles> -o <output>" << endl 
        << endl
        << "\t   <digiFiles>       : comma seperated list of digi ROOT files" << endl
-       << "\t   <meritFiles>      : comma seperated list of merit ROOT files" << endl
        << "\t   <output>          : prefix (path or filename) to add to output files" << endl
        << endl
        << "\tOPTIONS" << endl
@@ -60,7 +59,7 @@ int main(int argn, char** argc) {
   char* endPtr;
   
   int opt;
-  while ( (opt = getopt(argn, argc, "ho:d:c:p:I:n:s:")) != EOF ) {
+  while ( (opt = getopt(argn, argc, "ho:d:c:I:n:s:")) != EOF ) {
     switch (opt) {
     case 'h':
       usage(argc[0]);

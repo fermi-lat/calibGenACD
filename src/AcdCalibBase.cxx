@@ -5,6 +5,7 @@
 
 #include "./AcdHistCalibMap.h"
 #include "./AcdPedestalFit.h"
+#include "./AcdGainFit.h"
 #include "./AcdCalibMap.h"
 
 #include "digiRootData/DigiEvent.h"
@@ -57,6 +58,7 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
     Bool_t used(kFALSE);
     if ( !filtered ) {
+      m_nFilter++;
       useEvent(used);
     }
     
@@ -132,12 +134,32 @@ Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
     delete map;
   }
   switch ( calKey ) {
-  case 0:
+  case PEDESTAL:
     map = new AcdPedestalFitMap;
+    break;
+  case GAIN:
+    map = new AcdGainFitMap;
     break;
   }
   if ( map == 0 ) return kFALSE;
+  addCalibration(calKey,*map);
   return map->readTxtFile(fileName);
+}
+
+
+void AcdCalibBase::writeXmlHeader(ostream& os) const {
+  os << "  <inputSample startTime=\"" << runId_first() << ':'  << evtId_first() 
+     << "\" stopTime=\"" << runId_last() << ':'  << evtId_last() 
+     << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger()
+     << "\" source=\"" << 0
+     << "\" mode=\"" << 0
+     << "\"/>" << endl; 
+}
+
+void AcdCalibBase::writeTxtHeader(ostream& os) const {
+  os << "#startTime = " << runId_first() << ':'  << evtId_first() << endl
+     << "#stopTime = " << runId_last() << ':'  << evtId_last() << endl
+     << "#triggers = " << nUsed() << '/' << nFilter() << '/' << nTrigger() << endl;
 }
 
 void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
@@ -151,6 +173,7 @@ void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
   if ( ievent == m_startEvent ) { 
     firstEvent(runId,evtId);
   }
+  else if ( ievent % 1000000 == 0 ) { std::cout << "x " << ievent / 1000000 << 'M' << std::endl; }
   else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
   else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
   else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }

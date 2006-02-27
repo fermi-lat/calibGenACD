@@ -111,6 +111,9 @@ Int_t AcdGainFitLibrary::fit(AcdGainFitResult& result, const TH1& hist) {
   case P7:
     returnCode = fitP7(result,hist);
     break;
+  case P5:
+    returnCode = fitP5(result,hist);
+    break;
   case LogNormal:
     returnCode = fitLogNormal(result,hist);
     break;
@@ -185,6 +188,31 @@ Int_t AcdGainFitLibrary::fitP7(AcdGainFitResult& result, const TH1& hist) {
   Float_t width = endValue - peakValue;
 
   result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,P7);
+  return status;
+}
+
+
+Int_t AcdGainFitLibrary::fitP5(AcdGainFitResult& result, const TH1& hist) {
+
+  Int_t ped, min, peak, halfMax;
+  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+
+  TH1& theHist = const_cast<TH1&>(hist);
+
+  if ( status != 0 ) return status;
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
+  Float_t minValue = hist.GetBinCenter(4*min);
+  Float_t endValue = hist.GetBinCenter(4*halfMax);
+
+  status = theHist.Fit("pol5","","",minValue,endValue); //applies polynomial fit
+  if ( status != 0 ) return fallback(result,hist);
+
+  TF1* fit = theHist.GetFunction("pol5"); 
+ 
+  Float_t peakValue = fit->GetMaximumX();
+  Float_t width = endValue - peakValue;
+
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,P5);
   return status;
 }
 

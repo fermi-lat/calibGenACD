@@ -48,9 +48,15 @@ public:
     return "NONE";
   }
 
+  const char* fileName() const {
+    return m_fileName.c_str();
+  }
+
 private:  
 
   std::map<UInt_t,AcdCalibResult*> m_map;
+  std::string m_fileName;
+
   ClassDef(AcdCalibMap,0) ;
 };
 

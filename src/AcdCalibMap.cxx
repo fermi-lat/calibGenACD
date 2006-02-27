@@ -54,10 +54,9 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
      << "#instrument= " << instrument << endl
      << "#timestamp = " << timestamp << endl
      << "#calibType = " << calibType() << endl
-     << "#fmtVersion = " << AcdCalibVersion::version() << endl
-     << "#startTime = " << calib.runId_first() << ':'  << calib.evtId_first() << endl
-     << "#stopTime = " << calib.runId_last() << ':'  << calib.evtId_last() << endl
-     << "#triggers = " << calib.nUsed() << '/' << calib.nTrigger() << endl;
+     << "#fmtVersion = " << AcdCalibVersion::version() << endl;
+  calib.writeTxtHeader(os);
+
   //calib.printFilesTxt(os);
   os << "#source = " << 0 << endl
      << "#mode = " << 0 << endl;
@@ -122,13 +121,8 @@ void AcdCalibMap::writeXmlHeader(ostream& os,
      << "\" timestamp=\"" << timestamp 
      << "\" calibType=\"" << calibType() 
      << "\" fmtVersion=\"" << AcdCalibVersion::version()
-     << "\">" << endl;\
-  os << "  <inputSample startTime=\"" << calib.runId_first() << ':'  << calib.evtId_first() 
-     << "\" stopTime=\"" << calib.runId_last() << ':'  << calib.evtId_last() 
-     << "\" triggers=\"" << calib.nUsed() << '/' << calib.nTrigger()
-     << "\" source=\"" << 0
-     << "\" mode=\"" << 0
-     << "\"/>" << endl;
+     << "\">" << endl;
+  calib.writeXmlHeader(os);
   os << "</generic>" << endl;
   os << "<dimension nTile=\"216\"/>" << endl;    
 }
@@ -190,6 +184,8 @@ Bool_t AcdCalibMap::readTxtFile(const char* fileName) {
 
   Bool_t result = readTxt(infile);
   infile.close();
+
+  m_fileName = fileName;
   return result;
 }
 

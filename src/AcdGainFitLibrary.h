@@ -27,7 +27,8 @@ public:
 		 Fallback = 2,
 		 Landau = 3,
 		 P7 = 4,
-		 LogNormal = 5 };
+		 P5 = 5,
+		 LogNormal = 6 };
 
 public:
 
@@ -52,6 +53,7 @@ protected:
   Int_t fallback(AcdGainFitResult& result, const TH1& hist);
   Int_t fitLandau(AcdGainFitResult& result, const TH1& hist);
   Int_t fitP7(AcdGainFitResult& result, const TH1& hist);
+  Int_t fitP5(AcdGainFitResult& result, const TH1& hist);
   Int_t fitLogNormal(AcdGainFitResult& result, const TH1& hist);
 
 private:
