@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Sun Feb 26 16:53:44 PST 2006
+calibGenACD/apps
+
+Modified Files:
+	runMuonCalib_Roi.cxx runVetoCalib.cxx 
+Added Files:
+	runMeritCalib.cxx runMuonCalib_Tkr.cxx 
+Log Message:
+v1r2 Fairly big update, added AcdMeritCalib, changed the structure a bit
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r1, operation: add
 Package: calibGenACD
