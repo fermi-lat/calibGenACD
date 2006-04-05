@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Apr  4 17:08:39 PDT 2006
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Initilize pedestal file to zero to prevent crash if it don't exist
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r2, operation: add
 Package: calibGenACD
