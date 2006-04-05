@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Tue Apr  4 17:08:39 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdMuonRoiCalib.cxx 
+Log Message:
+Initilize pedestal file to zero to prevent crash if it don't exist
+    *
+------------------------------------------------------------
+User: echarles  Tue Apr  4 17:08:39 PDT 2006
 calibGenACD/doc
 
 Modified Files:
