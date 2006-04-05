@@ -28,6 +28,7 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic)
    m_requirePeriodic(requirePeriodic){
 
   setCalType(PEDESTAL);
+  m_peds = 0;
 
   m_pedHists = bookHists(PEDESTAL,4096,-0.5,4095.5);
   m_gainHists = bookHists(GAIN,256,-0.5,4095.5);

@@ -1,3 +1,6 @@
+v1r2p1 EAC 060404
+Initilize pedestal file to zero to prevent crash if it don't exist
+
 v1r2 EAC 060123
 Fairly big update, added AcdMeritCalib, changed the structure a bit.
 
