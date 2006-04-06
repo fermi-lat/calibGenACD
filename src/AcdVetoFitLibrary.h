@@ -33,6 +33,11 @@ public:
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
 
+  virtual const char* algorithm() const {
+    static const char* names[3] = {"None","Counting","Erf"};
+    return names[_type];
+  }
+
 protected:
 
   Int_t counting(AcdVetoFitResult& result, const TH1& hist);

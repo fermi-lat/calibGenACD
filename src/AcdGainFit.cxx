@@ -9,34 +9,33 @@
 
 ClassImp(AcdGainFitResult) ;
 
-AcdGainFitResult::AcdGainFitResult(Float_t peak, Float_t width, STATUS status, Int_t type) 
+AcdGainFitResult::AcdGainFitResult(Float_t peak, Float_t width, STATUS status) 
   :AcdCalibResult(status),
-   _peak(peak),_width(width),_type(type){
+   _peak(peak),_width(width){
 }
 
 AcdGainFitResult::AcdGainFitResult()
   :AcdCalibResult(),
-   _peak(0.),_width(0.),_type(0){
+   _peak(0.),_width(0.){
 }
 
 void AcdGainFitResult::printXmlLine(ostream& os) const {
   
-  os << "<acdGain avg=\"" << _peak
-     << "\" sig=\"" << _width    
+  os << "<acdGain peak=\"" << _peak
+     << "\" width=\"" << _width    
      << "\" status=\"" << getStatus()
-     << "\" type=\"" << _type 
      << "\"/>" << std::endl;
 };
 
 void AcdGainFitResult::printTxtLine(ostream& os) const {
-  os << _peak << ' ' << _width << ' ' << getStatus() << ' ' << _type;
+  os << _peak << ' ' << _width << ' ' << getStatus();
 };
 
 Bool_t AcdGainFitResult::readTxt(istream& is) { 
   Float_t peak, width;
-  Int_t stat, type;
-  is >> peak >> width >> stat >> type;
-  setVals(peak,width,(STATUS)stat,type);
+  Int_t stat;
+  is >> peak >> width >> stat;
+  setVals(peak,width,(STATUS)stat);
   return kTRUE;
 };  
 
@@ -53,8 +52,8 @@ AcdGainFit::AcdGainFit() {;}
 
 AcdGainFit::~AcdGainFit() {;}
 
-Int_t AcdGainFit::fit(AcdGainFitResult& result, const TH1& hist) {
-  result.setVals(0.,0.,AcdGainFitResult::NOFIT,0);
+Int_t AcdGainFit::fit(AcdGainFitResult& result, const TH1& /* hist */) {
+  result.setVals(0.,0.,AcdGainFitResult::NOFIT);
   return result.getStatus();
 }
 

@@ -29,6 +29,11 @@ public:
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
 
+  virtual const char* algorithm() const {
+    static const char* names[3] = {"None","PeakValue","MeanValue"};
+    return names[_type];
+  }
+
 protected:
 
   UInt_t fitMean(AcdPedestalFitResult& result, const TH1& hist);

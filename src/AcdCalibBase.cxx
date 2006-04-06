@@ -150,16 +150,21 @@ Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
 void AcdCalibBase::writeXmlHeader(ostream& os) const {
   os << "  <inputSample startTime=\"" << runId_first() << ':'  << evtId_first() 
      << "\" stopTime=\"" << runId_last() << ':'  << evtId_last() 
-     << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger()
-     << "\" source=\"" << 0
+     << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger() 
+     << "\" source=\"" << 0 
      << "\" mode=\"" << 0
-     << "\"/>" << endl; 
+     << "\">" << endl; 
+  writeXmlSources(os);
+  os << "</inputSample>" << endl;
 }
 
 void AcdCalibBase::writeTxtHeader(ostream& os) const {
   os << "#startTime = " << runId_first() << ':'  << evtId_first() << endl
      << "#stopTime = " << runId_last() << ':'  << evtId_last() << endl
-     << "#triggers = " << nUsed() << '/' << nFilter() << '/' << nTrigger() << endl;
+     << "#triggers = " << nUsed() << '/' << nFilter() << '/' << nTrigger() << endl
+     << "#source = " << endl
+     << "#mode = " << 0 << endl;
+  writeTxtSources(os);
 }
 
 void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {

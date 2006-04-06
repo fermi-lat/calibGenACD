@@ -184,3 +184,16 @@ AcdGainFitMap* AcdMuonBenchCalib::fitGains(AcdGainFit& fitter) {
   return m_gains;
 }  
 
+
+void AcdMuonBenchCalib::writeXmlSources(ostream& os) const {
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "peds=" << pedFileName << std::endl;
+}
+
+void AcdMuonBenchCalib::writeTxtSources(ostream& os) const {
+  std::string pedFileName;
+  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  os << "#pedestalFile = " << pedFileName << std::endl;
+}
+

@@ -47,6 +47,11 @@ public:
   inline Bool_t pedRemove() const { return _pedRemove; };
   inline void setPedRemove(Bool_t val) { _pedRemove = val; };
 
+  virtual const char* algorithm() const {
+    static const char* names[7] = {"None","Stats","Fallback","Landau","P7","P5","LogNormal"};
+    return names[_type];
+  }
+
 protected:
 
   Int_t stats(AcdGainFitResult& result, const TH1& hist);

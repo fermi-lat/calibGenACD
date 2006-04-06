@@ -14,15 +14,14 @@ class AcdGainFitResult : public AcdCalibResult {
 
 public:
 
-  AcdGainFitResult(Float_t peak, Float_t width, STATUS status, Int_t type);
+  AcdGainFitResult(Float_t peak, Float_t width, STATUS status);
   AcdGainFitResult();
 
   inline Float_t peak() const { return _peak; }
   inline Float_t width() const { return _width; }
-  inline Int_t type() const { return _type; }
   
-  inline void setVals(Float_t peak, Float_t width, STATUS status, Int_t type) {
-    _peak = peak; _width = width; _type = type;
+  inline void setVals(Float_t peak, Float_t width, STATUS status) {
+    _peak = peak; _width = width;
     setStatus(status);
   }
 
@@ -33,7 +32,6 @@ public:
 private:
   Float_t _peak;
   Float_t _width;
-  Int_t _type;
   
   ClassDef(AcdGainFitResult,1);
 };
@@ -53,12 +51,12 @@ public:
     return fr;
   }
 
-  virtual const char* calibType() {
-    return "ACD_ElecGain";
+  virtual const char* calibType() const {
+    return "ACD_Gain";
   }
 
-  virtual const char* txtFormat() {
-    return "TILE PMT PEAK WIDTH STATUS TYPE";
+  virtual const char* txtFormat() const {
+    return "TILE PMT PEAK WIDTH STATUS";
   }
 
 private:  
@@ -80,6 +78,11 @@ public:
   virtual Int_t fitChannel(AcdGainFitMap& result, AcdHistCalibMap& input, UInt_t key);
 
   void fitAll(AcdGainFitMap& results, AcdHistCalibMap& hists);
+
+  virtual const char* algorithm() const {
+    static const char* def("Default");
+    return def;
+  }
 
 private:
   

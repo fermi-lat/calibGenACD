@@ -9,34 +9,33 @@
 
 ClassImp(AcdVetoFitResult) ;
 
-AcdVetoFitResult::AcdVetoFitResult(Float_t veto, Float_t width, STATUS status, Int_t type) 
+AcdVetoFitResult::AcdVetoFitResult(Float_t veto, Float_t width, STATUS status) 
   :AcdCalibResult(status),
-   _veto(veto),_width(width),_type(type){
+   _veto(veto),_width(width){
 }
 
 AcdVetoFitResult::AcdVetoFitResult()
   :AcdCalibResult(),
-   _veto(0.),_width(0.),_type(0){
+   _veto(0.),_width(0.){
 }
 
 void AcdVetoFitResult::printXmlLine(ostream& os) const {
   
-  os << "<acdVeto avg=\"" << _veto
-     << "\" sig=\"" << _width    
+  os << "<acdVeto veto=\"" << _veto
+     << "\" width=\"" << _width    
      << "\" status=\"" << getStatus()
-     << "\" type=\"" << _type 
      << "\"/>" << std::endl;
 };
 
 void AcdVetoFitResult::printTxtLine(ostream& os) const {
-  os << _veto << ' ' << _width << ' ' << getStatus() << ' ' << _type;
+  os << _veto << ' ' << _width << ' ' << getStatus();     
 };
 
 Bool_t AcdVetoFitResult::readTxt(istream& is) { 
   Float_t veto, width;
   Int_t stat, type;
-  is >> veto >> width >> stat >> type;
-  setVals(veto,width,(STATUS)stat,type);
+  is >> veto >> width >> stat;
+  setVals(veto,width,(STATUS)stat);
   return kTRUE;
 };  
 
@@ -54,7 +53,7 @@ AcdVetoFit::AcdVetoFit() {;}
 AcdVetoFit::~AcdVetoFit() {;}
 
 Int_t AcdVetoFit::fit(AcdVetoFitResult& result, const TH1& hist) {
-  result.setVals(0.,0.,AcdVetoFitResult::NOFIT,0);
+  result.setVals(0.,0.,AcdVetoFitResult::NOFIT);
   return result.getStatus();
 }
 

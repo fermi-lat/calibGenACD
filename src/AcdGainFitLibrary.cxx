@@ -97,7 +97,7 @@ Int_t AcdGainFitLibrary::fit(AcdGainFitResult& result, const TH1& hist) {
   Int_t returnCode = AcdGainFitResult::NOFIT;
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,AcdGainFitResult::NOFIT,_type);
+    result.setVals(0.,0.,AcdGainFitResult::NOFIT);
     break;
   case Stats:
     returnCode = stats(result,hist);
@@ -127,7 +127,7 @@ Int_t AcdGainFitLibrary::stats(AcdGainFitResult& result, const TH1& hist) {
 
   float ave = theHist.GetMean();
   float rms = theHist.GetRMS();
-  result.setVals(ave,rms,AcdGainFitResult::OK,Stats);
+  result.setVals(ave,rms,AcdGainFitResult::USED_FALLBACK_2);
   return AcdGainFitResult::OK;
 }
 
@@ -144,7 +144,7 @@ Int_t AcdGainFitLibrary::fallback(AcdGainFitResult& result, const TH1& hist) {
 
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,AcdGainFitResult::OK,Fallback);
+  result.setVals(peakValue,width,AcdGainFitResult::USED_FALLBACK_1);
   return AcdGainFitResult::OK;
 
 }
@@ -162,7 +162,7 @@ Int_t AcdGainFitLibrary::fitLandau(AcdGainFitResult& result, const TH1& hist) {
   double* par = (theHist.GetFunction("landau"))->GetParameters();
   float mean = *(par+1); 
   float sigma = *(par+2);
-  result.setVals(mean,sigma,(AcdGainFitResult::STATUS)status,Landau);
+  result.setVals(mean,sigma,(AcdGainFitResult::STATUS)status);
   return status;
 }
 
@@ -187,7 +187,7 @@ Int_t AcdGainFitLibrary::fitP7(AcdGainFitResult& result, const TH1& hist) {
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,P7);
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status);
   return status;
 }
 
@@ -212,7 +212,7 @@ Int_t AcdGainFitLibrary::fitP5(AcdGainFitResult& result, const TH1& hist) {
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,P5);
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status);
   return status;
 }
 
@@ -250,9 +250,9 @@ Int_t AcdGainFitLibrary::fitLogNormal(AcdGainFitResult& result, const TH1& hist)
   Double_t es2 = exp(sigma2);
 
   Double_t m = logNorm.GetParameter(3);
-
+  
   Double_t width = m * es2 * ( es2 - 1 );
-  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status,LogNormal);
+  result.setVals(peakValue,width,(AcdGainFitResult::STATUS)status);
 
   return status;
 

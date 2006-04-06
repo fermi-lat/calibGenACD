@@ -182,19 +182,43 @@ Bool_t AcdMuonTkrCalib::readPedestals(const char* fileName) {
   return latchVal;
 }
 
-
-/// for writing output files
-void AcdMuonTkrCalib::writeXmlHeader(ostream& os) const {
-  AcdCalibBase::writeXmlHeader(os);
+void AcdMuonTkrCalib::writeXmlSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "  <pedestalFile value=\"" << pedFileName << "\"/>" << endl; 
+  os << "pedestalFile=" << pedFileName << std::endl;
+  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "inputDigi=" << obj->GetTitle() << std::endl;
+    }
+  }
+  files = m_reconChain != 0 ? m_reconChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "inputRecon=" << obj->GetTitle() << std::endl;
+    }
+  }
 }
 
-void AcdMuonTkrCalib::writeTxtHeader(ostream& os) const {
-  AcdCalibBase::writeTxtHeader(os);
+void AcdMuonTkrCalib::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << endl;
+  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "#inputDigiFile = " << obj->GetTitle() << endl;
+    }
+  }
+  files = m_reconChain != 0 ? m_reconChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "#inputReconFile = " << obj->GetTitle() << endl;
+    }
+  }
 }
 

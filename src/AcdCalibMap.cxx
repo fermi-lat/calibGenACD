@@ -43,6 +43,7 @@ AcdCalibResult* AcdCalibMap::get(UInt_t key) {
 Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
+				 const char* algorithm,
 				 const AcdCalibBase& calib) {
   std::ofstream os(fileName);
   if ( !os.good() ) {
@@ -54,13 +55,10 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
      << "#instrument= " << instrument << endl
      << "#timestamp = " << timestamp << endl
      << "#calibType = " << calibType() << endl
-     << "#fmtVersion = " << AcdCalibVersion::version() << endl;
+     << "#algorithm = " << algorithm << endl
+     << "#DTDVersion = " << AcdCalibVersion::dtdVersion() << endl
+     << "#fmtVersion = " << AcdCalibVersion::fmtVersion() << endl;
   calib.writeTxtHeader(os);
-
-  //calib.printFilesTxt(os);
-  os << "#source = " << 0 << endl
-     << "#mode = " << 0 << endl;
-
   // this line is needed as a tag
   os << "#START" << endl;
   // skip this line
@@ -96,6 +94,7 @@ void AcdCalibMap::writeTxt(ostream& os) const {
 Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
+				 const char* algorithm,
 				 const AcdCalibBase& calib) const {
   
   std::ofstream os(fileName);
@@ -103,7 +102,7 @@ Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
     std::cerr << "Problems opening XML output file " << fileName << std::endl;
     return kFALSE;
   }
-  writeXmlHeader(os,instrument,timestamp,calib);
+  writeXmlHeader(os,instrument,timestamp,algorithm,calib);
   writeXmlBody(os);
   writeXmlFooter(os);
   os.close();
@@ -113,18 +112,21 @@ Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 void AcdCalibMap::writeXmlHeader(ostream& os,
 				 const char* instrument,
 				 const char* timestamp,
+				 const char* algorithm,
 				 const AcdCalibBase& calib) const {  
   using std::endl;
-  os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::version()  << ".dtd\" [] >" << endl;
+  os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
   os << "<acdCalib>" << endl;
   os << "<generic instrument=\"" << instrument 
      << "\" timestamp=\"" << timestamp 
      << "\" calibType=\"" << calibType() 
-     << "\" fmtVersion=\"" << AcdCalibVersion::version()
+     << "\" algorithm=\"" << algorithm
+     << "\" DTDVersion=\"" << AcdCalibVersion::dtdVersion()
+     << "\" fmtVersion=\"" << AcdCalibVersion::fmtVersion()
      << "\">" << endl;
   calib.writeXmlHeader(os);
   os << "</generic>" << endl;
-  os << "<dimension nTile=\"216\"/>" << endl;    
+  os << "<dimension nTile=\"108\"/>" << endl;    
 }
 
 
