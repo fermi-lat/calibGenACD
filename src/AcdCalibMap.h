@@ -21,16 +21,19 @@ public:
   Bool_t writeTxtFile(const char* fileName,
 		      const char* instrument,
 		      const char* timestamp,
+		      const char* algorithm,
 		      const AcdCalibBase& calib);
   void writeTxt(ostream& os) const;
 
   Bool_t writeXmlFile(const char* fileName,
 		      const char* instrument,
 		      const char* timestamp,
+		      const char* algorithm,
 		      const AcdCalibBase& calib) const;
   void writeXmlHeader(ostream& os, 
 		      const char* instrument,
 		      const char* timestamp,
+		      const char* algorithm,
 		      const AcdCalibBase& calib) const;
   void writeXmlFooter(ostream& os) const;
   void writeXmlBody(ostream& os) const;
@@ -40,11 +43,11 @@ public:
   Bool_t readTxtFile(const char* fileName);
   Bool_t readTxt(istream& is);
 
-  virtual const char* calibType() {
+  virtual const char* calibType() const {
     return "NONE";
   }
 
-  virtual const char* txtFormat() {
+  virtual const char* txtFormat() const {
     return "NONE";
   }
 

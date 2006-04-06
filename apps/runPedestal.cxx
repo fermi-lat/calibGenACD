@@ -152,8 +152,8 @@ int main(int argn, char** argc) {
   AcdPedestalFitMap* peds = r.fitPedestals(pedFitter);
 
   r.writeHistograms(AcdCalibBase::PEDESTAL, outputHistFile.c_str());
-  peds->writeTxtFile(pedTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
-  peds->writeXmlFile(pedXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  peds->writeTxtFile(pedTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),pedFitter.algorithm(),r);
+  peds->writeXmlFile(pedXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),pedFitter.algorithm(),r);
 
   delete digiChain;
 

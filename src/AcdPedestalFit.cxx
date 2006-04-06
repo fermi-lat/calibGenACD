@@ -21,10 +21,9 @@ AcdPedestalFitResult::AcdPedestalFitResult()
 
 void AcdPedestalFitResult::printXmlLine(ostream& os) const {
   
-  os << "<acdPed range=\"" << 0
-     << "\" avg=\"" << _mean
-     << "\" sig=\" " << _rms
-    
+  os << "<acdPed mean=\"" << _mean
+     << "\" width=\"" << _rms    
+     << "\" status=\"" << getStatus()
      << "\"/>" << std::endl;
 };
 

@@ -145,8 +145,8 @@ int main(int argn, char** argc) {
   AcdVetoFitMap* vetos = r.fitVetos(vetoFitter);
 
   r.writeHistograms(AcdCalibBase::VETO_FRAC, outputHistFile.c_str());
-  vetos->writeTxtFile(textFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
-  vetos->writeXmlFile(xmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  vetos->writeTxtFile(textFile.c_str(),instrument.c_str(),timeStamp.c_str(),vetoFitter.algorithm(),r);
+  vetos->writeXmlFile(xmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),vetoFitter.algorithm(),r);
 
   delete digiChain;
 

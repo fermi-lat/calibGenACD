@@ -74,6 +74,12 @@ public :
   virtual void writeXmlHeader(ostream& os) const;
   virtual void writeTxtHeader(ostream& os) const;
 
+  /// for writing the list of input files  
+  virtual void writeXmlSources(ostream& /* os */) const {
+  }
+  virtual void writeTxtSources(ostream& /* os */) const {
+  }
+
 protected:
 
   // a calibration

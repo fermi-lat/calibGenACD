@@ -97,6 +97,10 @@ public:
   AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
   AcdGainFitMap* fitGains(AcdGainFit& fitter);
 
+  /// for writing the list of input files  
+  virtual void writeXmlSources(ostream& os) const;
+  virtual void writeTxtSources(ostream& os) const;
+
 protected:
 
   Bool_t fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap);

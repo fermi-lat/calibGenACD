@@ -144,8 +144,8 @@ int main(int argn, char** argc) {
   AcdGainFitMap* gains = r.fitGains(gainFitter);
 
   r.writeHistograms(AcdCalibBase::GAIN, outputHistFile.c_str());
-  gains->writeTxtFile(gainTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
-  gains->writeXmlFile(gainXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),r);
+  gains->writeTxtFile(gainTextFile.c_str(),instrument.c_str(),timeStamp.c_str(),gainFitter.algorithm(),r);
+  gains->writeXmlFile(gainXmlFile.c_str(),instrument.c_str(),timeStamp.c_str(),gainFitter.algorithm(),r);
 
   TList cl_log;
   std::string psFile_log = psFile + "log_";

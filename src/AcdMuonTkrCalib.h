@@ -33,8 +33,8 @@ public :
   Bool_t readPedestals(const char* fileName);
 
   /// for writing output files
-  virtual void writeXmlHeader(ostream& os) const;
-  virtual void writeTxtHeader(ostream& os) const;
+  virtual void writeXmlSources(ostream& os) const;
+  virtual void writeTxtSources(ostream& os) const;
 
 protected:
 

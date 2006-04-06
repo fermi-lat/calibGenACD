@@ -283,17 +283,29 @@ void AcdMuonRoiCalib::compareDigiToGem() {
 
 
 /// for writing output files
-void AcdMuonRoiCalib::writeXmlHeader(ostream& os) const {
-  AcdCalibBase::writeXmlHeader(os);
+void AcdMuonRoiCalib::writeXmlSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "  <pedestalFile value=\"" << pedFileName << "\"/>" << endl; 
+  os << "pedestalFile=" << pedFileName << std::endl;
+  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "inputDigi=" << obj->GetTitle() << std::endl;
+    }
+  }
 }
 
-void AcdMuonRoiCalib::writeTxtHeader(ostream& os) const {
-  AcdCalibBase::writeTxtHeader(os);
+void AcdMuonRoiCalib::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << endl;
+  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
+  if ( files != 0 ) {
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      os << "#inputDigiFile = " << obj->GetTitle() << endl;
+    }
+  }
 }
 

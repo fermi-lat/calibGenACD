@@ -14,7 +14,9 @@ public:
   enum STATUS { NOFIT = -1,
 		OK = 0,	 
 		MINUIT_FAILED = 4,
-		PREFIT_FAILED = 5 };
+		PREFIT_FAILED = 5,
+		USED_FALLBACK_1 = 6,
+		USED_FALLBACK_2 = 7 };
 
 public:
 

@@ -47,11 +47,11 @@ public:
     return fr;
   }
 
-  virtual const char* calibType() {
-    return "ACD_Ped";
+  virtual const char* calibType() const {
+    return "ACD_Pedestal";
   }
 
-  virtual const char* txtFormat() {
+  virtual const char* txtFormat() const {
       return "TILE PMT PED RMS STATUS";
   }
   
@@ -74,6 +74,11 @@ public:
   virtual UInt_t fitChannel(AcdPedestalFitMap& result, AcdHistCalibMap& input, UInt_t key);
 
   void fitAll(AcdPedestalFitMap& results, AcdHistCalibMap& hists);
+
+  virtual const char* algorithm() const {
+    static const char* def("Default");
+    return def;
+  }
 
 private:
   

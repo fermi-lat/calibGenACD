@@ -14,15 +14,14 @@ class AcdVetoFitResult : public AcdCalibResult {
 
 public:
 
-  AcdVetoFitResult(Float_t veto, Float_t width, STATUS status, Int_t type);
+  AcdVetoFitResult(Float_t veto, Float_t width, STATUS status);
   AcdVetoFitResult();
 
   inline Float_t veto() const { return _veto; }
   inline Float_t width() const { return _width; }
-  inline Int_t type() const { return _type; }
   
-  inline void setVals(Float_t veto, Float_t width, STATUS status, Int_t type) {
-    _veto = veto; _width = width; _type = type;
+  inline void setVals(Float_t veto, Float_t width, STATUS status) {
+    _veto = veto; _width = width;
     setStatus(status);
   }
 
@@ -33,7 +32,6 @@ public:
 private:
   Float_t _veto;
   Float_t _width;
-  Int_t _type;
   
   ClassDef(AcdVetoFitResult,1);
 };
@@ -46,12 +44,12 @@ public:
 
   virtual AcdCalibResult* createHolder() const { return new AcdVetoFitResult; }
 
-  virtual const char* calibType() {
-    return "ACD_ElecVeto";
+  virtual const char* calibType() const {
+    return "ACD_Veto";
   }
 
-  virtual const char* txtFormat() {
-    return "TILE PMT VETO WIDTH STATUS TYPE";
+  virtual const char* txtFormat() const {
+    return "TILE PMT VETO WIDTH STATUS";
   }
 
 private:  
@@ -73,6 +71,11 @@ public:
   virtual Int_t fitChannel(AcdVetoFitMap& result, AcdHistCalibMap& input, UInt_t key);
 
   void fitAll(AcdVetoFitMap& results, AcdHistCalibMap& hists);
+
+  virtual const char* algorithm() const {
+    static const char* def("Default");
+    return def;
+  }
 
 private:
   
