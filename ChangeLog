@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Wed Apr  5 18:42:23 PDT 2006
+calibGenACD/apps
+
+Modified Files:
+	runMuonCalib_Roi.cxx runMuonCalib_Tkr.cxx runPedestal.cxx 
+	runVetoCalib.cxx 
+Log Message:
+make changes so that xml agrees w/ what dtd joanne has
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r2p2, operation: add
 Package: calibGenACD
