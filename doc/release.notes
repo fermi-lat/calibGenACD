@@ -1,3 +1,9 @@
+v1r3 EAC 060405
+Make changes so that xml format agrees with the dtd file that joanne has
+
+v1r2p2 EAC 060405
+Remove a dead src/runMuonCalib_Roi.cxx file which was moved to apps subdir
+
 v1r2p1 EAC 060404
 Initilize pedestal file to zero to prevent crash if it don't exist
 
