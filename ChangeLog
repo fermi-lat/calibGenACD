@@ -1,4 +1,20 @@
 ------------------------------------------------------------
+User: echarles  Wed Apr  5 18:42:24 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.cxx AcdCalibMap.h 
+	AcdCalibResult.h AcdCalibVersion.h AcdGainFit.cxx AcdGainFit.h 
+	AcdGainFitLibrary.cxx AcdGainFitLibrary.h 
+	AcdMuonBenchCalib.cxx AcdMuonBenchCalib.h AcdMuonRoiCalib.cxx 
+	AcdMuonRoiCalib.h AcdMuonTkrCalib.cxx AcdMuonTkrCalib.h 
+	AcdPedestalFit.cxx AcdPedestalFit.h AcdPedestalFitLibrary.h 
+	AcdVetoFit.cxx AcdVetoFit.h AcdVetoFitLibrary.cxx 
+	AcdVetoFitLibrary.h 
+Log Message:
+make changes so that xml agrees w/ what dtd joanne has
+    *
+------------------------------------------------------------
 User: echarles  Wed Apr  5 18:42:23 PDT 2006
 calibGenACD/apps
 
