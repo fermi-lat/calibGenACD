@@ -206,8 +206,8 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
   TCanvas* ribA = new TCanvas(pr+"rib_A","rib_A");
   TCanvas* ribB = new TCanvas(pr+"rib_B","rib_B");
 
-  ribA->Divide(2,4);
-  ribB->Divide(2,4);  
+  ribA->Divide(4,2);
+  ribB->Divide(4,2);  
 
   idx = 0;
   for ( iRow = 5; iRow < 7; iRow++ ) {
