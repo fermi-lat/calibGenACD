@@ -200,6 +200,61 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
     cl.Add(cA);
     cl.Add(cB);
   }
+
+
+  // ribbons
+  TCanvas* ribA = new TCanvas(pr+"rib_A","rib_A");
+  TCanvas* ribB = new TCanvas(pr+"rib_B","rib_B");
+
+  ribA->Divide(2,4);
+  ribB->Divide(2,4);  
+
+  idx = 0;
+  for ( iRow = 5; iRow < 7; iRow++ ) {
+    for ( iCol = 0; iCol < 4; iCol++ ) {
+      idx++;     
+      UInt_t idA = 100*iRow + iCol;
+      UInt_t idB = 1000 + idA;
+      TH1* hA = h.getHist(idA);
+      TH1* hB = h.getHist(idB);
+      if ( hA == 0 || hB == 0 ) continue;      
+      TF1* fA = hA->GetFunction("pol7");
+      TF1* fB = hB->GetFunction("pol7");
+      if ( fA == 0 || fB == 0 ) {
+	fA = hA->GetFunction("pol5");
+	fB = hB->GetFunction("pol5");
+	if ( fA == 0 || fB == 0 ) continue;
+      }
+      fA->GetRange(xmin,xmax);
+      width = xmax - xmin;
+      hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
+      hA->SetMinimum(ymin);     
+      fB->GetRange(xmin,xmax);
+      width = xmax - xmin;
+      hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
+      hB->SetMinimum(ymin);
+      AcdGainFitResult* rB = (AcdGainFitResult*)gains.get(idB);
+      TVirtualPad* vA = ribA->cd(idx);
+      if ( onLog ) vA->SetLogy();
+      hA->Draw();   
+      AcdGainFitResult* rA = (AcdGainFitResult*)gains.get(idA);
+      if ( rA != 0 ) {
+	TLine* lA = new TLine( rA->peak(), hA->GetMinimum(),  rA->peak(), hA->GetMaximum());
+	lA->SetLineColor(2);
+	lA->Draw();
+      } 
+      TVirtualPad* vB = ribB->cd(idx);	    
+      if ( onLog ) vB->SetLogy();
+      hB->Draw();      
+      if ( rB != 0 ) {
+	TLine* lB = new TLine( rB->peak(), hB->GetMinimum(),  rB->peak(), hB->GetMaximum());
+	lB->SetLineColor(2);
+	lB->Draw();
+      }       
+    }
+  }
+  cl.Add(ribA);
+  cl.Add(ribB);
 }
 
 

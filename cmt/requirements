@@ -1,5 +1,5 @@
 package calibGenACD
-version v0
+version v1r4
 
 branches src xml output
 
@@ -28,6 +28,7 @@ apply_pattern root_package headers="\
  ../src/AcdMuonBenchCalib.h\
  ../src/AcdMuonRoiCalib.h\
  ../src/AcdMuonTkrCalib.h\
+ ../src/AcdMuonSvacCalib.h\
  ../src/AcdMeritCalib.h\
  ../src/AcdVetoFit.h\
  ../src/AcdVetoFitLibrary.h"\
@@ -48,6 +49,7 @@ macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootDa
 
 application runMuonCalib_Roi ../apps/runMuonCalib_Roi.cxx
 application runMuonCalib_Tkr ../apps/runMuonCalib_Tkr.cxx
+application runMuonCalib_Svac ../apps/runMuonCalib_Svac.cxx
 application runPedestal ../apps/runPedestal.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
 application runMeritCalib ../apps/runMeritCalib.cxx

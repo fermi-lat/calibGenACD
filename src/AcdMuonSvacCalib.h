@@ -1,5 +1,5 @@
-#ifndef AcdMuonTkrCalib_h
-#define AcdMuonTkrCalib_h 
+#ifndef AcdMuonSvacCalib_h
+#define AcdMuonSvacCalib_h 
 
 #include "AcdCalibBase.h"
 
@@ -11,21 +11,16 @@
 #include "TChain.h"
 #include <iostream>
 
-class AcdTkrIntersection;
-class AcdDigi;
-class DigiEvent;
-class ReconEvent;
 
-
-class AcdMuonTkrCalib : public AcdCalibBase {
+class AcdMuonSvacCalib : public AcdCalibBase {
 
 public :
   
   // Standard ctor, where user provides the names of the input root files
   // and optionally the name of the output ROOT histogram file
-  AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength = kTRUE);
+  AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength = kTRUE);
   
-  virtual ~AcdMuonTkrCalib();  
+  virtual ~AcdMuonSvacCalib();  
 
   // this just call down to the fitAll() routine in the fitter
   AcdGainFitMap* fitGains(AcdGainFit& fitter);
@@ -44,12 +39,11 @@ protected:
   void getFitDir();
     
   // 
-  void fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi);
+  void fillGainHistCorrect(unsigned id, float pathLength);
 
   // return the total number of events in the chains
   virtual int getTotalEvents() const { 
-    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
-    if ( m_reconChain != 0 ) { return (int)(m_reconChain->GetEntries()); }
+    if ( m_svacChain != 0 ) { return (int)(m_svacChain->GetEntries()); }
     return 0;
   } 
 
@@ -66,14 +60,16 @@ private:
   Bool_t      m_correctPathLength;
 
   /// TChain input
-  TChain      *m_digiChain;
-  TChain      *m_reconChain;
+  TChain      *m_svacChain;
 
-  /// pointer to a ReconEvent
-  DigiEvent* m_digiEvent;
+  //  Variables that we need
+  Int_t  m_AcdPha[604][2];
+  Int_t  m_AcdRange[604][2];
 
-  /// pointer to a ReconEvent
-  ReconEvent* m_reconEvent;
+  Int_t m_AcdNumTkrIntSec;
+  Int_t m_AcdTkrIntSecTileId[20];
+  Int_t m_AcdTkrIntSecTkrIndex[20];
+  Float_t m_AcdTkrIntSecPathLengthInTile[20];    
 
   // 
   AcdHistCalibMap* m_gainHists;
@@ -81,7 +77,7 @@ private:
   AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
 
-  ClassDef(AcdMuonTkrCalib,0) ;
+  ClassDef(AcdMuonSvacCalib,0) ;
     
 };
 
