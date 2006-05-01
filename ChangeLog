@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Mon May  1 16:09:58 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Added runMuonCalib_Svac.cxx to run mip peak calibrations on SVAC ntuple files
+    *
+------------------------------------------------------------
+User: echarles  Mon May  1 16:09:58 PDT 2006
 calibGenACD/calibGenACD
 
 Modified Files:
