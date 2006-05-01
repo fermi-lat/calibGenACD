@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Mon May  1 16:12:58 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibUtil.cxx 
+Log Message:
+Changed orientation of ribbon plots
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r4, operation: add
 Package: calibGenACD
