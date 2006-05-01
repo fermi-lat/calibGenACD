@@ -1,33 +1,4 @@
 ------------------------------------------------------------
-User: echarles  Mon May  1 16:09:58 PDT 2006
-calibGenACD/cmt
-
-Modified Files:
-	requirements 
-Log Message:
-Added runMuonCalib_Svac.cxx to run mip peak calibrations on SVAC ntuple files
-    *
-------------------------------------------------------------
-User: echarles  Mon May  1 16:09:58 PDT 2006
-calibGenACD/calibGenACD
-
-Modified Files:
-	LinkDef.h 
-Log Message:
-Added runMuonCalib_Svac.cxx to run mip peak calibrations on SVAC ntuple files
-    *
-------------------------------------------------------------
-User: echarles  Mon May  1 16:09:58 PDT 2006
-calibGenACD/apps
-
-Modified Files:
-	runMuonCalib_Tkr.cxx 
-Added Files:
-	runMuonCalib_Svac.cxx 
-Log Message:
-Added runMuonCalib_Svac.cxx to run mip peak calibrations on SVAC ntuple files
-    *
-------------------------------------------------------------
 TAG
 Tag name: v1r3, operation: add
 Package: calibGenACD
