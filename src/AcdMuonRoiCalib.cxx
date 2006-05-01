@@ -82,7 +82,8 @@ Bool_t AcdMuonRoiCalib::readEvent(int ievent, Bool_t& filtered,
     switch ( calType () ) {
     case PEDESTAL:
       if ( m_requirePeriodic &&
-	   m_digiEvent->getGem().getConditionSummary() != 32 ) 
+	   (m_digiEvent->getGem().getConditionSummary() != 32 &&  
+	    m_digiEvent->getGem().getConditionSummary() != 128 ) )
 	filtered = kTRUE;
       break;
     case HITMAP:

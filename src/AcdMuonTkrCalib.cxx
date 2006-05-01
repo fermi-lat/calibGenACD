@@ -21,8 +21,9 @@ using std::string;
 
 ClassImp(AcdMuonTkrCalib) ;
 
-AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain)
-  :AcdCalibBase(), 
+AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength)
+  :AcdCalibBase(),
+   m_correctPathLength(correctPathLength),
    m_digiChain(digiChain),
    m_reconChain(reconChain), 
    m_digiEvent(0),
@@ -83,8 +84,15 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
   float width = AcdCalibUtil::width(id);
   float pathFactor = inter.getPathLengthInTile() / width;
   
-  // if ( pathFactor < 0.99 || pathFactor > 1.2 ) return;
-  if ( pathFactor > 1.5 ) return;
+  // require that track not clip edge of tile
+  if ( id < 500 && pathFactor < 0.99 ) return;
+  if ( m_correctPathLength ) {
+    // correcting for pathlength, go ahead and take stuff up to 1/cos_th = 1.5
+    if ( pathFactor > 1.5 ) return;
+  } else {
+    // not correcting for pathlength, only take stuff up to 1/cos_th = 1.2
+    if ( pathFactor > 1.2 ) return;
+  }  
 
   UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
@@ -96,9 +104,11 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
 
   Float_t redPha_A = ((Float_t)(pmt0)) - pedRes_A->mean();
   Float_t redPha_B = ((Float_t)(pmt1)) - pedRes_B->mean();
-  
-  redPha_A /= pathFactor;
-  redPha_B /= pathFactor;
+
+  if ( m_correctPathLength ) {
+    redPha_A /= pathFactor;
+    redPha_B /= pathFactor;
+  }
 
   ///Float_t redPha_A = ((Float_t)(pmt0));
   // Float_t redPha_B = ((Float_t)(pmt1));

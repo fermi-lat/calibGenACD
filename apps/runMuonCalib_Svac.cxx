@@ -10,7 +10,7 @@
 #include "TList.h"
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdGainFitLibrary.h"
-#include "../src/AcdMuonTkrCalib.h"
+#include "../src/AcdMuonSvacCalib.h"
 
 #include <time.h>
 
@@ -26,14 +26,13 @@ void usage(const char* argv) {
        << endl;
   
   cout << "Usage:" << endl
-       << "\t" << "runMuonCalib_Tkr.exe" << " -c <configFile>" << endl 
+       << "\t" << "runMuonCalib_Svac.exe" << " -c <configFile>" << endl 
        << endl
        << "\t   <configFile>      : name of xml file with job configuration" << endl
        << endl
-       << "\t" << "runMuonCalib_Tkr.exe" << " [options] -d <digiFiles> -r <reconFiles> -o <output>" << endl 
+       << "\t" << "runMuonCalib_Svac.exe" << " [options] -S <svacFiles> -o <output>" << endl 
        << endl
-       << "\t   <digiFiles>       : comma seperated list of digi ROOT files" << endl
-       << "\t   <reconFiles>      : comma seperated list of recon ROOT files" << endl
+       << "\t   <svacFiles>       : comma seperated list of svac ROOT files" << endl
        << "\t   <output>          : prefix (path or filename) to add to output files" << endl
        << endl
        << "\tOPTIONS" << endl
@@ -52,8 +51,7 @@ int main(int argn, char** argc) {
 
   string jobOptionXmlFile(path + "/src/muonCalibOption_gain.xml");
 
-  string inputDigiFileStr;
-  string inputReconFileStr;
+  string inputSvacFileStr;
   string pedFileName;
   string outputPrefix;
   string instrument;
@@ -66,7 +64,7 @@ int main(int argn, char** argc) {
   char* endPtr;
   
   int opt;
-  while ( (opt = getopt(argn, argc, "hLo:d:r:c:p:I:n:s:")) != EOF ) {
+  while ( (opt = getopt(argn, argc, "hLo:S:c:p:I:n:s:")) != EOF ) {
     switch (opt) {
     case 'h':
       usage(argc[0]);
@@ -74,13 +72,9 @@ int main(int argn, char** argc) {
     case 'o':
       outputPrefix = string(optarg);
       break;
-    case 'd':
-      inputDigiFileStr += string(optarg);
-      inputDigiFileStr += ',';
-      break;
-    case 'r':
-      inputReconFileStr += string(optarg);
-      inputReconFileStr += ',';
+    case 'S':
+      inputSvacFileStr += string(optarg);
+      inputSvacFileStr += ',';
       break;
     case 'c':
       jobOptionXmlFile = string(optarg);
@@ -110,12 +104,8 @@ int main(int argn, char** argc) {
   
   xmlBase::IFile myFile(jobOptionXmlFile.c_str()); 
 
-  if (myFile.contains("parameters","digiFileList")) {
-    inputDigiFileStr += myFile.getString("parameters", "digiFileList");
-  }
-
-  if (myFile.contains("parameters","reconFileList")) {
-    inputReconFileStr += myFile.getString("parameters", "reconFileList");
+  if (myFile.contains("parameters","svacFileList")) {
+    inputSvacFileStr += myFile.getString("parameters", "svacFileList");
   }
 
   if (myFile.contains("parameters","pedestalFile")  && pedFileName == "" ) {
@@ -127,28 +117,17 @@ int main(int argn, char** argc) {
   }
 
   std::vector <std::string> token;
-  facilities::Util::stringTokenize(inputDigiFileStr, ";, ", token);
-  unsigned int nFiles = token.size();
-  TChain* digiChain(0);
 
   unsigned i;
-  cout << "Input digi files:" << endl;
+  facilities::Util::stringTokenize(inputSvacFileStr, ";, ", token);
+  int nFiles = token.size();
+  TChain* svacChain(0);
+
+  cout << "Input svac files:" << endl;
   for (i=0; i!=nFiles; ++i) {
     if (token[i]=="") continue;
-    if ( digiChain == 0 ) digiChain = new TChain("Digi");
-    digiChain->Add(token[i].c_str());
-    cout << "   " << i+1 << ") " << token[i] << endl;
-  }
-
-  facilities::Util::stringTokenize(inputReconFileStr, ";, ", token);
-  nFiles = token.size();
-  TChain* reconChain(0);
-
-  cout << "Input recon files:" << endl;
-  for (i=0; i!=nFiles; ++i) {
-    if (token[i]=="") continue;
-    if ( reconChain == 0 ) reconChain = new TChain("Recon");
-    reconChain->Add(token[i].c_str());
+    if ( svacChain == 0 ) svacChain = new TChain("Output");
+    svacChain->Add(token[i].c_str());
     cout << "   " << i+1 << ") " << token[i] << endl;
   }
 
@@ -176,11 +155,11 @@ int main(int argn, char** argc) {
   cout << "timestamp: " << timeStamp << endl;
   cout << "pedestal file: " << pedFileName << endl;
 
-  AcdMuonTkrCalib r(digiChain,reconChain,!opt_L);
+  AcdMuonSvacCalib r(svacChain,!opt_L);
   r.setCalType(AcdCalibBase::GAIN);        
 
   bool removePeds(true);
-  if ( pedFileName != "" && reconChain != 0 ) {
+  if ( pedFileName != "" && svacChain != 0 ) {
     r.readPedestals(pedFileName.c_str());
     removePeds = false;
   }
@@ -205,9 +184,8 @@ int main(int argn, char** argc) {
   std::string psFile_lin = psFile + "lin_";
   AcdCalibUtil::drawMips(cl_lin,*hists,*gains,kFALSE,psFile_lin.c_str());
   AcdCalibUtil::saveCanvases(cl_lin);  
-
-  delete digiChain;
-  delete reconChain;
+  
+  delete svacChain;
 
   return 0;
 }
