@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Mon May  1 16:10:00 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibUtil.cxx AcdMuonRoiCalib.cxx AcdMuonTkrCalib.cxx 
+	AcdMuonTkrCalib.h 
+Added Files:
+	AcdMuonSvacCalib.cxx AcdMuonSvacCalib.h 
+Log Message:
+Added runMuonCalib_Svac.cxx to run mip peak calibrations on SVAC ntuple files
+    *
+------------------------------------------------------------
 User: echarles  Mon May  1 16:09:59 PDT 2006
 calibGenACD/doc
 
