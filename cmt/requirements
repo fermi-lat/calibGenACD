@@ -1,5 +1,5 @@
 package calibGenACD
-version v1r4
+version v1r4p1
 
 branches src xml output
 
@@ -32,8 +32,7 @@ apply_pattern root_package headers="\
  ../src/AcdMeritCalib.h\
  ../src/AcdVetoFit.h\
  ../src/AcdVetoFitLibrary.h"\
- includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"\
- test_source="test/testReconClasses.cxx"
+ includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"
 
 #the following prepend makes the includes folder available locally: avoid the package_include
 macro_prepend includes "-I $(CALIBGENACDROOT) " WIN32 "/I $(CALIBGENACDROOT) "
