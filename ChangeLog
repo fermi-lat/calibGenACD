@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed May  3 01:02:39 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Fix a spurious include in cmt/requirements
+    *
+------------------------------------------------------------
 User: echarles  Mon May  1 16:12:58 PDT 2006
 calibGenACD/src
 
