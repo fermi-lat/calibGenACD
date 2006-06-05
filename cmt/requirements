@@ -1,5 +1,7 @@
 package calibGenACD
-version v1r4p1
+version v1r5
+
+author Eric Charles <echarles@slac.stanford.edu>
 
 branches src xml output
 
