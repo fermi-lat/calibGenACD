@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Mon Jun  5 08:04:04 PDT 2006
+calibGenACD/apps
+
+Added Files:
+	runStripChart.cxx 
+Log Message:
+Added AcdStripChart
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r4p1, operation: add
 Package: calibGenACD
