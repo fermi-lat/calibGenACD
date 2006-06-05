@@ -19,7 +19,7 @@ class AcdCalibBase {
 
 public :
 
-  enum CALTYPE{PEDESTAL, GAIN, UNPAIRED, RAW, VETO, VETO_FRAC, HITMAP};
+  enum CALTYPE{PEDESTAL, GAIN, UNPAIRED, RAW, VETO, VETO_FRAC, HITMAP, TIME_PROF};
 
 public :
 
@@ -48,6 +48,9 @@ public :
   // this writes the output histograms if newFileName is not set, 
   // they will be writing to the currently open file
   Bool_t writeHistograms(int histType, const char* newFileName = 0);
+
+  // get the index of the last event
+  Int_t last() const { return m_last; }
 
   // get the id of the first and last events used
   Int_t evtId_first() const { return m_evtId_first; }
@@ -87,14 +90,17 @@ protected:
 
   // This opens the output file and fills books the output histograms
   AcdHistCalibMap* bookHists(int histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5);
-
+  
   // filling various histogram depending on m_calType
   void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val);
   
+  // set a bin in a histogram 
+  void fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err);
+
   // print stuff every 1k events, keep track of the current event
   void logEvent(int ievent, Bool_t passedCut,int runId,int evtId); 
 
-  // reset all the counters
+  // reset all the counters 
   void resetCounters() {
     m_evtId_first = 0;
     m_evtId_last = 0;
@@ -140,6 +146,7 @@ private:
   Int_t m_evtId_last;
   Int_t m_runId_first;
   Int_t m_runId_last;
+  Int_t m_last;
 
   /// starting event number in chain order
   Int_t m_startEvent;

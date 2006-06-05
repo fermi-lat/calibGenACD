@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<!-- job optin file for runMuonCalib.exe -->
+
+<!DOCTYPE ifile SYSTEM "$(CALIBGENACDROOT)/xml/ifile.dtd" >
+
+<ifile cvs_Header="$Header$" cvs_Revision="$Revision$" >
+
+  <section name="parameters"> input parameters for ACD pedestal and gain calibration	
+   <item name="instrument" value="LAT">instrument type to be calibrated </item>
+   <item name="digiFileList" value=""> blank-delimited list of input digi root files </item>
+   <item name="pedTextFile" value=""> output pedestal asci text file </item>
+   <item name="outputPrefix" value="AcdStrip"> output file prefix </item>
+  </section>
+</ifile>

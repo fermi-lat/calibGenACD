@@ -267,7 +267,7 @@ Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool
   Float_t iT(0.);
   Float_t iB(0.);
 
-  for ( UInt_t i(1); i <= nt; i++ ) {
+  for ( Int_t i(1); i <= nt; i++ ) {
     Float_t vT = top.GetBinContent(i);
     Float_t n = bot.GetBinContent(i);
     iT += vT;

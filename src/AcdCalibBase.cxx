@@ -40,13 +40,13 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
   m_startEvent = startEvent;
   int nTotal = getTotalEvents();
-  int nLast = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
+  m_last = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
 
   cout << "Number of events in the chain: " << nTotal << endl;
-  cout << "Number of events used: " << nLast-startEvent << endl;
+  cout << "Number of events used: " << m_last-startEvent << endl;
   cout << "Starting at event: " << startEvent << endl;
 
-  for (Int_t ievent= startEvent; ievent!=nLast; ievent++ ) {
+  for (Int_t ievent= startEvent; ievent!=m_last; ievent++ ) {
     
     Bool_t filtered(kFALSE);
     Bool_t ok = readEvent(ievent,filtered,m_runId,m_evtId);
@@ -83,6 +83,24 @@ void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float v
   hist->Fill(val);
 }
 
+void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err)
+{
+  UInt_t histId = AcdMap::makeKey(pmtId,id);
+  
+  if ( ! AcdMap::channelExists(id) ) {
+    cout << "Missing " << id << endl;
+    return;
+  }
+  TH1* hist = histMap.getHist(histId);
+  if ( hist == 0 ) {
+    cout << "No histogram " << id << endl;
+  }
+  hist->SetBinContent(binX,val);
+  hist->SetBinError(binX,err);
+}
+
+
+
 AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low, Float_t hi ) {
   AcdHistCalibMap* map = getHistMap(histType);
   if ( map != 0 ) {
@@ -97,6 +115,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   case RAW: name += "RAW"; break;
   case VETO: name += "VETO"; break;
   case VETO_FRAC: name += "VETO_FRAC"; break;
+  case TIME_PROF: name += "TIME_PROF"; break;
   }
 
   map = new AcdHistCalibMap(name,nBin,low,hi);

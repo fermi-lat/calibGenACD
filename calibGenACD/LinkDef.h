@@ -38,6 +38,6 @@
 #pragma link C++ class AcdMuonTkrCalib;
 #pragma link C++ class AcdMuonSvacCalib;
 #pragma link C++ class AcdMeritCalib;
-
+#pragma link C++ class AcdStripChart;
 
 #endif
