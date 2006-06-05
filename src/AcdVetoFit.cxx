@@ -33,7 +33,7 @@ void AcdVetoFitResult::printTxtLine(ostream& os) const {
 
 Bool_t AcdVetoFitResult::readTxt(istream& is) { 
   Float_t veto, width;
-  Int_t stat, type;
+  Int_t stat;
   is >> veto >> width >> stat;
   setVals(veto,width,(STATUS)stat);
   return kTRUE;
@@ -52,7 +52,7 @@ AcdVetoFit::AcdVetoFit() {;}
 
 AcdVetoFit::~AcdVetoFit() {;}
 
-Int_t AcdVetoFit::fit(AcdVetoFitResult& result, const TH1& hist) {
+Int_t AcdVetoFit::fit(AcdVetoFitResult& result, const TH1& /* hist */) {
   result.setVals(0.,0.,AcdVetoFitResult::NOFIT);
   return result.getStatus();
 }

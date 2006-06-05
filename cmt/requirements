@@ -30,6 +30,7 @@ apply_pattern root_package headers="\
  ../src/AcdMuonTkrCalib.h\
  ../src/AcdMuonSvacCalib.h\
  ../src/AcdMeritCalib.h\
+ ../src/AcdStripChart.h\
  ../src/AcdVetoFit.h\
  ../src/AcdVetoFitLibrary.h"\
  includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"
@@ -52,3 +53,4 @@ application runMuonCalib_Svac ../apps/runMuonCalib_Svac.cxx
 application runPedestal ../apps/runPedestal.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
 application runMeritCalib ../apps/runMeritCalib.cxx
+application runStripChart ../apps/runStripChart.cxx
