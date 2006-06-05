@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Mon Jun  5 08:04:05 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibUtil.cxx 
+	AcdVetoFit.cxx 
+Added Files:
+	AcdStripChart.cxx AcdStripChart.h muonCalibOption_strip.xml 
+Log Message:
+Added AcdStripChart
+    *
+------------------------------------------------------------
 User: echarles  Mon Jun  5 08:04:04 PDT 2006
 calibGenACD/cmt
 
