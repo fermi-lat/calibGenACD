@@ -28,13 +28,17 @@ AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins)
    m_digiChain(digiChain),
    m_digiEvent(0),
    m_phaStrip(0),
+   m_hitStrip(0),
+   m_vetoStrip(0),
    m_peds(0){
 
   Float_t lowBin = -0.5; 
   Float_t hiBin = (Float_t)nBins;
   hiBin -= 0.5;
-  m_phaStrip = bookHists(TIME_PROF,nBins,lowBin,hiBin);
-
+  m_phaStrip = bookHists(TIME_PROF_PHA,nBins,lowBin,hiBin);
+  m_hitStrip = bookHists(TIME_PROF_HIT,nBins,lowBin,hiBin);
+  m_vetoStrip = bookHists(TIME_PROF_VETO,nBins,lowBin,hiBin);
+   
   Bool_t ok = attachChains();
   if ( ! ok ) {
     cerr << "ERR:  Failed to attach to input chains."  << endl;
@@ -62,9 +66,7 @@ Bool_t AcdStripChart::attachChains() {
   return kTRUE;
 }
 
-void AcdStripChart::accumulate(int ievent, const AcdDigi& digi) {
-
-
+void AcdStripChart::accumulate(int /* ievent */, const AcdDigi& digi) {
 
   int rng0 = digi.getRange(AcdDigi::A);    
   int pmt0 = digi.getPulseHeight(AcdDigi::A);
@@ -91,14 +93,10 @@ void AcdStripChart::accumulate(int ievent, const AcdDigi& digi) {
   }
 
   if ( rng0 == 0 ) {
-    m_run_N[keyA] += 1.;
-    m_run_X[keyA] += redPha_A;
-    m_run_X2[keyA] += (redPha_A*redPha_A);
+    m_vals[keyA].insert(redPha_A);
   }
   if ( rng1 == 0 ) {
-    m_run_N[keyB] += 1.;
-    m_run_X[keyB] += redPha_B;
-    m_run_X2[keyB] += (redPha_B*redPha_B);
+    m_vals[keyB].insert(redPha_B);
   }
 }
 
@@ -106,6 +104,7 @@ void AcdStripChart::accumulate(int ievent, const AcdDigi& digi) {
 Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered, 
 				int& runId, int& evtId) {
 
+  // set up a could of things of the first event
   if ( m_nEvtPerBin == 0 ) {
     UInt_t nEvts = (UInt_t)(last());
     m_nEvtPerBin = nEvts / m_nBins;
@@ -114,14 +113,16 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
     std::cout << "Will drop last " << remainder << " events to make bins even." << std::endl;
   }
 
+  // figure out which bin we are currently in
   m_currentCount = ievent % m_nEvtPerBin;
   m_currentBin = ievent / m_nEvtPerBin;
+
+  // if this is the first event in new bin, reset the value cache
   if ( m_currentCount == 0 ) {
-    m_run_N.clear();
-    m_run_X.clear();
-    m_run_X2.clear();
+    m_vals.clear();
   }
 
+  // ok, grab the event
   if(m_digiEvent) m_digiEvent->Clear();
 
   filtered = kFALSE;
@@ -129,25 +130,67 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
     m_digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
+    // use only periodic & externals for later processing
     if ( m_digiEvent->getGem().getConditionSummary() != 32 &&  
 	 m_digiEvent->getGem().getConditionSummary() != 128 )  {
+
+      // disable further processing
       filtered = kTRUE;
+
+      // but do grab the hitmap and vetos for the non-pedestal events      
+      const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
+      if (!acdDigiCol) return kFALSE;
+      
+      Int_t iEvt = (Int_t) ( m_digiChain->GetReadEntry() );
+
+      UInt_t nDigi =  acdDigiCol->GetEntries();
+      for(UInt_t i = 0; i != nDigi; i++ ) {
+	const AcdDigi* acdDigi = static_cast<const AcdDigi*>(acdDigiCol->At(i));   
+	assert(acdDigi != 0); 
+	int acdId = acdDigi->getId().getId();
+	// ignore NA channels
+	if ( acdId == 899 ) continue;
+	if ( acdDigi->getAcceptMapBit( AcdDigi::A ) ) {
+	  fillHist(*m_hitStrip,acdId,AcdDigi::A,(Float_t)m_currentBin);
+	}
+	if ( acdDigi->getAcceptMapBit( AcdDigi::B ) ) {
+	  fillHist(*m_hitStrip,acdId,AcdDigi::B,(Float_t)m_currentBin);
+	}
+	if ( acdDigi->getVeto( AcdDigi::A ) ) {
+	  fillHist(*m_vetoStrip,acdId,AcdDigi::A,(Float_t)m_currentBin);
+	}
+	if ( acdDigi->getVeto( AcdDigi::B ) ) {
+	  fillHist(*m_vetoStrip,acdId,AcdDigi::B,(Float_t)m_currentBin);
+	}
+      }
     }
   }
   
-  // end of point, get mean and rms
+  // last event in bin, get mean and rms of PHA distribution for every channel
   if ( m_currentCount == ( m_nEvtPerBin-1 ) ) {
-    for ( std::map<UInt_t,Double_t>::const_iterator itr = m_run_N.begin();
-	  itr != m_run_N.end(); itr++ ) {
+    for ( std::map<UInt_t,std::set<Double_t> >::const_iterator itr = m_vals.begin();
+	  itr != m_vals.end(); itr++ ) {
       UInt_t fillkey = itr->first;
-      Double_t n = itr->second;
-      Double_t x = m_run_X[fillkey];
-      Double_t x2 =  m_run_X2[fillkey];
-      Double_t mean = x / n;
-      Double_t rms2 = (x2/n) - (mean*mean);
+      const std::set<Double_t> theVals = itr->second;
+      Double_t n = (Double_t)(theVals.size());
+      Double_t truncate = n * 0.2;
+      Double_t x(0.);
+      Double_t x2(0.);
+      Double_t nn(0.);      
+      Int_t i(0);
+      for ( std::set<Double_t>::const_iterator itrSet = theVals.begin(); itrSet != theVals.end(); itrSet++, i++ ) {	
+	if ( i > truncate && (i < (n - truncate) ) ) {
+	  nn += 1.;
+	  x += *itrSet;
+	  x2 += (*itrSet)*(*itrSet);
+	}
+      }
+      Double_t mean = x / nn;
+      Double_t rms2 = (x2/nn) - (mean*mean);
       Double_t rms = sqrt(rms2);
       UInt_t id = AcdMap::getId(fillkey);
       UInt_t pmt = AcdMap::getPmt(fillkey);
+      // got in, fill the histogram
       fillHistBin(*m_phaStrip,id,pmt == 0 ? AcdDigi::A : AcdDigi::B, m_currentBin, mean, rms);
     }
   }

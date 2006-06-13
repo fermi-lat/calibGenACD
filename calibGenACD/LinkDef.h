@@ -32,6 +32,10 @@
 #pragma link C++ class AcdVetoFit;
 #pragma link C++ class AcdVetoFitLibrary;
 
+#pragma link C++ class AcdStripFitResult;
+#pragma link C++ class AcdStripFitMap;
+#pragma link C++ class AcdStripFit;
+
 #pragma link C++ class AcdCalibBase;
 #pragma link C++ class AcdMuonBenchCalib;
 #pragma link C++ class AcdMuonRoiCalib;

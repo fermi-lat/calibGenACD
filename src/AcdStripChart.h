@@ -10,6 +10,7 @@
 #include "TH1.h"
 #include "TChain.h"
 #include <iostream>
+#include <set>
 
 class AcdTkrIntersection;
 class AcdDigi;
@@ -67,14 +68,16 @@ private:
   /// pointer to a ReconEvent
   DigiEvent* m_digiEvent;
 
-  // 
+  // The strip charts
   AcdHistCalibMap* m_phaStrip;
+  AcdHistCalibMap* m_hitStrip;
+  AcdHistCalibMap* m_vetoStrip;
 
+  // Pedestal values for pedestal subtraction
   AcdPedestalFitMap* m_peds;
-  
-  mutable std::map<UInt_t,Double_t> m_run_N;
-  mutable std::map<UInt_t,Double_t> m_run_X;
-  mutable std::map<UInt_t,Double_t> m_run_X2;
+
+  // stashed values
+  mutable std::map<UInt_t,std::set<Double_t> > m_vals;
 
   ClassDef(AcdStripChart,0) ;
     

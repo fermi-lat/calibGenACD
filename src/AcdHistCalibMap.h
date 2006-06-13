@@ -30,6 +30,9 @@ public:
     m_list.Print();
   }
 
+  Bool_t writeHistograms(const char* newFileName );
+
+
 protected:
 
   void bookHists(const char* prefix);

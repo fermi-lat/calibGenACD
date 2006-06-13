@@ -14,6 +14,11 @@ class AcdCalibUtil {
 
 public :
 
+  enum STRIPTYPE{ PLAIN,
+		  MEAN_ABSOLUTE,
+		  MEAN_RELATIVE,
+		  MEAN_SIGMA };
+
   // Standard ctor
   AcdCalibUtil();
   
@@ -22,9 +27,16 @@ public :
   // save a list of canvases to files
   static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".ps");
 
-  // draw mip peaks onto canvaes
+  // draw mip peaks onto canvases
   static void drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains, 
 		       Bool_t onLog = kTRUE, const char* prefix = "");
+
+  // draw strip charts onto canvases
+  static void drawStripCharts(TList& cl, AcdHistCalibMap& h, const char* prefix = "");
+
+  // histogram the outliers 
+  static void chi2Dist(const TH1& input, TH1*& output, Int_t method = PLAIN, 
+		       Float_t refVal = 0., Float_t scale = 1.);
 
   static UShort_t gemId(UInt_t id);
 

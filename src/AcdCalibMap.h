@@ -55,6 +55,10 @@ public:
     return m_fileName.c_str();
   }
 
+protected:
+
+  inline const std::map<UInt_t,AcdCalibResult*>& theMap() const { return m_map; }
+
 private:  
 
   std::map<UInt_t,AcdCalibResult*> m_map;
