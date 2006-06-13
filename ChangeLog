@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Mon Jun 12 17:34:54 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Full version of AcdStripChart, includes apps/runStripChart.cxx to run it.
+    *
+------------------------------------------------------------
+User: echarles  Mon Jun 12 17:34:54 PDT 2006
 calibGenACD/calibGenACD
 
 Modified Files:
