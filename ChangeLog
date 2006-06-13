@@ -1,5 +1,18 @@
 ------------------------------------------------------------
 User: echarles  Mon Jun 12 17:34:55 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.h AcdCalibUtil.cxx 
+	AcdCalibUtil.h AcdHistCalibMap.cxx AcdHistCalibMap.h 
+	AcdStripChart.cxx AcdStripChart.h 
+Added Files:
+	AcdStripFit.cxx AcdStripFit.h 
+Log Message:
+Full version of AcdStripChart, includes apps/runStripChart.cxx to run it.
+    *
+------------------------------------------------------------
+User: echarles  Mon Jun 12 17:34:55 PDT 2006
 calibGenACD/doc
 
 Modified Files:
