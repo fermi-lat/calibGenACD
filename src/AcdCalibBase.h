@@ -19,7 +19,16 @@ class AcdCalibBase {
 
 public :
 
-  enum CALTYPE{PEDESTAL, GAIN, UNPAIRED, RAW, VETO, VETO_FRAC, HITMAP, TIME_PROF};
+  enum CALTYPE{PEDESTAL, 
+	       GAIN, 
+	       UNPAIRED, 
+	       RAW, 
+	       VETO, 
+	       VETO_FRAC, 
+	       HITMAP, 
+	       TIME_PROF_PHA,
+	       TIME_PROF_HIT,
+	       TIME_PROF_VETO };
 
 public :
 
@@ -91,7 +100,7 @@ protected:
   // This opens the output file and fills books the output histograms
   AcdHistCalibMap* bookHists(int histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5);
   
-  // filling various histogram depending on m_calType
+  // the histogram for id:pmtId with a value
   void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val);
   
   // set a bin in a histogram 

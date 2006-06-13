@@ -1,5 +1,5 @@
 package calibGenACD
-version v1r5
+version v1r5p1
 
 author Eric Charles <echarles@slac.stanford.edu>
 
@@ -33,6 +33,7 @@ apply_pattern root_package headers="\
  ../src/AcdMuonSvacCalib.h\
  ../src/AcdMeritCalib.h\
  ../src/AcdStripChart.h\
+ ../src/AcdStripFit.h\
  ../src/AcdVetoFit.h\
  ../src/AcdVetoFitLibrary.h"\
  includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"

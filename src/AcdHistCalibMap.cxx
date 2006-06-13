@@ -41,3 +41,15 @@ void AcdHistCalibMap::bookHists(const char* prefix) {
     }
   }
 }
+
+Bool_t AcdHistCalibMap::writeHistograms(const char* newFileName ) {
+  TFile * histFile(0);
+  if ( newFileName != 0 ) {
+    histFile = TFile::Open(newFileName, "RECREATE");
+    if ( histFile == 0 ) return kFALSE;
+  }
+  if( histFile == 0 ) return kFALSE;
+  histograms().Write();
+  histFile->Close();
+  return kTRUE;
+}

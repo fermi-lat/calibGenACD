@@ -115,7 +115,9 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   case RAW: name += "RAW"; break;
   case VETO: name += "VETO"; break;
   case VETO_FRAC: name += "VETO_FRAC"; break;
-  case TIME_PROF: name += "TIME_PROF"; break;
+  case TIME_PROF_PHA: name += "TIME_PROFILE_PHA"; break;
+  case TIME_PROF_HIT: name += "TIME_PROFILE_HIT"; break;
+  case TIME_PROF_VETO: name += "TIME_PROFILE_VETO"; break;
   }
 
   map = new AcdHistCalibMap(name,nBin,low,hi);
@@ -135,15 +137,7 @@ void AcdCalibBase::addCalibration(int calibKey, AcdCalibMap& newCal) {
 Bool_t AcdCalibBase::writeHistograms(int histType, const char* newFileName ) {
   AcdHistCalibMap* map = getHistMap(histType);
   if ( map == 0 ) return kFALSE;
-  TFile * histFile(0);
-  if ( newFileName != 0 ) {
-     histFile = TFile::Open(newFileName, "RECREATE");
-     if ( histFile == 0 ) return kFALSE;
-  }
-  if( histFile == 0 ) return kFALSE;
-  map->histograms().Write();
-  histFile->Close();
-  return kTRUE;
+  return map->writeHistograms(newFileName);
 }
 
 Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {

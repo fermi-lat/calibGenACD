@@ -11,6 +11,7 @@
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdVetoFitLibrary.h"
 #include "../src/AcdStripChart.h"
+#include "../src/AcdStripFit.h"
 
 #include <time.h>
 
@@ -132,7 +133,18 @@ int main(int argn, char** argc) {
   }
 
   string textFile = outputPrefix + "_strip.txt";
-  string outputHistFile = outputPrefix + "_strip.root";
+
+  string outputPhaHistFile = outputPrefix + "_PhaStrip.root";
+  string outputHitHistFile = outputPrefix + "_HitStrip.root";
+  string outputVetoHistFile = outputPrefix + "_VetoStrip.root";  
+  
+  string outputPhaTxtFile = outputPrefix + "_PhaStrip.txt";
+  string outputHitTxtFile = outputPrefix + "_HitStrip.txt";
+  string outputVetoTxtFile = outputPrefix + "_VetoStrip.txt";
+ 
+  string outputPhaDeltaFile = outputPrefix + "_PhaDelta.root";
+  string outputHitDeltaFile = outputPrefix + "_HitDelta.root";
+  string outputVetoDeltaFile = outputPrefix + "_VetoDelta.root";
 
   std::time_t theTime = std::time(0);
   const char* timeString = std::ctime(&theTime);
@@ -143,15 +155,44 @@ int main(int argn, char** argc) {
   cout << "instrument: " << instrument << endl;
   cout << "timestamp: " << timeStamp << endl;
   
-
   AcdStripChart r(digiChain, optval_b);
-  r.setCalType(AcdCalibBase::TIME_PROF);        
+  r.setCalType(AcdCalibBase::TIME_PROF_PHA);        
   if ( pedFileName != "" ) {
     r.readPedestals(pedFileName.c_str());
   }
   r.go(optval_n,optval_s);    
 
-  r.writeHistograms(AcdCalibBase::TIME_PROF, outputHistFile.c_str());
+  cout << endl;
+
+  r.writeHistograms(AcdCalibBase::TIME_PROF_PHA, outputPhaHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::TIME_PROF_HIT, outputHitHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::TIME_PROF_VETO, outputVetoHistFile.c_str());
+  
+  AcdStripFit fitPha("StripPha",AcdCalibUtil::MEAN_ABSOLUTE,100,-50.,50.);  
+  AcdStripFit fitHit("StripHit",AcdCalibUtil::MEAN_RELATIVE,100,0.,20.);
+  AcdStripFit fitVeto("StripVeto",AcdCalibUtil::MEAN_RELATIVE,100,0.,20.);
+
+  AcdStripFitMap phaStripMap;
+  fitPha.fitAll(phaStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_PHA)));
+  phaStripMap.writeTxtFile(outputPhaTxtFile.c_str(),instrument.c_str(),timeStamp.c_str(),fitPha.algorithm(),r);
+  fitPha.fittedHists().writeHistograms(outputPhaDeltaFile.c_str());
+
+  AcdStripFitMap hitStripMap;
+  fitHit.fitAll(hitStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_HIT)));
+  hitStripMap.writeTxtFile(outputHitTxtFile.c_str(),instrument.c_str(),timeStamp.c_str(),fitHit.algorithm(),r);
+  fitHit.fittedHists().writeHistograms(outputHitDeltaFile.c_str());
+
+  AcdStripFitMap vetoStripMap;
+  fitVeto.fitAll(vetoStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_VETO)));
+  vetoStripMap.writeTxtFile(outputVetoTxtFile.c_str(),instrument.c_str(),timeStamp.c_str(),fitVeto.algorithm(),r);
+  fitVeto.fittedHists().writeHistograms(outputVetoDeltaFile.c_str());
+
+  cout << endl;
+
+  Bool_t ok = phaStripMap.test(-30.,30.,"FAIL!  ","pha time analysis");
+  ok = hitStripMap.test(-1.,3.,"FAIL!  ","hit rate time analysis");
+  ok = vetoStripMap.test(-1.,3.,"FAIL!  ","veto rate time analysis");
+
   delete digiChain;
 
   return 0;

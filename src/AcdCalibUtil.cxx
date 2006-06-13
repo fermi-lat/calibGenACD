@@ -257,6 +257,148 @@ void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains,
   cl.Add(ribB);
 }
 
+void AcdCalibUtil::drawStripCharts(TList& cl, AcdHistCalibMap& h, const char* prefix) {
+
+  // top A & top B
+  TString pr(prefix);
+  
+  TCanvas* topA = new TCanvas(pr+"top_A","top_A");
+  TCanvas* topB = new TCanvas(pr+"top_B","top_B");
+
+  topA->Divide(5,5);
+  topB->Divide(5,5);  
+
+  UInt_t iRow(0);
+  UInt_t iCol(0);
+
+  UInt_t idx(0);
+  for ( iRow = 0; iRow < 5; iRow++ ) {
+    for ( iCol = 0; iCol < 5; iCol++ ) {
+      idx++;     
+      UInt_t idA = 10*iRow + iCol;
+      UInt_t idB = 1000 + idA;
+      TH1* hA = h.getHist(idA);
+      TH1* hB = h.getHist(idB);
+      if ( hA == 0 || hB == 0 ) continue;      
+      topA->cd(idx); 
+      hA->Draw();  
+      topB->cd(idx); 
+      hB->Draw();      
+    }
+  }
+  cl.Add(topA);
+  cl.Add(topB);
+
+  // sides
+  for ( UInt_t iFace(1); iFace < 5; iFace++ ) {
+    char tmp[10];
+    sprintf(tmp,"Side_%i",iFace);
+    TString nameA(pr+tmp); nameA += "_A";
+    TString nameB(pr+tmp); nameB += "_B";
+    
+    TCanvas* cA = new TCanvas(nameA,nameA);
+    TCanvas* cB = new TCanvas(nameB,nameB);
+    cA->Divide(5,4);
+    cB->Divide(5,4);
+    idx = 0;
+    for ( iRow = 0; iRow < 3; iRow++ ) {
+      for ( iCol = 0; iCol < 5; iCol++ ) {
+	idx++;
+	UInt_t idA = 100*iFace + 10*iRow + iCol;
+	UInt_t idB = 1000 + idA;
+	TH1* hA = h.getHist(idA);
+	TH1* hB = h.getHist(idB);
+	if ( hA == 0 || hB == 0 ) continue;	
+	cA->cd(idx); 
+	hA->Draw();
+	cB->cd(idx); 
+	hB->Draw();  
+      }
+    }
+    //idx = 18;
+    idx++;
+    UInt_t idA = 100*iFace + 30;
+    UInt_t idB = 1000 + idA;
+    TH1* hA = h.getHist(idA);
+    TH1* hB = h.getHist(idB);
+
+    if ( hA == 0 || hB == 0 ) continue;    
+    cA->cd(idx); 
+    hA->Draw();
+    cB->cd(idx); 
+    hB->Draw();  
+    cl.Add(cA);
+    cl.Add(cB);
+  }
+
+
+  // ribbons
+  TCanvas* ribA = new TCanvas(pr+"rib_A","rib_A");
+  TCanvas* ribB = new TCanvas(pr+"rib_B","rib_B");
+
+  ribA->Divide(4,2);
+  ribB->Divide(4,2);  
+
+  idx = 0;
+  for ( iRow = 5; iRow < 7; iRow++ ) {
+    for ( iCol = 0; iCol < 4; iCol++ ) {
+      idx++;     
+      UInt_t idA = 100*iRow + iCol;
+      UInt_t idB = 1000 + idA;
+      TH1* hA = h.getHist(idA);
+      TH1* hB = h.getHist(idB);
+      if ( hA == 0 || hB == 0 ) continue;      
+      ribA->cd(idx); 
+      hA->Draw();   
+      ribB->cd(idx);
+      hB->Draw();      
+    }
+  }
+  cl.Add(ribA);
+  cl.Add(ribB);
+}
+
+void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_t refVal, Float_t scale) {
+  std::string theName(input.GetName());
+  theName += "_chi2dist";
+  Int_t nBin = input.GetNbinsX();
+  if ( output == 0 ) {
+    // make sure that we have somewhere to put the output
+    output = new TH1F(theName.c_str(),theName.c_str(),100,-6.,6.);
+  }
+  Int_t i(0);
+  Float_t ref = refVal;
+  Float_t sum(0.);
+  Bool_t calcMean(kFALSE);
+  switch ( method ) {
+  case PLAIN: break;
+  case MEAN_ABSOLUTE: 
+  case MEAN_RELATIVE: 
+  case MEAN_SIGMA: 
+    calcMean = kTRUE;
+    break;
+  }
+
+
+  for ( i = 1; i <= nBin; i++ ) {
+    Float_t val = input.GetBinContent(i);
+    Float_t err = input.GetBinError(i);
+    Float_t valDif = val - ref;
+    switch ( method ) {
+    case PLAIN:
+    case MEAN_ABSOLUTE:
+      break;
+    case MEAN_RELATIVE:
+      if ( ref > 1e-9 ) { valDif /= ref; }
+      break;
+    case MEAN_SIGMA:
+      if ( err > 1e-9 ) { valDif /= err; }
+      break;
+    }
+    valDif *= scale;
+    output->Fill(valDif);
+  }
+}
 
 Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic) {
 
