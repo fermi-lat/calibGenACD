@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed Jun 14 16:39:37 PDT 2006
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Added dump of timestamps to AcdStripChart
+    *
+------------------------------------------------------------
 User: echarles  Wed Jun 14 16:39:36 PDT 2006
 calibGenACD/cmt
 
