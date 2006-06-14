@@ -146,6 +146,8 @@ int main(int argn, char** argc) {
   string outputHitDeltaFile = outputPrefix + "_HitDelta.root";
   string outputVetoDeltaFile = outputPrefix + "_VetoDelta.root";
 
+  string outputTimestampFile = outputPrefix + "_timestamps.txt";
+
   std::time_t theTime = std::time(0);
   const char* timeString = std::ctime(&theTime);
   string timeStamp(timeString);
@@ -155,7 +157,7 @@ int main(int argn, char** argc) {
   cout << "instrument: " << instrument << endl;
   cout << "timestamp: " << timeStamp << endl;
   
-  AcdStripChart r(digiChain, optval_b);
+  AcdStripChart r(digiChain, optval_b, outputTimestampFile.c_str() );
   r.setCalType(AcdCalibBase::TIME_PROF_PHA);        
   if ( pedFileName != "" ) {
     r.readPedestals(pedFileName.c_str());
