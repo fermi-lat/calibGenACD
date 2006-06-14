@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Wed Jun 14 16:39:37 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdStripChart.cxx AcdStripChart.h AcdStripFit.h 
+Log Message:
+Added dump of timestamps to AcdStripChart
+    *
+------------------------------------------------------------
+User: echarles  Wed Jun 14 16:39:37 PDT 2006
 calibGenACD/doc
 
 Modified Files:
