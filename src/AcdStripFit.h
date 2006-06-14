@@ -17,7 +17,7 @@ public:
 
   AcdStripFitResult(Float_t mean, Float_t rms, Float_t min, Float_t max, STATUS status);
   AcdStripFitResult();
-
+  
   inline Float_t mean() const { return _mean; }
   inline Float_t rms() const { return _rms; }
   inline Float_t min() const { return _min; }

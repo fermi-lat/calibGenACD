@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 
 using std::cout;
 using std::cerr;
@@ -21,7 +22,7 @@ using std::string;
 
 ClassImp(AcdStripChart) ;
 
-AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins)
+AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins, const char*  timeStampFile)
   :AcdCalibBase(),
    m_nBins(nBins),
    m_nEvtPerBin(0),
@@ -30,7 +31,8 @@ AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins)
    m_phaStrip(0),
    m_hitStrip(0),
    m_vetoStrip(0),
-   m_peds(0){
+   m_peds(0),
+   m_timeStampLog(0){
 
   Float_t lowBin = -0.5; 
   Float_t hiBin = (Float_t)nBins;
@@ -43,12 +45,18 @@ AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins)
   if ( ! ok ) {
     cerr << "ERR:  Failed to attach to input chains."  << endl;
   }
+
+  m_timeStampLog = new ofstream(timeStampFile);
 }
 
 
 AcdStripChart::~AcdStripChart() 
 {
   if (m_digiEvent) delete m_digiEvent;
+  if (m_timeStampLog) {
+    //m_timeStampLog->close();
+    delete m_timeStampLog;
+  }
 }
 
 Bool_t AcdStripChart::attachChains() {
@@ -61,6 +69,7 @@ Bool_t AcdStripChart::attachChains() {
     m_digiChain->SetBranchStatus("m_eventId", 1); 
     m_digiChain->SetBranchStatus("m_runId", 1);
     m_digiChain->SetBranchStatus("m_gem", 1);
+    m_digiChain->SetBranchStatus("m_metaEvent", 1);
   }
   
   return kTRUE;
@@ -117,9 +126,17 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
   m_currentCount = ievent % m_nEvtPerBin;
   m_currentBin = ievent / m_nEvtPerBin;
 
+  // Time from Mission elapsed time to Unix time and then from PDT to GMT:
+  static const int METtoGMT = 978307200 + 25200;
+
   // if this is the first event in new bin, reset the value cache
   if ( m_currentCount == 0 ) {
     m_vals.clear();
+    if ( m_timeStampLog ) {
+      UInt_t timeStamp = m_digiEvent->getMetaEvent().time().current().timeSecs();
+      UInt_t time = timeStamp + METtoGMT;
+      *m_timeStampLog << m_currentBin+1 << ' ' << ctime((time_t*) (&time));
+    }
   }
 
   // ok, grab the event

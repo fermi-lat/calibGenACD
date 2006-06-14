@@ -24,7 +24,7 @@ public :
   
   // Standard ctor, where user provides the names of the input root files
   // and optionally the name of the output ROOT histogram file
-  AcdStripChart(TChain* digiChain, UInt_t nBins);
+  AcdStripChart(TChain* digiChain, UInt_t nBins, const char* timeStampFile = "timestamps.txt");
   
   virtual ~AcdStripChart();  
 
@@ -78,6 +78,8 @@ private:
 
   // stashed values
   mutable std::map<UInt_t,std::set<Double_t> > m_vals;
+
+  mutable ostream* m_timeStampLog;
 
   ClassDef(AcdStripChart,0) ;
     
