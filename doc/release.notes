@@ -1,3 +1,6 @@
+v1r5p3 EAC 060615
+Switch from set to multiset in AcdStripChart b/c multiple entries can occur at same pha value.
+
 v1r5p2 EAC 060614
 Added dump of timestamps to AcdStripChart.
 
