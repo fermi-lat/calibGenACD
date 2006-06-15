@@ -77,7 +77,7 @@ private:
   AcdPedestalFitMap* m_peds;
 
   // stashed values
-  mutable std::map<UInt_t,std::set<Double_t> > m_vals;
+  mutable std::map<UInt_t,std::multiset<Double_t> > m_vals;
 
   mutable ostream* m_timeStampLog;
 

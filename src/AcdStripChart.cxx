@@ -185,17 +185,17 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
   
   // last event in bin, get mean and rms of PHA distribution for every channel
   if ( m_currentCount == ( m_nEvtPerBin-1 ) ) {
-    for ( std::map<UInt_t,std::set<Double_t> >::const_iterator itr = m_vals.begin();
+    for ( std::map<UInt_t,std::multiset<Double_t> >::const_iterator itr = m_vals.begin();
 	  itr != m_vals.end(); itr++ ) {
       UInt_t fillkey = itr->first;
-      const std::set<Double_t> theVals = itr->second;
+      const std::multiset<Double_t> theVals = itr->second;
       Double_t n = (Double_t)(theVals.size());
       Double_t truncate = n * 0.2;
       Double_t x(0.);
       Double_t x2(0.);
       Double_t nn(0.);      
       Int_t i(0);
-      for ( std::set<Double_t>::const_iterator itrSet = theVals.begin(); itrSet != theVals.end(); itrSet++, i++ ) {	
+      for ( std::multiset<Double_t>::const_iterator itrSet = theVals.begin(); itrSet != theVals.end(); itrSet++, i++ ) {	
 	if ( i > truncate && (i < (n - truncate) ) ) {
 	  nn += 1.;
 	  x += *itrSet;
