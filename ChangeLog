@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Jun 15 13:56:32 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Switch from set to multiset in AcdStripChart b/c multiple entries can occur at same pha value.
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r5p2, operation: add
 Package: calibGenACD
