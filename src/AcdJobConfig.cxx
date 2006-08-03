@@ -45,8 +45,9 @@ void AcdJobConfig::usage() {
   using std::cerr;
   using std::endl;
   
-  cout << m_theApp << endl;
-  cout << m_description << endl 
+  cout << endl
+       << m_theApp << endl
+       << m_description << endl
        << endl;
   
   cout << "Usage:" << endl
@@ -54,29 +55,33 @@ void AcdJobConfig::usage() {
        << endl
        << "\t   <configFile>      : name of xml file with job configuration" << endl
        << endl
-       << "\t" << m_theApp << " [options] <input> -o <output>" << endl 
+       << "\t" << m_theApp << " [options] [input] -o <output>" << endl 
        << endl
-       << "\tINPUT"
+       << "\tINPUT" << endl
        << "\t   -r <reconFiles>   : comma seperated list of recon ROOT files" << endl
        << "\t   -d <digiFiles>    : comma seperated list of digi ROOT files" << endl
        << "\t   -S <svacFiles>    : comma seperated list of svac ROOT files" << endl
-       << "\t   -m <meritFiles>   : comma seperated list of merit ROOT files" << endl
-       << "NOTE:  Different calibrations jobs take diffenent types of input files" << endl
+       << "\t   -m <meritFiles>   : comma seperated list of merit ROOT files" << endl 
+       << "\tNOTE:  Different calibrations jobs take diffenent types of input files" << endl
+       << endl
        << "\t   -o <output>       : prefix (path or filename) to add to output files" << endl
        << endl
-       << "\tOPTIONS" << endl
+       << "\tOPTIONS for all jobs" << endl
        << "\t   -h                : print this message" << endl
-       << "\t   -P                : use only periodic triggers" << endl
-       << "\t   -L                : correct for pathlength in file" << endl
-       << "\t   -p <pedFile>      : use pedestals from this file" << endl
-       << "\t   -I <Instrument>   : specify instument being calibrated" << endl
-       << "\t   -b <bins>         : number of time bins in strip chart [300]" << endl   
        << "\t   -n <nEvents>      : run over <nEvents>" << endl
        << "\t   -s <startEvent>   : start with event <startEvent>" << endl
+       << "\t   -I (LAT | CU06)   : specify instument being calibrated [LAT]" << endl
+       << endl
+       << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
+       << "\t   -P                : use only periodic triggers" << endl
+       << "\t   -L                : correct for pathlength in file" << endl
+       << "\t   -b <bins>         : number of time bins in strip chart [300]" << endl   
+       << "\t   -p <pedFile>      : use pedestals from this file" << endl
+       << "\t   -g <gainFile>     : use gains from this file" << endl
        << endl;
 }
   
-Bool_t AcdJobConfig::parse(int argn, char** argc) {
+Int_t AcdJobConfig::parse(int argn, char** argc) {
 
   using std::cout;
   using std::cerr;
@@ -94,7 +99,7 @@ Bool_t AcdJobConfig::parse(int argn, char** argc) {
     switch (opt) {
     case 'h':   // help      
       usage();
-      return kTRUE;
+      return 1;
     case 'o':   //  output
       m_outputPrefix = string(optarg);
       break;
@@ -143,24 +148,70 @@ Bool_t AcdJobConfig::parse(int argn, char** argc) {
       break;
     case '?':
       usage();
-      return kTRUE;
+      return 2;
     default:
       cerr << opt << " not parsable..." << endl;
-      return kFALSE;
+      cerr << "Try " << m_theApp << " -h" << endl;
+      return 2;
     }
-  }    
+  }
+
+  if ( argn - optind > 0 ) {
+    cerr << m_theApp << " only takes options, not bare arguments" << endl
+	 << "Try " << m_theApp << " -h" << endl;
+    return 3;
+  }
 
   // parse xml config file
-  xmlBase::IFile myFile(m_jobOptionXmlFile.c_str()); 
+  using xmlBase::IFile;
+  IFile myFile(m_jobOptionXmlFile.c_str()); 
 
   // periodic triggers only
-  if (myFile.contains("parameters","requirePeriodic")) {
+  if (myFile.contains("parameters","requirePeriodic") ) {
     m_optval_P = kTRUE;
   }
 
   // pathlength correction
-  if (myFile.contains("parameters","pathLengthCorrection")  && (m_optval_L==kFALSE) ) {
+  if (myFile.contains("parameters","pathLengthCorrection") ) {
     m_optval_L = kTRUE;
+  }
+  
+  // instrument
+  if (myFile.contains("parameters","instrument") && m_instrument == "") {
+    m_instrument = myFile.getString("parameters", "instrument");    
+  }
+
+  // pedestal file
+  if (myFile.contains("parameters","pedestalFile")  && m_pedFileName == "" ) {
+    m_pedFileName = myFile.getString("parameters", "pedestalFile");
+  } 
+
+  // pain file
+  if (myFile.contains("parameters","gainFile")  && m_gainFileName == "" ) {
+    m_gainFileName = myFile.getString("parameters", "gainFile");
+  }
+
+  // output file prefix
+  if (myFile.contains("parameters","outputPrefix") && m_outputPrefix == "" ) {
+    m_outputPrefix = myFile.getString("parameters", "outputPrefix");
+  }
+    
+  // timestamp
+  std::time_t theTime = std::time(0);
+  const char* timeString = std::ctime(&theTime);
+
+  m_timeStamp = string(timeString);
+  m_timeStamp.erase(m_timeStamp.size()-1);
+
+  if ( m_instrument == std::string("LAT") || 
+       m_instrument == std::string("") ) {
+    m_config = AcdMap::LAT;
+  } else if ( m_instrument == std::string("CU06") ) {
+    m_config = AcdMap::BEAM;
+  } else {
+    std::cerr << "Invalid instrument: " << m_instrument << std::endl
+	      << "Valid choice are LAT and CU06" << std::endl;
+    return 3;
   }
 
   // digi files
@@ -205,45 +256,14 @@ Bool_t AcdJobConfig::parse(int argn, char** argc) {
     m_meritChain = makeChain("MeritTuple",m_inputMeritFileStr);
   }    
 
-  
-  // Instrument
-  if (myFile.contains("parameters","instrument") && m_instrument == "") {
-    m_instrument = myFile.getString("parameters", "instrument");    
-  }
-
-  // pedestal file
-  if (myFile.contains("parameters","gainFile")  && m_gainFileName == "" ) {
-    m_gainFileName = myFile.getString("parameters", "gainFile");
-  } 
-
-  // Gain file
-  if (myFile.contains("parameters","gainFile")  && m_gainFileName == "" ) {
-    m_gainFileName = myFile.getString("parameters", "gainFile");
-  }
-
-  // Output file prefix
-  if (myFile.contains("parameters","outputPrefix") && m_outputPrefix == "" ) {
-    m_outputPrefix = myFile.getString("parameters", "outputPrefix");
-  }
-    
-  // timestamp
-  std::time_t theTime = std::time(0);
-  const char* timeString = std::ctime(&theTime);
-
-  m_timeStamp = string(timeString);
-  m_timeStamp.erase(m_timeStamp.size()-1);
-
-  if ( m_instrument != std::string("CU06") ) {
-    m_config = AcdMap::LAT;
-  } else {
-    m_config = AcdMap::BEAM;
-  }
-
   std::cout << "output file prefix: " << m_outputPrefix << std::endl;
   std::cout << "instrument: " << m_instrument << std::endl;
   std::cout << "timestamp: " << m_timeStamp << std::endl;
   if ( m_optval_P ) {
     std::cout << "Using only periodic triggers" << std::endl;
+  }
+  if ( m_optval_L ) {
+    std::cout << "Using pathlength correction" << std::endl;
   }
   if ( m_pedFileName != "" ) {
     std::cout << "pedestal file: " << m_pedFileName << std::endl;
@@ -252,7 +272,7 @@ Bool_t AcdJobConfig::parse(int argn, char** argc) {
     std::cout << "gain file: " << m_gainFileName << std::endl;
   }
 
-  return kTRUE;
+  return 0;
 }
 
 
@@ -272,4 +292,44 @@ TChain* AcdJobConfig::makeChain(const char* name, const std::string& fileString)
   return chain;
   
 }
-  
+
+
+Bool_t AcdJobConfig::checkDigi() const {
+  if ( m_digiChain == 0 ) {
+    std::cerr << "This job requires digi ROOT files as input." << std::endl
+	      << "\tuse -d <file> option to specify them." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
+Bool_t AcdJobConfig::checkRecon() const {
+  if ( m_reconChain == 0 ) {
+    std::cerr << "This job requires recon ROOT files as input." << std::endl
+	      << "\tuse -r <file> option to specify them." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
+Bool_t AcdJobConfig::checkSvac() const {
+  if ( m_svacChain == 0 ) {
+    std::cerr << "This job requires svac ROOT files as input." << std::endl
+	      << "\tuse -S <file> option to specify them." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
+Bool_t AcdJobConfig::checkMerit() const {
+  if ( m_meritChain == 0 ) {
+    std::cerr << "This job requires merit ROOT files as input." << std::endl
+	      << "\tuse -m <file> option to specify them." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}

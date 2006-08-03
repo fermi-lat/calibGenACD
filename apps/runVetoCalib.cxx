@@ -12,12 +12,21 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runMuonCalib_Tkr.exe","This utility runs the muon MIP calibration code");
-
-  if ( ! jc.parse(argn,argc) ) {
-    return 1;
+  AcdJobConfig jc("runVetoCalib.exe","This utility runs the veto set point calibration code");
+  
+  Int_t parseValue = jc.parse(argn,argc); 
+  switch ( parseValue ) {
+  case 0: // ok to proceed
+    break;  
+  case 1: // called -h option terminate processesing normally
+    return 0; 
+  default: 
+    return parseValue;  // parse failed, return failure code
   }
- 
+
+  Bool_t okToContinue = jc.checkDigi();
+  if ( ! okToContinue ) return 1; // no input, fail
+
   AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());
   r.setCalType(AcdCalibBase::VETO);        
   if ( jc.pedFileName() != "" ) {

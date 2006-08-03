@@ -7,6 +7,7 @@
 #include <string>
 
 #include "./AcdMap.h"
+
 class TChain;
 
 class AcdJobConfig {
@@ -20,7 +21,7 @@ public :
 
   void usage();
   
-  Bool_t parse(int argn, char** argc);
+  Int_t parse(int argn, char** argc);
 
   inline const std::string& theApp() const { return m_theApp; }
   inline const std::string& path() const { return m_path; }
@@ -50,7 +51,12 @@ public :
   inline TChain* reconChain() const { return m_digiChain;}
   inline TChain* svacChain() const { return m_svacChain;}
   inline TChain* meritChain() const { return m_meritChain;}
-  
+
+  Bool_t checkDigi() const;
+  Bool_t checkRecon() const;
+  Bool_t checkSvac() const;
+  Bool_t checkMerit() const;
+   
 protected:
 
   TChain* makeChain(const char* name, const std::string& fileString) const;

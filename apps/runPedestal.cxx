@@ -11,9 +11,18 @@ int main(int argn, char** argc) {
   // configure
   AcdJobConfig jc("runPedestal.exe","This utility makes pedestal files from input digi files");
 
-  if ( ! jc.parse(argn,argc) ) {
-    return 1;
+  Int_t parseValue = jc.parse(argn,argc); 
+  switch ( parseValue ) {
+  case 0: // ok to proceed
+    break;  
+  case 1: // called -h option terminate processesing normally
+    return 0; 
+  default: 
+    return parseValue;  // parse failed, return failure code
   }
+
+  Bool_t okToContinue = jc.checkDigi();
+  if ( ! okToContinue ) return 1; // no input, fail
 
   // build filler & run over events
   AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());

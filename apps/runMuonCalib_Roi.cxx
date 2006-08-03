@@ -12,11 +12,21 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runMuonCalib_Tkr.exe","This utility runs the muon MIP calibration code");
+  AcdJobConfig jc("runMuonCalib_Roi.exe","This utility runs the muon MIP calibration code on digis");
 
-  if ( ! jc.parse(argn,argc) ) {
-    return 1;
+  Int_t parseValue = jc.parse(argn,argc); 
+  switch ( parseValue ) {
+  case 0: // ok to proceed
+    break;  
+  case 1: // called -h option terminate processesing normally
+    return 0; 
+  default: 
+    return parseValue;  // parse failed, return failure code
   }
+
+  Bool_t okToContinue = jc.checkDigi();
+  if ( ! okToContinue ) return 1; // no input, fail
+
 
   /// build filler & run over events
   AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());
