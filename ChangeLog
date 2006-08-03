@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Thu Aug  3 07:56:52 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Major reworking to be able to handle beam data in a nice way
+    *
+------------------------------------------------------------
+User: echarles  Thu Aug  3 07:56:52 PDT 2006
 calibGenACD/calibGenACD
 
 Modified Files:
