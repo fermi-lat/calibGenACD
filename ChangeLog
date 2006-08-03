@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  3 10:49:31 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdJobConfig.cxx 
+Log Message:
+fix typo in help text
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r6p1, operation: add
 Package: calibGenACD
