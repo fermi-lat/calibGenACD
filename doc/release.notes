@@ -1,3 +1,6 @@
+v1r6 EAC 060803
+Major rework of histograms and job configuration to be able to handle beam configuration.
+
 v1r5p3 EAC 060615
 Switch from set to multiset in AcdStripChart b/c multiple entries can occur at same pha value.
 
