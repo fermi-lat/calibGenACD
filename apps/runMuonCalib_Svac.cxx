@@ -11,11 +11,20 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runMuonCalib_Tkr.exe","This utility runs the muon MIP calibration code");
+  AcdJobConfig jc("runMuonCalib_Svac.exe","This utility runs the muon MIP calibration code on SVAC files");
 
-  if ( ! jc.parse(argn,argc) ) {
-    return 1;
+  Int_t parseValue = jc.parse(argn,argc); 
+  switch ( parseValue ) {
+  case 0: // ok to proceed
+    break;  
+  case 1: // called -h option terminate processesing normally
+    return 0; 
+  default: 
+    return parseValue;  // parse failed, return failure code
   }
+
+  Bool_t okToContinue = jc.checkSvac();
+  if ( ! okToContinue ) return 1; // no input, fail
 
   /// build filler & run over events
   AcdMuonSvacCalib r(jc.svacChain(),jc.optval_L(),jc.config());
