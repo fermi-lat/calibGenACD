@@ -1,5 +1,26 @@
 ------------------------------------------------------------
 User: echarles  Thu Aug  3 07:56:52 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibUtil.cxx 
+	AcdCalibUtil.h AcdGainFitLibrary.cxx AcdHistCalibMap.cxx 
+	AcdHistCalibMap.h AcdMap.h AcdMuonBenchCalib.h 
+	AcdMuonRoiCalib.cxx AcdMuonRoiCalib.h AcdMuonSvacCalib.cxx 
+	AcdMuonSvacCalib.h AcdMuonTkrCalib.cxx AcdMuonTkrCalib.h 
+	AcdVetoFitLibrary.cxx 
+Added Files:
+	AcdJobConfig.cxx AcdJobConfig.h AcdPadMap.cxx AcdPadMap.h 
+	calibOption.xml 
+Removed Files:
+	calibOption_pedestal.xml muonCalibOption.xml 
+	muonCalibOption_gain.xml muonCalibOption_strip.xml 
+	muonCalibOption_veto.xml 
+Log Message:
+Major reworking to be able to handle beam data in a nice way
+    *
+------------------------------------------------------------
+User: echarles  Thu Aug  3 07:56:52 PDT 2006
 calibGenACD/cmt
 
 Modified Files:
