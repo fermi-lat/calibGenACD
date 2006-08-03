@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  3 07:56:51 PDT 2006
+calibGenACD/apps
+
+Modified Files:
+	runMeritCalib.cxx runMuonCalib_Roi.cxx runMuonCalib_Svac.cxx 
+	runMuonCalib_Tkr.cxx runPedestal.cxx runStripChart.cxx 
+	runVetoCalib.cxx 
+Log Message:
+Major reworking to be able to handle beam data in a nice way
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r5p3, operation: add
 Package: calibGenACD
