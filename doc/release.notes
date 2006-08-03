@@ -1,3 +1,6 @@
+v1r6p1 EAC 060803
+Cleaning up the use of job options
+
 v1r6 EAC 060803
 Major rework of histograms and job configuration to be able to handle beam configuration.
 
