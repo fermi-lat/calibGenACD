@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  3 07:56:52 PDT 2006
+calibGenACD/calibGenACD
+
+Modified Files:
+	LinkDef.h 
+Log Message:
+Major reworking to be able to handle beam data in a nice way
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug  3 07:56:51 PDT 2006
 calibGenACD/apps
 
