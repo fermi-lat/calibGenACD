@@ -15,6 +15,10 @@ public:
   enum { nRow = 5 } ROW;
   enum { nCol = 5 } COLUMN;
 
+  enum Config{ LAT,
+	       GARC_GAFE,
+	       BEAM };  
+
   static UInt_t makeId(UInt_t face, UInt_t row, UInt_t col) {
     return 100*face + 10*row + col;
   }

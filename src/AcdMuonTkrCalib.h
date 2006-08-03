@@ -23,7 +23,7 @@ public :
   
   // Standard ctor, where user provides the names of the input root files
   // and optionally the name of the output ROOT histogram file
-  AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength = kTRUE);
+  AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength = kTRUE, AcdMap::Config = AcdMap::LAT);
   
   virtual ~AcdMuonTkrCalib();  
 

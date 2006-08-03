@@ -18,7 +18,7 @@ public :
   
   // Standard ctor, where user provides the names of the input root files
   // and optionally the name of the output ROOT histogram file
-  AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength = kTRUE);
+  AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdMuonSvacCalib();  
 

@@ -10,6 +10,8 @@
 #include "TCollection.h"  // Declares TIter
 #include <iostream>
 
+#include "./AcdMap.h"
+
 #include <map>
 
 class AcdHistCalibMap;
@@ -33,7 +35,7 @@ public :
 public :
 
   // Standard ctor, where user provides the names the output histogram files
-  AcdCalibBase();
+  AcdCalibBase(AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibBase();  
    
@@ -50,6 +52,9 @@ public :
   // Which type of calibration are we running
   inline CALTYPE calType() const { return m_calType; }
   inline void setCalType(CALTYPE t) { m_calType = t; }
+
+  // Which instrument calibration?
+  inline AcdMap::Config getConfig() const { return m_config; }
 
   // read the pedestals from a file
   Bool_t readCalib(int histType, const char* fileName);
@@ -146,6 +151,7 @@ protected:
 
 private:
 
+
   /// the current run and event
   Int_t m_evtId;
   Int_t m_runId;
@@ -168,6 +174,9 @@ private:
 
   /// number of events we used
   Int_t m_nUsed;
+
+  /// which type of instrument
+  AcdMap::Config m_config;
 
   // Which type of calibration are we getting the histograms for?
   CALTYPE m_calType;

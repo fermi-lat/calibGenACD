@@ -17,13 +17,14 @@ using std::string;
 
 ClassImp(AcdCalibBase) ;
 
-AcdCalibBase::AcdCalibBase()
-  :m_calType(PEDESTAL) {
+AcdCalibBase::AcdCalibBase(AcdMap::Config config)
+  :m_config(config),
+   m_calType(PEDESTAL){
   resetCounters();
 }
 
 
-AcdCalibBase::~AcdCalibBase() 
+AcdCalibBase::~AcdCalibBase()
 {
   for ( std::map<int,AcdHistCalibMap*>::iterator itr = m_histMaps.begin(); itr != m_histMaps.end(); itr++ ) {
     AcdHistCalibMap* aMap = itr->second;
@@ -120,7 +121,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   case TIME_PROF_VETO: name += "TIME_PROFILE_VETO"; break;
   }
 
-  map = new AcdHistCalibMap(name,nBin,low,hi);
+  map = new AcdHistCalibMap(name,nBin,low,hi,m_config);
   m_histMaps[histType] = map;
   return map;
 } 

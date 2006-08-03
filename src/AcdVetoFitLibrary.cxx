@@ -9,7 +9,8 @@ ClassImp(AcdVetoFitLibrary) ;
 
 Int_t AcdVetoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   UInt_t nB = hist.GetNbinsX();
-  for ( UInt_t i(1); i <= nB; i++ ) {
+  // skip the first bin...
+  for ( UInt_t i(2); i <= nB; i++ ) {
     if ( hist.GetBinContent(i) > val ) {
       return (Int_t)i;
     }
