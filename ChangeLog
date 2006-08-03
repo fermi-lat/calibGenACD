@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  3 10:39:37 PDT 2006
+calibGenACD/apps
+
+Modified Files:
+	runMeritCalib.cxx runMuonCalib_Roi.cxx runMuonCalib_Svac.cxx 
+	runMuonCalib_Tkr.cxx runPedestal.cxx runStripChart.cxx 
+	runVetoCalib.cxx 
+Log Message:
+cleaning up the use of the job options
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r6, operation: add
 Package: calibGenACD
