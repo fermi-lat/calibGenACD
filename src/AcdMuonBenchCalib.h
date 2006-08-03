@@ -85,7 +85,7 @@ private:
 
 public:
 
-  AcdMuonBenchCalib(TTree *tree=0);
+  AcdMuonBenchCalib(TTree *tree=0, AcdMap::Config config = AcdMap::LAT);
   virtual ~AcdMuonBenchCalib();
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
@@ -141,8 +141,8 @@ private:
 
 #ifdef AcdMuonBenchCalib_cxx
 
-AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree)
-  :AcdCalibBase()
+AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree, AcdMap::Config config)
+  :AcdCalibBase(config)
 {
   m_pedHists =  bookHists(PEDESTAL,4096,-0.5,4095.5);
   m_gainHists = bookHists(GAIN,256,-0.5,4095.5);

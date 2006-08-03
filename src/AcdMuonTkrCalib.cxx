@@ -21,8 +21,8 @@ using std::string;
 
 ClassImp(AcdMuonTkrCalib) ;
 
-AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength)
-  :AcdCalibBase(),
+AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength, AcdMap::Config config)
+  :AcdCalibBase(config),
    m_correctPathLength(correctPathLength),
    m_digiChain(digiChain),
    m_reconChain(reconChain), 

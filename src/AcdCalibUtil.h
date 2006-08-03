@@ -8,6 +8,11 @@ class AcdPedestalFit;
 class AcdPedestalFitMap;
 class AcdGainFit;
 class AcdGainFitMap;
+class AcdGainFitResult;
+class AcdVetoFitMap;
+class AcdVetoFitResult;
+class AcdPadMap;
+class TVirtualPad;
 class TH1;
 
 class AcdCalibUtil {
@@ -27,12 +32,22 @@ public :
   // save a list of canvases to files
   static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".ps");
 
+  // draw a single mip plot.
+  static void drawMipPlot(TVirtualPad& vp, TH1& hist, AcdGainFitResult* res, Bool_t onLog);
+
+  // draw a single veto plot
+  static void drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdVetoFitResult* res);
+
+  // draw veto plots onto canvases
+  static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+			      AcdVetoFitMap& vetos, const char* prefix = "");
+
   // draw mip peaks onto canvases
-  static void drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains, 
-		       Bool_t onLog = kTRUE, const char* prefix = "");
+  static AcdPadMap* drawMips(AcdHistCalibMap& h, AcdGainFitMap& gains, 
+			     Bool_t onLog = kTRUE, const char* prefix = "");
 
   // draw strip charts onto canvases
-  static void drawStripCharts(TList& cl, AcdHistCalibMap& h, const char* prefix = "");
+  static AcdPadMap* drawStripCharts(AcdHistCalibMap& h, const char* prefix = "");
 
   // histogram the outliers 
   static void chi2Dist(const TH1& input, TH1*& output, Int_t method = PLAIN, 
@@ -40,7 +55,7 @@ public :
 
   static UShort_t gemId(UInt_t id);
 
-  static Float_t efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic);
+  static Float_t efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic, Float_t minBol = 0.5);
 
   static Float_t width(UInt_t id);
 

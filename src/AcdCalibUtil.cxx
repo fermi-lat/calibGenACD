@@ -10,6 +10,8 @@
 
 #include "./AcdHistCalibMap.h"
 #include "./AcdGainFit.h"
+#include "./AcdVetoFit.h"
+#include "./AcdPadMap.h"
 
 ClassImp(AcdCalibUtil) ;
 
@@ -28,334 +30,111 @@ void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* s
   }
 }
 
-void AcdCalibUtil::drawMips(TList& cl, AcdHistCalibMap& h, AcdGainFitMap& gains, 
-			    Bool_t onLog, const char* prefix) {
+void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdVetoFitResult* res) {
+  vp.cd();
+  hAll.Draw();
+  hVeto.SetLineColor(4);
+  hVeto.Draw("same");
 
-  // top A & top B
-  TString pr(prefix);
+  if ( res != 0 ) {
+    TLine* lmean = new TLine( res->veto(), 0.,  res->veto(), hAll.GetMaximum());
+    lmean->SetLineColor(2);
+    lmean->Draw();
+  }   
+}
 
-  TCanvas* topA = new TCanvas(pr+"top_A","top_A");
-  TCanvas* topB = new TCanvas(pr+"top_B","top_B");
+void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdGainFitResult* res, Bool_t onLog) {
 
-  topA->Divide(5,5);
-  topB->Divide(5,5);  
-
-  UInt_t iRow(0);
-  UInt_t iCol(0);
-
+  // set plot limits & such
   Double_t ymin = onLog ? 1. : 0.;
   Double_t expand = onLog ? 0.5 : 0.;
   Double_t xmin, xmax, width;
 
-  UInt_t idx(0);
-  for ( iRow = 0; iRow < 5; iRow++ ) {
-    for ( iCol = 0; iCol < 5; iCol++ ) {
-      idx++;     
-      UInt_t idA = 10*iRow + iCol;
-      UInt_t idB = 1000 + idA;
-      TH1* hA = h.getHist(idA);
-      TH1* hB = h.getHist(idB);
-      if ( hA == 0 || hB == 0 ) continue;
-      
-      TF1* fA = hA->GetFunction("pol7");
-      TF1* fB = hB->GetFunction("pol7");
-      if ( fA == 0 || fB == 0 ) {
-	fA = hA->GetFunction("pol5");
-	fB = hB->GetFunction("pol5");
-	if ( fA == 0 || fB == 0 ) continue;
-      }
-
-      fA->GetRange(xmin,xmax);
-      width = xmax - xmin;
-      hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
-      hA->SetMinimum(ymin);     
-      fB->GetRange(xmin,xmax);
-      width = xmax - xmin;
-      hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
-      hB->SetMinimum(ymin);
-      AcdGainFitResult* rB = (AcdGainFitResult*)gains.get(idB);
-      TVirtualPad* vA = topA->cd(idx);
-      if ( onLog ) vA->SetLogy();
-      hA->Draw();   
-      AcdGainFitResult* rA = (AcdGainFitResult*)gains.get(idA);
-      if ( rA != 0 ) {
-	TLine* lA = new TLine( rA->peak(), hA->GetMinimum(),  rA->peak(), hA->GetMaximum());
-	lA->SetLineColor(2);
-	lA->Draw();
-      } 
-      TVirtualPad* vB = topB->cd(idx);	    
-      if ( onLog ) vB->SetLogy();
-      hB->Draw();      
-      if ( rB != 0 ) {
-	TLine* lB = new TLine( rB->peak(), hB->GetMinimum(),  rB->peak(), hB->GetMaximum());
-	lB->SetLineColor(2);
-	lB->Draw();
-      }       
-    }
+  // get the function used to fit
+  TF1* fA = hist.GetFunction("pol7");
+  if ( fA == 0 ) {
+    fA = hist.GetFunction("pol5");
   }
-  cl.Add(topA);
-  cl.Add(topB);
-
-
-  // sides
-  for ( UInt_t iFace(1); iFace < 5; iFace++ ) {
-    char tmp[10];
-    sprintf(tmp,"Side_%i",iFace);
-    TString nameA(pr+tmp); nameA += "_A";
-    TString nameB(pr+tmp); nameB += "_B";
-    
-    TCanvas* cA = new TCanvas(nameA,nameA);
-    TCanvas* cB = new TCanvas(nameB,nameB);
-    cA->Divide(5,4);
-    cB->Divide(5,4);
-    idx = 0;
-    for ( iRow = 0; iRow < 3; iRow++ ) {
-      for ( iCol = 0; iCol < 5; iCol++ ) {
-	idx++;
-	UInt_t idA = 100*iFace + 10*iRow + iCol;
-	UInt_t idB = 1000 + idA;
-	TH1* hA = h.getHist(idA);
-	TH1* hB = h.getHist(idB);
-	if ( hA == 0 || hB == 0 ) continue;
-	
-	TF1* fA = hA->GetFunction("pol7");
-	TF1* fB = hB->GetFunction("pol7");
-	if ( fA == 0 || fB == 0 ) {
-	  fA = hA->GetFunction("pol5");
-	  fB = hB->GetFunction("pol5");
-	  if ( fA == 0 || fB == 0 ) continue;
-	}
-
-	fA->GetRange(xmin,xmax);
-	width = xmax - xmin;
-	hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
-	hA->SetMinimum(ymin);
-	fB->GetRange(xmin,xmax);
-	width = xmax - xmin;
-	hB->SetMinimum(ymin);
-	hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
-	AcdGainFitResult* rA = (AcdGainFitResult*)gains.get(idA);
-	AcdGainFitResult* rB = (AcdGainFitResult*)gains.get(idB);
-	TVirtualPad* vA = cA->cd(idx);
-	if ( onLog ) vA->SetLogy();
-	hA->Draw();
-	if ( rA != 0 ) {
-	  TLine* lA = new TLine( rA->peak(), hA->GetMinimum(),  rA->peak(), hA->GetMaximum());
-	  lA->SetLineColor(2);
-	  lA->Draw();
-	} 
-	TVirtualPad* vB = cB->cd(idx);	    
-	if ( onLog ) vB->SetLogy();
-	hB->Draw();  
-	if ( rB != 0 ) {
-	  TLine* lB = new TLine( rB->peak(), hB->GetMinimum(),  rB->peak(), hB->GetMaximum());
-	  lB->SetLineColor(2);
-	  lB->Draw();
-	} 
-      }
-    }
-    //idx = 18;
-    idx++;
-    UInt_t idA = 100*iFace + 30;
-    UInt_t idB = 1000 + idA;
-    TH1* hA = h.getHist(idA);
-    TH1* hB = h.getHist(idB);
-
-    if ( hA == 0 || hB == 0 ) continue;
-    
-    TF1* fA = hA->GetFunction("pol7");
-    TF1* fB = hB->GetFunction("pol7");
-    if ( fA == 0 || fB == 0 ) {
-      fA = hA->GetFunction("pol5");
-      fB = hB->GetFunction("pol5");
-      if ( fA == 0 || fB == 0 ) continue;
-    }
-
+  
+  // extract the limits from fit function
+  if ( fA != 0 ) {
     fA->GetRange(xmin,xmax);
-    width = xmax - xmin;  
-    hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
-    hA->SetMinimum(ymin);
-    fB->GetRange(xmin,xmax);
-    width = xmax - xmin;   
-    hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
-    hB->SetMinimum(ymin);
-    AcdGainFitResult* rA = (AcdGainFitResult*)gains.get(idA);
-    AcdGainFitResult* rB = (AcdGainFitResult*)gains.get(idB);
-    TVirtualPad* vA = cA->cd(idx);
-    if ( onLog ) vA->SetLogy();
-    hA->Draw();
-    if ( rA != 0 ) {
-      TLine* lA = new TLine( rA->peak(), hA->GetMinimum(),  rA->peak(), hA->GetMaximum());
-      lA->SetLineColor(2);
-      lA->Draw();
-    }     
-    TVirtualPad* vB = cB->cd(idx);	    
-    if ( onLog ) vB->SetLogy();
-    hB->Draw();  
-    if ( rB != 0 ) {
-      TLine* lB = new TLine( rB->peak(), hB->GetMinimum(),  rB->peak(), hB->GetMaximum());
-      lB->SetLineColor(2);
-      lB->Draw();
-    } 
-    cl.Add(cA);
-    cl.Add(cB);
+    width = xmax - xmin;
+    hist.SetAxisRange(xmin - expand* width, xmax + expand * width);
   }
+  
+  hist.SetMinimum(ymin);
+  vp.cd();
+  if ( onLog ) vp.SetLogy();
+  
+  // draw the histogram
+  hist.Draw();   
 
-
-  // ribbons
-  TCanvas* ribA = new TCanvas(pr+"rib_A","rib_A");
-  TCanvas* ribB = new TCanvas(pr+"rib_B","rib_B");
-
-  ribA->Divide(4,2);
-  ribB->Divide(4,2);  
-
-  idx = 0;
-  for ( iRow = 5; iRow < 7; iRow++ ) {
-    for ( iCol = 0; iCol < 4; iCol++ ) {
-      idx++;     
-      UInt_t idA = 100*iRow + iCol;
-      UInt_t idB = 1000 + idA;
-      TH1* hA = h.getHist(idA);
-      TH1* hB = h.getHist(idB);
-      if ( hA == 0 || hB == 0 ) continue;      
-      TF1* fA = hA->GetFunction("pol7");
-      TF1* fB = hB->GetFunction("pol7");
-      if ( fA == 0 || fB == 0 ) {
-	fA = hA->GetFunction("pol5");
-	fB = hB->GetFunction("pol5");
-	if ( fA == 0 || fB == 0 ) continue;
-      }
-      fA->GetRange(xmin,xmax);
-      width = xmax - xmin;
-      hA->SetAxisRange(xmin - expand* width, xmax + expand * width);
-      hA->SetMinimum(ymin);     
-      fB->GetRange(xmin,xmax);
-      width = xmax - xmin;
-      hB->SetAxisRange(xmin - expand* width, xmax + expand * width);
-      hB->SetMinimum(ymin);
-      AcdGainFitResult* rB = (AcdGainFitResult*)gains.get(idB);
-      TVirtualPad* vA = ribA->cd(idx);
-      if ( onLog ) vA->SetLogy();
-      hA->Draw();   
-      AcdGainFitResult* rA = (AcdGainFitResult*)gains.get(idA);
-      if ( rA != 0 ) {
-	TLine* lA = new TLine( rA->peak(), hA->GetMinimum(),  rA->peak(), hA->GetMaximum());
-	lA->SetLineColor(2);
-	lA->Draw();
-      } 
-      TVirtualPad* vB = ribB->cd(idx);	    
-      if ( onLog ) vB->SetLogy();
-      hB->Draw();      
-      if ( rB != 0 ) {
-	TLine* lB = new TLine( rB->peak(), hB->GetMinimum(),  rB->peak(), hB->GetMaximum());
-	lB->SetLineColor(2);
-	lB->Draw();
-      }       
-    }
-  }
-  cl.Add(ribA);
-  cl.Add(ribB);
+  // add a line showing the fitted value for MIP peak, if extant
+  if ( res != 0 ) {
+    TLine* lA = new TLine( res->peak(), hist.GetMinimum(),  res->peak(), hist.GetMaximum());
+    lA->SetLineColor(2);
+    lA->Draw();
+  } 
 }
 
-void AcdCalibUtil::drawStripCharts(TList& cl, AcdHistCalibMap& h, const char* prefix) {
+AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+				   AcdVetoFitMap& vetos, const char* prefix) {
 
-  // top A & top B
-  TString pr(prefix);
-  
-  TCanvas* topA = new TCanvas(pr+"top_A","top_A");
-  TCanvas* topB = new TCanvas(pr+"top_B","top_B");
-
-  topA->Divide(5,5);
-  topB->Divide(5,5);  
-
-  UInt_t iRow(0);
-  UInt_t iCol(0);
-
-  UInt_t idx(0);
-  for ( iRow = 0; iRow < 5; iRow++ ) {
-    for ( iCol = 0; iCol < 5; iCol++ ) {
-      idx++;     
-      UInt_t idA = 10*iRow + iCol;
-      UInt_t idB = 1000 + idA;
-      TH1* hA = h.getHist(idA);
-      TH1* hB = h.getHist(idB);
-      if ( hA == 0 || hB == 0 ) continue;      
-      topA->cd(idx); 
-      hA->Draw();  
-      topB->cd(idx); 
-      hB->Draw();      
-    }
+  AcdPadMap* padMap = new AcdPadMap(hVeto.config(),prefix);
+  TList& hList = (TList&)hVeto.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hv = (TH1*)(obj);
+    TH1* hr = hRaw.getHist(id);
+    if ( hv == 0 || hr == 0 ) continue;
+    AcdVetoFitResult* res = (AcdVetoFitResult*)(vetos.get(id));
+    drawVetoPlot(*pad,*hv,*hr,res);
   }
-  cl.Add(topA);
-  cl.Add(topB);
+  return padMap;
+}
 
-  // sides
-  for ( UInt_t iFace(1); iFace < 5; iFace++ ) {
-    char tmp[10];
-    sprintf(tmp,"Side_%i",iFace);
-    TString nameA(pr+tmp); nameA += "_A";
-    TString nameB(pr+tmp); nameB += "_B";
-    
-    TCanvas* cA = new TCanvas(nameA,nameA);
-    TCanvas* cB = new TCanvas(nameB,nameB);
-    cA->Divide(5,4);
-    cB->Divide(5,4);
-    idx = 0;
-    for ( iRow = 0; iRow < 3; iRow++ ) {
-      for ( iCol = 0; iCol < 5; iCol++ ) {
-	idx++;
-	UInt_t idA = 100*iFace + 10*iRow + iCol;
-	UInt_t idB = 1000 + idA;
-	TH1* hA = h.getHist(idA);
-	TH1* hB = h.getHist(idB);
-	if ( hA == 0 || hB == 0 ) continue;	
-	cA->cd(idx); 
-	hA->Draw();
-	cB->cd(idx); 
-	hB->Draw();  
-      }
-    }
-    //idx = 18;
-    idx++;
-    UInt_t idA = 100*iFace + 30;
-    UInt_t idB = 1000 + idA;
-    TH1* hA = h.getHist(idA);
-    TH1* hB = h.getHist(idB);
-
-    if ( hA == 0 || hB == 0 ) continue;    
-    cA->cd(idx); 
-    hA->Draw();
-    cB->cd(idx); 
-    hB->Draw();  
-    cl.Add(cA);
-    cl.Add(cB);
+AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdGainFitMap& gains, 
+				  Bool_t onLog, const char* prefix) {
+  AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
+  TList& hList = (TList&)h.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hh = (TH1*)(obj);
+    if ( hh == 0) continue;
+    AcdGainFitResult* res = (AcdGainFitResult*)(gains.get(id));
+    drawMipPlot(*pad,*hh,res,onLog);
   }
+  return padMap;
+}
 
+AcdPadMap* AcdCalibUtil::drawStripCharts(AcdHistCalibMap& h, const char* prefix) {
 
-  // ribbons
-  TCanvas* ribA = new TCanvas(pr+"rib_A","rib_A");
-  TCanvas* ribB = new TCanvas(pr+"rib_B","rib_B");
-
-  ribA->Divide(4,2);
-  ribB->Divide(4,2);  
-
-  idx = 0;
-  for ( iRow = 5; iRow < 7; iRow++ ) {
-    for ( iCol = 0; iCol < 4; iCol++ ) {
-      idx++;     
-      UInt_t idA = 100*iRow + iCol;
-      UInt_t idB = 1000 + idA;
-      TH1* hA = h.getHist(idA);
-      TH1* hB = h.getHist(idB);
-      if ( hA == 0 || hB == 0 ) continue;      
-      ribA->cd(idx); 
-      hA->Draw();   
-      ribB->cd(idx);
-      hB->Draw();      
-    }
+  AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
+  TList& hList = (TList&)h.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    pad->cd();
+    TH1* hh = (TH1*)(obj);
+    if ( hh == 0 ) continue;
+    hh->Draw();
   }
-  cl.Add(ribA);
-  cl.Add(ribB);
+  return padMap;
 }
 
 void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_t refVal, Float_t scale) {
@@ -400,7 +179,7 @@ void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_
   }
 }
 
-Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic) {
+Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic, Float_t minBot) {
 
   Int_t nt = top.GetNbinsX();
   Int_t nb = bot.GetNbinsX();
@@ -419,7 +198,7 @@ Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool
       out.SetBinError(i,0.0);
       continue;
     }
-    if ( n < 0.5 )  {
+    if ( n < minBot )  {
       out.SetBinContent(i,0.0);
       out.SetBinError(i,0.0);
       continue;

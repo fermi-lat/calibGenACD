@@ -19,7 +19,7 @@ class AcdMuonRoiCalib : public AcdCalibBase {
 public :
   
   // Standard ctor, where user provides the input data
-  AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic = kFALSE);
+  AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdMuonRoiCalib();  
 
@@ -40,6 +40,8 @@ public :
   /// for writing output files
   virtual void writeXmlSources(ostream& os) const;
   virtual void writeTxtSources(ostream& os) const;
+
+  Bool_t readPedestals(const char* fileName);
 
 protected:
 

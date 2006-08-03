@@ -17,6 +17,9 @@
 #pragma link C++ class AcdCalibResult;
 #pragma link C++ class AcdCalibMap;
 
+#pragma link C++ class AcdPadMap;
+#pragma link C++ class AcdJobConfig;
+
 #pragma link C++ class AcdGainFitResult;
 #pragma link C++ class AcdGainFitMap;
 #pragma link C++ class AcdGainFit;

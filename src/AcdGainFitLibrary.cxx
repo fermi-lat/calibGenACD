@@ -95,6 +95,7 @@ Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_
 Int_t AcdGainFitLibrary::fit(AcdGainFitResult& result, const TH1& hist) {
   
   Int_t returnCode = AcdGainFitResult::NOFIT;
+  if ( hist.GetEntries() < 500 ) return returnCode;
   switch ( _type ) {
   case None:
     result.setVals(0.,0.,AcdGainFitResult::NOFIT);
@@ -205,7 +206,8 @@ Int_t AcdGainFitLibrary::fitP5(AcdGainFitResult& result, const TH1& hist) {
   Float_t endValue = hist.GetBinCenter(4*halfMax);
 
   status = theHist.Fit("pol5","","",minValue,endValue); //applies polynomial fit
-  if ( status != 0 ) return fallback(result,hist);
+  // if ( status != 0 ) return fallback(result,hist);
+  if ( status != 0 ) return status;
 
   TF1* fit = theHist.GetFunction("pol5"); 
  

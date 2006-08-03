@@ -25,6 +25,8 @@ apply_pattern root_package headers="\
  ../src/AcdGainFitLibrary.h\
  ../src/AcdHistCalibMap.h\
  ../src/AcdMap.h\
+ ../src/AcdJobConfig.h\
+ ../src/AcdPadMap.h\
  ../src/AcdPedestalFit.h\
  ../src/AcdPedestalFitLibrary.h\
  ../src/AcdMuonBenchCalib.h\

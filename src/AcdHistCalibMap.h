@@ -14,9 +14,9 @@ class AcdHistCalibMap {
 
 public:
 
-  AcdHistCalibMap(TFile& file);
+  AcdHistCalibMap(TFile& file, AcdMap::Config config = AcdMap::LAT);
 
-  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5);
+  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdHistCalibMap();
   
@@ -32,12 +32,15 @@ public:
 
   Bool_t writeHistograms(const char* newFileName );
 
+  AcdMap::Config config() const { return m_config; }
 
 protected:
 
   void bookHists(const char* prefix);
 
 private:
+
+  AcdMap::Config         m_config;
 
   UInt_t                 m_bins;
   Float_t                m_lo;
@@ -55,8 +58,9 @@ private:
 #ifdef AcdHistCalibMap_cxx
 
 
-AcdHistCalibMap::AcdHistCalibMap(const char* prefix, UInt_t nBins, Float_t lo, Float_t hi)
-  :m_bins(nBins),
+AcdHistCalibMap::AcdHistCalibMap(const char* prefix, UInt_t nBins, Float_t lo, Float_t hi, AcdMap::Config config)
+  :m_config(config),
+   m_bins(nBins),
    m_lo(lo),
    m_hi(hi)
 {  

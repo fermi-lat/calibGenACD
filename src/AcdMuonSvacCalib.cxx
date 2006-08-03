@@ -21,8 +21,8 @@ using std::string;
 
 ClassImp(AcdMuonSvacCalib) ;
 
-AcdMuonSvacCalib::AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength)
-  :AcdCalibBase(),
+AcdMuonSvacCalib::AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength, AcdMap::Config config)
+  :AcdCalibBase(config),
    m_correctPathLength(correctPathLength),
    m_svacChain(svacChain),
    m_gainHists(0),

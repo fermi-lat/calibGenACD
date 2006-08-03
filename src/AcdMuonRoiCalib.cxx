@@ -1,3 +1,5 @@
+
+
 #include <fstream>
 #include "TH1F.h"
 #include "TH2F.h"
@@ -21,8 +23,8 @@ using std::string;
 
 ClassImp(AcdMuonRoiCalib) ;
 
-AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic)
-  :AcdCalibBase(), 
+AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
+  :AcdCalibBase(config), 
    m_digiChain(digiChain),
    m_digiEvent(0),
    m_requirePeriodic(requirePeriodic){
@@ -33,9 +35,9 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic)
   m_pedHists = bookHists(PEDESTAL,4096,-0.5,4095.5);
   m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
   m_unPairHists = bookHists(UNPAIRED,512,-0.5,4095.5);
-  m_rawHists = bookHists(RAW,128,-0.5,1023.5);
-  m_vetoHists = bookHists(VETO,128,-0.5,1023.5);
-  m_vfHists = bookHists(VETO_FRAC,128,-0.5,1023.5);
+  m_rawHists = bookHists(RAW,64,-0.5,4095.5);
+  m_vetoHists = bookHists(VETO,64,-0.5,4095.5);
+  m_vfHists = bookHists(VETO_FRAC,64,-0.5,4095.5);
 
   m_hitMapHist = new TH2F("hitMapHist","hitMapHist",128,-0.5,127.5,3,0.5,3.5);  
   m_condArrHist = new TH2F("condArrHist","condArrHist",32,-0.5,31.5,2,0.5,2.5);
@@ -127,29 +129,49 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
     if ( ! AcdMap::channelExists( id ) ) continue;
     
     int rng0 = acdDigi->getRange(AcdDigi::A);    
-    int pmt0 = acdDigi->getPulseHeight(AcdDigi::A);
+    float pmt0 = (float)acdDigi->getPulseHeight(AcdDigi::A);
 
     int rng1 = acdDigi->getRange(AcdDigi::B);
-    int pmt1 = acdDigi->getPulseHeight(AcdDigi::B);
+    float pmt1 = (float)acdDigi->getPulseHeight(AcdDigi::B);
+
+    Bool_t useA = rng0 == 0;
+    Bool_t useB = rng1 == 0;
+    if ( m_peds != 0 ) {
+      UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
+      UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+      AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
+      AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);      
+      if ( pedRes_A == 0 && pedRes_B == 0 ) return;
+      if ( calType() == GAIN ) {
+	pmt0 -=  pedRes_A->mean();
+	pmt1 -=  pedRes_B->mean();
+	useA &= pmt0 > 50.;
+	useB &= pmt1 > 50.;
+      }
+      if ( calType() == VETO ) {
+	useA &= pmt0 > ( pedRes_A->mean() + 30. );
+	useB &= pmt1 > ( pedRes_B->mean() + 30. );
+      }
+    }
 
     switch ( calType () ) {
     case PEDESTAL:
-      if ( rng0 == 0 ) fillHist(*m_pedHists, id, AcdDigi::A, pmt0);
-      if ( rng1 == 0 ) fillHist(*m_pedHists, id, AcdDigi::B, pmt1);
+      if ( useA ) fillHist(*m_pedHists, id, AcdDigi::A, pmt0);
+      if ( useB ) fillHist(*m_pedHists, id, AcdDigi::B, pmt1);
       break;
     case GAIN:
-      if ( rng0 == 0 && pmt0 > 0) fillHist(*m_gainHists, id, AcdDigi::A, pmt0);
-      if ( rng1 == 0 && pmt1 > 0) fillHist(*m_gainHists, id, AcdDigi::B, pmt1);
+      if ( useA ) fillHist(*m_gainHists, id, AcdDigi::A, pmt0);
+      if ( useB ) fillHist(*m_gainHists, id, AcdDigi::B, pmt1);
       break;
     case UNPAIRED:
       if ( pmt1 == 0 && rng0 == 0) fillHist(*m_unPairHists, id, AcdDigi::A, pmt0);
       if ( pmt0 == 0 && rng1 == 0) fillHist(*m_unPairHists, id, AcdDigi::B, pmt1);
       break;
     case VETO:
-      if ( rng0 == 0 ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
-      if ( rng1 == 0 ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);      
-      if ( rng0 == 0 && acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
-      if ( rng1 == 0 && acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_vetoHists, id, AcdDigi::B, pmt1);
+      if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
+      if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);      
+      if ( useA && acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
+      if ( useB && acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_vetoHists, id, AcdDigi::B, pmt1);
       break;
     default:
       break;
@@ -197,7 +219,10 @@ AcdHistCalibMap* AcdMuonRoiCalib::makeVetoRatio() {
 	    std::cout << "missing one " << key << std::endl;
 	    continue;
 	  }
-	  AcdCalibUtil::efficDivide(*vf,*veto,*raw,kFALSE);
+	  Int_t nVeto = veto->GetEntries();
+	  if ( nVeto > 100 && veto->GetMaximum() > 10 ) {	  
+	    AcdCalibUtil::efficDivide(*vf,*veto,*raw,kFALSE,10.);
+	  }
 	}
       }
     }
@@ -308,5 +333,13 @@ void AcdMuonRoiCalib::writeTxtSources(ostream& os) const {
       os << "#inputDigiFile = " << obj->GetTitle() << endl;
     }
   }
+}
+
+
+Bool_t AcdMuonRoiCalib::readPedestals(const char* fileName) {
+  Bool_t latchVal = readCalib(PEDESTAL,fileName);
+  AcdCalibMap* map = getCalibMap(PEDESTAL);
+  m_peds = (AcdPedestalFitMap*)(map);
+  return latchVal;
 }
 
