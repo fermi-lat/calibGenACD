@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  3 10:39:38 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdJobConfig.cxx AcdJobConfig.h calibOption.xml 
+Log Message:
+cleaning up the use of the job options
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug  3 10:39:37 PDT 2006
 calibGenACD/apps
 
