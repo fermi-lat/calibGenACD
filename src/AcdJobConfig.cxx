@@ -74,7 +74,7 @@ void AcdJobConfig::usage() {
        << endl
        << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
        << "\t   -P                : use only periodic triggers" << endl
-       << "\t   -L                : correct for pathlength in file" << endl
+       << "\t   -L                : correct for pathlength in tile" << endl
        << "\t   -b <bins>         : number of time bins in strip chart [300]" << endl   
        << "\t   -p <pedFile>      : use pedestals from this file" << endl
        << "\t   -g <gainFile>     : use gains from this file" << endl
