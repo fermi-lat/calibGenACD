@@ -1,5 +1,17 @@
 ------------------------------------------------------------
 User: echarles  Fri Aug  4 07:24:47 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdStripChart.cxx 
+Added Files:
+	AcdCoherentNoise.cxx AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.cxx AcdCoherentNoiseFit.h 
+Log Message:
+added runCoherentNoise.cxx to apps
+    *
+------------------------------------------------------------
+User: echarles  Fri Aug  4 07:24:47 PDT 2006
 calibGenACD/cmt
 
 Modified Files:
