@@ -1,3 +1,6 @@
+v1r7 EAC 060804
+Added runCoherentNoise app.  This one is to look at the coherent noise after each readout.
+
 v1r6p1 EAC 060803
 Cleaning up the use of job options
 
