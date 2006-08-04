@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Fri Aug  4 07:24:47 PDT 2006
+calibGenACD/calibGenACD
+
+Modified Files:
+	LinkDef.h 
+Log Message:
+added runCoherentNoise.cxx to apps
+    *
+------------------------------------------------------------
+User: echarles  Fri Aug  4 07:24:47 PDT 2006
 calibGenACD/apps
 
 Added Files:
