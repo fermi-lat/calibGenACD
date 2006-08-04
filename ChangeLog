@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Fri Aug  4 07:24:47 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+added runCoherentNoise.cxx to apps
+    *
+------------------------------------------------------------
+User: echarles  Fri Aug  4 07:24:47 PDT 2006
 calibGenACD/calibGenACD
 
 Modified Files:
