@@ -39,6 +39,10 @@
 #pragma link C++ class AcdStripFitMap;
 #pragma link C++ class AcdStripFit;
 
+#pragma link C++ class AcdCoherentNoiseFitResult;
+#pragma link C++ class AcdCoherentNoiseFitMap;
+#pragma link C++ class AcdCoherentNoiseFit;
+
 #pragma link C++ class AcdCalibBase;
 #pragma link C++ class AcdMuonBenchCalib;
 #pragma link C++ class AcdMuonRoiCalib;
@@ -46,5 +50,6 @@
 #pragma link C++ class AcdMuonSvacCalib;
 #pragma link C++ class AcdMeritCalib;
 #pragma link C++ class AcdStripChart;
+#pragma link C++ class AcdCoherentNoise;
 
 #endif
