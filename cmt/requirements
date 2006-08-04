@@ -21,6 +21,8 @@ apply_pattern root_package headers="\
  ../src/AcdCalibResult.h\
  ../src/AcdCalibVersion.h\
  ../src/AcdCalibUtil.h\
+ ../src/AcdCoherentNoise.h\
+ ../src/AcdCoherentNoiseFit.h\
  ../src/AcdGainFit.h\
  ../src/AcdGainFitLibrary.h\
  ../src/AcdHistCalibMap.h\
@@ -59,3 +61,4 @@ application runPedestal ../apps/runPedestal.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
 application runMeritCalib ../apps/runMeritCalib.cxx
 application runStripChart ../apps/runStripChart.cxx
+application runCoherentNoise ../apps/runCoherentNoise.cxx

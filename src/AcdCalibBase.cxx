@@ -119,6 +119,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   case TIME_PROF_PHA: name += "TIME_PROFILE_PHA"; break;
   case TIME_PROF_HIT: name += "TIME_PROFILE_HIT"; break;
   case TIME_PROF_VETO: name += "TIME_PROFILE_VETO"; break;
+  case COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
   }
 
   map = new AcdHistCalibMap(name,nBin,low,hi,m_config);

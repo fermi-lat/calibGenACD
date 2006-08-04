@@ -188,7 +188,7 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
     for ( std::map<UInt_t,std::multiset<Double_t> >::const_iterator itr = m_vals.begin();
 	  itr != m_vals.end(); itr++ ) {
       UInt_t fillkey = itr->first;
-      const std::multiset<Double_t> theVals = itr->second;
+      const std::multiset<Double_t>& theVals = itr->second;
       Double_t n = (Double_t)(theVals.size());
       Double_t truncate = n * 0.2;
       Double_t x(0.);

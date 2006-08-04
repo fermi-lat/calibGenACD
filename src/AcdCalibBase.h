@@ -30,7 +30,8 @@ public :
 	       HITMAP, 
 	       TIME_PROF_PHA,
 	       TIME_PROF_HIT,
-	       TIME_PROF_VETO };
+	       TIME_PROF_VETO,
+	       COHERENT_NOISE };
 
 public :
 
