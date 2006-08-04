@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Aug  4 07:24:47 PDT 2006
+calibGenACD/apps
+
+Added Files:
+	runCoherentNoise.cxx 
+Log Message:
+added runCoherentNoise.cxx to apps
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug  3 10:49:31 PDT 2006
 calibGenACD/src
 
