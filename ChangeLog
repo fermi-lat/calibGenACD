@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:03:05 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdMuonTkrCalib.cxx 
+Log Message:
+don't use NA channels in AcdMuonTkrCalib
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 01:01:55 PDT 2006
 calibGenACD/src
 
