@@ -151,8 +151,7 @@ void AcdPadMap::fillForBeam() {
 
   c->Divide(5,2);
   
-  static const UInt_t tileKeyList[10] = {130,120,110,100,0,2000,2001,2002,1110,2003};
-  //static const UInt_t tileKeyList[10] = {43,413,24,23,44,2000,2001,2002,42,2003};
+  static const UInt_t tileKeyList[10] = {130,120,110,100,0,2000,2001,2002,1100,2003};
   UInt_t idx(0);
   for ( UInt_t iTile(0); iTile < 10; iTile++ ) {
     idx++;    
