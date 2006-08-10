@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:04:15 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx 
+Log Message:
+add extra endl and end of event loop to make pretty
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 01:03:05 PDT 2006
 calibGenACD/src
 
