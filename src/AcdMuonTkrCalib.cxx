@@ -163,6 +163,7 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
     assert(acdInter != 0);
 
     const AcdId& acdId = acdInter->getTileId();
+    if (!( acdId.isTile() || acdId.isRibbon()) ) continue;
     unsigned id = acdId.getId();
 
     int nAcdDigi = acdDigiCol->GetLast() + 1;
@@ -171,6 +172,7 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
       assert(acdDigi != 0);      
       const AcdId& acdIdCheck = acdDigi->getId();
       if ( acdIdCheck.getId() != id ) continue;
+      if (!( acdId.isTile() || acdId.isRibbon()) ) continue;
       fillGainHistCorrect(*acdInter,*acdDigi);
       used = kTRUE;
     }
