@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:01:55 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdJobConfig.h 
+Log Message:
+fix bug in JobConfig that recon and digi chains were being confused
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 01:01:04 PDT 2006
 calibGenACD/src
 
