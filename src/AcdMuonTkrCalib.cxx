@@ -32,7 +32,7 @@ AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t c
    m_gains(0),
    m_peds(0){
 
-  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
+  m_gainHists = bookHists(GAIN,64,-0.5,4095.5);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {

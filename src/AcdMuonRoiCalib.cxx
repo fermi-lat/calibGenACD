@@ -33,7 +33,7 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic, AcdM
   m_peds = 0;
 
   m_pedHists = bookHists(PEDESTAL,4096,-0.5,4095.5);
-  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
+  m_gainHists = bookHists(GAIN,64,-0.5,4095.5);
   m_unPairHists = bookHists(UNPAIRED,512,-0.5,4095.5);
   m_rawHists = bookHists(RAW,64,-0.5,4095.5);
   m_vetoHists = bookHists(VETO,64,-0.5,4095.5);
@@ -134,8 +134,8 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
     int rng1 = acdDigi->getRange(AcdDigi::B);
     float pmt1 = (float)acdDigi->getPulseHeight(AcdDigi::B);
 
-    Bool_t useA = rng0 == 0;
-    Bool_t useB = rng1 == 0;
+    Bool_t useA = rng0 == 0 && pmt0 > 0;
+    Bool_t useB = rng1 == 0 && pmt1 > 0;
     if ( m_peds != 0 ) {
       UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
       UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
