@@ -4,9 +4,11 @@
 #include "../src/AcdJobConfig.h"
 
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdVetoFitLibrary.h"
+#include "../src/AcdGainFitLibrary.h"
 #include "../src/AcdCoherentNoise.h"
 #include "../src/AcdCoherentNoiseFit.h"
+
+#include "../src/AcdPadMap.h"
 
 int main(int argn, char** argc) {
 
@@ -42,13 +44,22 @@ int main(int argn, char** argc) {
   AcdCoherentNoiseFit fitCoherent("FitCoherent",0);
   fitCoherent.fitAll(fitMap,*(r.getHistMap(AcdCalibBase::COHERENT_NOISE)));
   
+  // and dump to the text file
+  std::string outputTxtFile = jc.outputPrefix() + "_Profile.txt";
+  fitMap.writeTxtFile(outputTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
 
   // strip chart output
+
+  // to root file
   std::string outputHistFile = jc.outputPrefix() + "_Profile.root";
   r.writeHistograms(AcdCalibBase::COHERENT_NOISE, outputHistFile.c_str());
 
-  std::string outputTxtFile = jc.outputPrefix() + "_Profile.txt";
-  fitMap.writeTxtFile(outputTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
+  // to ps file
+  std::string outputPsFile = jc.outputPrefix() + "_Profile_";
+  AcdPadMap* padMap(0);
+  padMap = AcdCalibUtil::drawStripCharts(*(r.getHistMap(AcdCalibBase::COHERENT_NOISE)),outputPsFile.c_str());  
+  AcdCalibUtil::saveCanvases(padMap->canvasList());  
+
 
   return 0;
 }
