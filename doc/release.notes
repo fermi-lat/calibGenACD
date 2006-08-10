@@ -1,3 +1,6 @@
+v1r7p1 EAC 060810
+Small fixes for beam test.
+
 v1r7 EAC 060804
 Added runCoherentNoise app.  This one is to look at the coherent noise after each readout.
 
