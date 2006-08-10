@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:12:36 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCoherentNoise.cxx AcdCoherentNoiseFit.cxx 
+	AcdCoherentNoiseFit.h 
+Log Message:
+print out fit parameters for coherent noise fits
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 01:04:15 PDT 2006
 calibGenACD/src
 
