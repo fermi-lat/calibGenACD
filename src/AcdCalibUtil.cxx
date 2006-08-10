@@ -129,9 +129,11 @@ AcdPadMap* AcdCalibUtil::drawStripCharts(AcdHistCalibMap& h, const char* prefix)
     UInt_t id = obj->GetUniqueID();
     TVirtualPad* pad = padMap->getPad(id);
     if ( pad == 0 ) continue;
-    pad->cd();
     TH1* hh = (TH1*)(obj);
     if ( hh == 0 ) continue;
+    hh->SetMinimum(-50.);
+    hh->SetMaximum(50.);
+    pad->cd();
     hh->Draw();
   }
   return padMap;

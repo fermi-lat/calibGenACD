@@ -43,8 +43,6 @@ void AcdHistCalibMap::bookHists(const char* prefix) {
       }
     }
   } else if ( m_config == AcdMap::BEAM ) {
-    //static const UInt_t tileKeyList[16] = {314,304,424,603,414,404,44,34,24,423,413,403,43,33,23,42};
-    //for ( UInt_t i(0); i < 16; i++ ) {
     static const UInt_t tileKeyList[10] = {0,100,110,120,130,1000,1100,1110,1120,1130};
     for ( UInt_t i(0); i < 10 ; i++ ) {
       UInt_t id = tileKeyList[i];

@@ -95,7 +95,7 @@ Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_
 Int_t AcdGainFitLibrary::fit(AcdGainFitResult& result, const TH1& hist) {
   
   Int_t returnCode = AcdGainFitResult::NOFIT;
-  if ( hist.GetEntries() < 500 ) return returnCode;
+  if ( hist.GetEntries() < 100 ) return returnCode;
   switch ( _type ) {
   case None:
     result.setVals(0.,0.,AcdGainFitResult::NOFIT);
