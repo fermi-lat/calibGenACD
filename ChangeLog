@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:01:04 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdPadMap.cxx AcdHistCalibMap.cxx 
+Log Message:
+switch to using remapped tiles in CU06
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r7, operation: add
 Package: calibGenACD
