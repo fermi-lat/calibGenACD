@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 07:41:38 PDT 2006
+calibGenACD/src
+
+Modified Files:
+	AcdCalibUtil.cxx AcdGainFitLibrary.cxx AcdHistCalibMap.cxx 
+	AcdMuonRoiCalib.cxx AcdMuonTkrCalib.cxx 
+Log Message:
+various small fixes for beamtest environment
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 07:40:38 PDT 2006
 calibGenACD/src
 
