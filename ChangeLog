@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug 10 01:13:11 PDT 2006
+calibGenACD/apps
+
+Modified Files:
+	runCoherentNoise.cxx 
+Log Message:
+add ps files to output
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug 10 01:12:36 PDT 2006
 calibGenACD/src
 
