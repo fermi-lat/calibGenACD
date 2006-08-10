@@ -67,6 +67,9 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
   }
 
   lastEvent(m_runId,m_evtId);
+
+  cout << endl;
+
 }
 
 void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val)
