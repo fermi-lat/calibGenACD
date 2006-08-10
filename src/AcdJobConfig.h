@@ -48,7 +48,7 @@ public :
   inline Bool_t optval_L() const { return m_optval_L; }  
 
   inline TChain* digiChain() const { return m_digiChain;}
-  inline TChain* reconChain() const { return m_digiChain;}
+  inline TChain* reconChain() const { return m_reconChain;}
   inline TChain* svacChain() const { return m_svacChain;}
   inline TChain* meritChain() const { return m_meritChain;}
 
