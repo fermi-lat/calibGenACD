@@ -34,7 +34,7 @@ AcdCoherentNoise::AcdCoherentNoise(TChain* digiChain, UInt_t loDT, UInt_t hiDT, 
    m_histMap(0),
    m_peds(0){
 
-  m_histMap = bookHists(COHERENT_NOISE,nBins,loDT,hiDT);
+  m_histMap = bookHists(COHERENT_NOISE,nBins,(Float_t)loDT,(Float_t)hiDT);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {
@@ -89,6 +89,7 @@ void AcdCoherentNoise::fillHistograms() {
 	  x2 += (*itrSet)*(*itrSet);
 	}
       }
+      if ( nn < 2 ) continue;
       Double_t mean = x / nn;
       Double_t rms2 = (x2/nn) - (mean*mean);
       Double_t rms = sqrt(rms2);
