@@ -14,16 +14,20 @@ class AcdCoherentNoiseFitResult : public AcdCalibResult {
 
 public:
 
-  AcdCoherentNoiseFitResult(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, STATUS status);
+  AcdCoherentNoiseFitResult(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, 
+			    const char* fitPars, STATUS status);
   AcdCoherentNoiseFitResult();
   
   inline Float_t max() const { return _max; }
   inline Float_t maxTime() const { return _maxTime; }
   inline Float_t min() const { return _min; }
   inline Float_t minTime() const { return _minTime; }
+  inline const TString& fitPars() const { return _fitPars; }
   
-  inline void setVals(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, STATUS status){
+  inline void setVals(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, 
+		      const char* fitPars, STATUS status){
     _min = min; _minTime = minTime; _max = max; _maxTime = maxTime;
+    _fitPars = fitPars;
     setStatus(status);
   }
 
@@ -36,7 +40,8 @@ private:
   Float_t _minTime;
   Float_t _max;
   Float_t _maxTime;
-  
+  TString _fitPars;
+
   ClassDef(AcdCoherentNoiseFitResult,1);
 };
 
@@ -53,7 +58,7 @@ public:
   }
 
   virtual const char* txtFormat() const {
-    return "TILE PMT MIN MIN_TIME MAX MAX_TIME STATUS";
+    return "TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS";
   }
 
 private:  
