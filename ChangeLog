@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Aug 11 01:25:00 PDT 2006
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+change requirment to use any version of ROOT, not just v3
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r7p1, operation: add
 Package: calibGenACD
