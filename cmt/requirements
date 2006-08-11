@@ -10,7 +10,7 @@ use digiRootData v*
 use reconRootData v*
 use xmlBase v*
 use facilities v*
-use ROOT v3r* IExternal
+use ROOT v* IExternal
 use GlastPolicy v*
 use RootcintPolicy v* GlastPolicy
 
