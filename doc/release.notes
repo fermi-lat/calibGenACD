@@ -1,3 +1,6 @@
+v1r8 EAC 070612
+Change to using xmlBase to write xml instead of doing it by hand
+
 v1r7p2 EAC 060811
 Change requirements file to allow for any version of root
 
