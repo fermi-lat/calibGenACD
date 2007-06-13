@@ -5,6 +5,9 @@
 #include "AcdMap.h"
 #include "AcdCalibUtil.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -20,14 +23,13 @@ AcdStripFitResult::AcdStripFitResult()
    _mean(0.),_rms(0.), _min(0.), _max(0.) {
 }
 
-void AcdStripFitResult::printXmlLine(ostream& os) const {
-  
-  os << "<acdStrip mean=\"" << _mean
-     << "\" rms=\"" << _rms    
-     << "\" min=\"" << _min
-     << "\" max=\"" << _max
-     << "\" status=\"" << getStatus()
-     << "\"/>" << std::endl;
+void AcdStripFitResult::makeXmlNode(DomElement& node) const {
+  DomElement stripNode = AcdXmlUtil::makeChildNode(node,"acdStrip");
+  AcdXmlUtil::addAttribute(stripNode,"mean",_mean);
+  AcdXmlUtil::addAttribute(stripNode,"rms",_rms);
+  AcdXmlUtil::addAttribute(stripNode,"min",_min);
+  AcdXmlUtil::addAttribute(stripNode,"max",_max);
+  AcdXmlUtil::addAttribute(stripNode,"status",getStatus());
 };
 
 void AcdStripFitResult::printTxtLine(ostream& os) const {

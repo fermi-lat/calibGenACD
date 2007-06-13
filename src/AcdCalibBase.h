@@ -16,6 +16,7 @@
 
 class AcdHistCalibMap;
 class AcdCalibMap;
+class DomElement;
 
 class AcdCalibBase {
 
@@ -89,11 +90,11 @@ public :
   void go(int numEvents = 0, int startEvent = 0);
 
   /// for writing output files
-  virtual void writeXmlHeader(ostream& os) const;
+  virtual void writeXmlHeader(DomElement& node) const;
   virtual void writeTxtHeader(ostream& os) const;
 
   /// for writing the list of input files  
-  virtual void writeXmlSources(ostream& /* os */) const {
+  virtual void writeXmlSources(DomElement& node) const {
   }
   virtual void writeTxtSources(ostream& /* os */) const {
   }

@@ -157,17 +157,17 @@ Bool_t AcdMuonSvacCalib::readPedestals(const char* fileName) {
   return latchVal;
 }
 
-void AcdMuonSvacCalib::writeXmlSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "pedestalFile=" << pedFileName << std::endl;
-  TObjArray* files = m_svacChain != 0 ? m_svacChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "inputSvac=" << obj->GetTitle() << std::endl;
-    }
-  }
+void AcdMuonSvacCalib::writeXmlSources(DomElement& node) const{
+  //std::string pedFileName;
+  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  //os << "pedestalFile=" << pedFileName << std::endl;
+  //TObjArray* files = m_svacChain != 0 ? m_svacChain->GetListOfFiles() : 0;
+  //if ( files != 0 ) {
+  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+  //    TObject* obj = files->At(i);
+  //    os << "inputSvac=" << obj->GetTitle() << std::endl;
+  //  }
+  //}
 }
 
 void AcdMuonSvacCalib::writeTxtSources(ostream& os) const {

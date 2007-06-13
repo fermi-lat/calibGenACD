@@ -98,7 +98,7 @@ public:
   AcdGainFitMap* fitGains(AcdGainFit& fitter);
 
   /// for writing the list of input files  
-  virtual void writeXmlSources(ostream& os) const;
+  virtual void writeXmlSources(DomElement& node) const;
   virtual void writeTxtSources(ostream& os) const;
 
 protected:

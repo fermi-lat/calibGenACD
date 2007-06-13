@@ -31,7 +31,7 @@ public:
     setStatus(status);
   }
 
-  virtual void printXmlLine(ostream& os) const;
+  virtual void makeXmlNode(DomElement& node) const;
   virtual void printTxtLine(ostream& os) const;
   virtual Bool_t readTxt(istream& is);
 

@@ -27,7 +27,7 @@ public :
   virtual ~AcdMeritCalib();  
 
   /// for writing output files
-  virtual void writeXmlHeader(ostream& os) const;
+  virtual void writeXmlHeader(DomElement& node) const;
   virtual void writeTxtHeader(ostream& os) const;
   
   Bool_t readPedestals(const char* fileName);

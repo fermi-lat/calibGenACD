@@ -5,9 +5,13 @@
 #include "AcdMap.h"
 #include "AcdCalibVersion.h"
 #include "AcdCalibBase.h"
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
 
 #include <iostream>
 #include <fstream>
+
+
 
 ClassImp(AcdCalibMap) ;
 
@@ -97,67 +101,60 @@ Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 				 const char* algorithm,
 				 const AcdCalibBase& calib) const {
   
-  std::ofstream os(fileName);
-  if ( !os.good() ) {
-    std::cerr << "Problems opening XML output file " << fileName << std::endl;
-    return kFALSE;
-  }
-  writeXmlHeader(os,instrument,timestamp,algorithm,calib);
-  writeXmlBody(os);
-  writeXmlFooter(os);
-  os.close();
-  return kTRUE;
+  
+
+  DomElement elem = AcdXmlUtil::makeDocument("acdCalib");
+  writeXmlHeader(elem,instrument,timestamp,algorithm,calib);
+  writeXmlBody(elem);
+  writeXmlFooter(elem);
+  
+  return AcdXmlUtil::writeIt(elem,fileName);
 }
 
-void AcdCalibMap::writeXmlHeader(ostream& os,
+void AcdCalibMap::writeXmlHeader(DomElement& node,
 				 const char* instrument,
-				 const char* timestamp,
+				 const char* /*timestamp*/,
 				 const char* algorithm,
 				 const AcdCalibBase& calib) const {  
-  using std::endl;
-  os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
-  os << "<acdCalib>" << endl;
-  os << "<generic instrument=\"" << instrument 
-     << "\" timestamp=\"" << timestamp 
-     << "\" calibType=\"" << calibType() 
-     << "\" algorithm=\"" << algorithm
-     << "\" DTDVersion=\"" << AcdCalibVersion::dtdVersion()
-     << "\" fmtVersion=\"" << AcdCalibVersion::fmtVersion()
-     << "\">" << endl;
-  calib.writeXmlHeader(os);
-  os << "</generic>" << endl;
-  os << "<dimension nTile=\"108\"/>" << endl;    
+
+  //os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
+  DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");
+  AcdXmlUtil::addAttribute(genNode,"instrument",instrument);
+  AcdXmlUtil::addAttribute(genNode,"calibType",calibType());
+  AcdXmlUtil::addAttribute(genNode,"algorithm",algorithm);
+  AcdXmlUtil::addAttribute(genNode,"DTDVersion",AcdCalibVersion::dtdVersion());
+  AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());  
+  calib.writeXmlHeader(genNode);
+
+  DomElement dimNode = AcdXmlUtil::makeChildNode(node,"dimension");
+  AcdXmlUtil::addAttribute(dimNode,"nTile",(int)108);
 }
 
 
-void AcdCalibMap::writeXmlFooter(ostream& os) const {
-  using std::endl;
-  os << "</acdCalib>" << endl;
+void AcdCalibMap::writeXmlFooter(DomElement& /* node */) const {
+  return;
 }
 
-void AcdCalibMap::writeXmlBody(ostream& os) const {
-
-  using std::endl;
+void AcdCalibMap::writeXmlBody(DomElement& node) const {
 
   for(int iFace = 0; iFace != AcdMap::nFace; iFace++) {
     for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
       for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
 	if ( ! AcdMap::channelExists(iFace,iRow,iCol) ) continue;
+
 	UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
-	AcdMap::nSpaces(os,2); os << "<tile tileId=\"" << id << "\">" << endl; 
+	DomElement tileNode = AcdXmlUtil::makeChildNode(node,"tile");
+	AcdXmlUtil::addAttribute(tileNode,"tileId",(int)id);
+
 	for(int iPmt = 0; iPmt != AcdMap::nPmt; iPmt++) {
-	  AcdMap::nSpaces(os,4); os << "<pmt iPmt=\"" << iPmt << "\">" << endl; 
+	  DomElement pmtNode = AcdXmlUtil::makeChildNode(tileNode,"pmt");
+	  AcdXmlUtil::addAttribute(pmtNode,"iPmt",(int)iPmt);
 	  
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
 	  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);   
-	  if ( itr == m_map.end() ) continue;
-	  
-	  AcdMap::nSpaces(os,6); 
-	  itr->second->printXmlLine(os);
-
-	  AcdMap::nSpaces(os,4); os << "</pmt>" << endl;
+	  if ( itr == m_map.end() ) continue;	  
+	  itr->second->makeXmlNode(pmtNode);
 	}
-	AcdMap::nSpaces(os,2); os << "</tile>" << endl;
       }
     }
   }

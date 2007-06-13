@@ -4,6 +4,9 @@
 #include "AcdVetoFit.h"
 #include "AcdMap.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -19,12 +22,11 @@ AcdVetoFitResult::AcdVetoFitResult()
    _veto(0.),_width(0.){
 }
 
-void AcdVetoFitResult::printXmlLine(ostream& os) const {
-  
-  os << "<acdVeto veto=\"" << _veto
-     << "\" width=\"" << _width    
-     << "\" status=\"" << getStatus()
-     << "\"/>" << std::endl;
+void AcdVetoFitResult::makeXmlNode(DomElement& node) const {
+  DomElement vetoNode = AcdXmlUtil::makeChildNode(node,"acdVeto");
+  AcdXmlUtil::addAttribute(vetoNode,"veto",_veto);
+  AcdXmlUtil::addAttribute(vetoNode,"width",_width);
+  AcdXmlUtil::addAttribute(vetoNode,"status",getStatus());
 };
 
 void AcdVetoFitResult::printTxtLine(ostream& os) const {
