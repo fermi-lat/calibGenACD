@@ -185,10 +185,10 @@ AcdGainFitMap* AcdMuonBenchCalib::fitGains(AcdGainFit& fitter) {
 }  
 
 
-void AcdMuonBenchCalib::writeXmlSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "peds=" << pedFileName << std::endl;
+void AcdMuonBenchCalib::writeXmlSources( DomElement& node) const {
+  //std::string pedFileName;
+  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  //os << "peds=" << pedFileName << std::endl;
 }
 
 void AcdMuonBenchCalib::writeTxtSources(ostream& os) const {

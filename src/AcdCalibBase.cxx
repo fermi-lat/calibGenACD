@@ -8,6 +8,9 @@
 #include "./AcdGainFit.h"
 #include "./AcdCalibMap.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include "digiRootData/DigiEvent.h"
 
 using std::cout;
@@ -165,15 +168,22 @@ Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
 }
 
 
-void AcdCalibBase::writeXmlHeader(ostream& os) const {
-  os << "  <inputSample startTime=\"" << runId_first() << ':'  << evtId_first() 
-     << "\" stopTime=\"" << runId_last() << ':'  << evtId_last() 
-     << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger() 
-     << "\" source=\"" << 0 
-     << "\" mode=\"" << 0
-     << "\">" << endl; 
-  writeXmlSources(os);
-  os << "</inputSample>" << endl;
+void AcdCalibBase::writeXmlHeader(DomElement& node) const {
+  
+  DomElement sourceNode = AcdXmlUtil::makeChildNode(node,"inputSample");
+  
+  AcdXmlUtil::addAttribute(sourceNode,"startTime","0");
+  AcdXmlUtil::addAttribute(sourceNode,"stopTime","0");
+  AcdXmlUtil::addAttribute(sourceNode,"triggers","0");
+  AcdXmlUtil::addAttribute(sourceNode,"source","0");
+  AcdXmlUtil::addAttribute(sourceNode,"mode","0"); 
+  //os << "  <inputSample startTime=\"" << runId_first() << ':'  << evtId_first() 
+  //   << "\" stopTime=\"" << runId_last() << ':'  << evtId_last() 
+  //   << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger() 
+  //  << "\" source=\"" << 0 
+  //   << "\" mode=\"" << 0
+  //  << "\">" << endl; 
+  writeXmlSources(sourceNode);
 }
 
 void AcdCalibBase::writeTxtHeader(ostream& os) const {

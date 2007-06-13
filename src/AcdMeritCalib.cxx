@@ -317,8 +317,8 @@ Bool_t AcdMeritCalib::readGains(const char* fileName) {
 }
 
 /// for writing output files
-void AcdMeritCalib::writeXmlHeader(ostream& os) const {
-  AcdCalibBase::writeXmlHeader(os);
+void AcdMeritCalib::writeXmlHeader(DomElement& node) const {
+  AcdCalibBase::writeXmlHeader(node);
 }
 
 void AcdMeritCalib::writeTxtHeader(ostream& os) const {

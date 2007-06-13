@@ -8,6 +8,7 @@
 
 class AcdHistCalibMap;
 class AcdCalibBase;
+class DomElement;
 
 class AcdCalibMap {
 public:
@@ -30,13 +31,13 @@ public:
 		      const char* timestamp,
 		      const char* algorithm,
 		      const AcdCalibBase& calib) const;
-  void writeXmlHeader(ostream& os, 
+  void writeXmlHeader(DomElement& node,
 		      const char* instrument,
 		      const char* timestamp,
 		      const char* algorithm,
 		      const AcdCalibBase& calib) const;
-  void writeXmlFooter(ostream& os) const;
-  void writeXmlBody(ostream& os) const;
+  void writeXmlFooter(DomElement& node) const;
+  void writeXmlBody(DomElement& node) const;
   
   virtual AcdCalibResult* createHolder() const { return 0; }
 

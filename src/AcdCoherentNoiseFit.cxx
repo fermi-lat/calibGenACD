@@ -5,6 +5,9 @@
 #include "AcdMap.h"
 #include "AcdCalibUtil.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include "TF1.h"
 
 #include <iostream>
@@ -25,15 +28,14 @@ AcdCoherentNoiseFitResult::AcdCoherentNoiseFitResult()
    _fitPars("NONE"){
 }
 
-void AcdCoherentNoiseFitResult::printXmlLine(ostream& os) const {
-  
-  os << "<acdStrip min=\"" << _min
-     << "\" minTime=\"" << _minTime
-     << "\" max=\"" << _max
-     << "\" maxTime=\"" << _maxTime
-     << "\" fitPars=\"" << _fitPars
-     << "\" status=\"" << getStatus()
-     << "\"/>" << std::endl;
+void AcdCoherentNoiseFitResult::makeXmlNode(DomElement& node) const{
+  DomElement noiseNode = AcdXmlUtil::makeChildNode(node,"acdNoise");
+  AcdXmlUtil::addAttribute(noiseNode,"min",_min);
+  AcdXmlUtil::addAttribute(noiseNode,"minTime",_minTime);
+  AcdXmlUtil::addAttribute(noiseNode,"max",_max);
+  AcdXmlUtil::addAttribute(noiseNode,"maxTime",_maxTime);
+  AcdXmlUtil::addAttribute(noiseNode,"fitPars",_fitPars);
+  AcdXmlUtil::addAttribute(noiseNode,"status",getStatus());
 };
 
 void AcdCoherentNoiseFitResult::printTxtLine(ostream& os) const {

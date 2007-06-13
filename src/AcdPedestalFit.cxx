@@ -3,6 +3,9 @@
 #include "AcdHistCalibMap.h"
 #include "AcdMap.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -19,12 +22,11 @@ AcdPedestalFitResult::AcdPedestalFitResult()
 }
 
 
-void AcdPedestalFitResult::printXmlLine(ostream& os) const {
-  
-  os << "<acdPed mean=\"" << _mean
-     << "\" width=\"" << _rms    
-     << "\" status=\"" << getStatus()
-     << "\"/>" << std::endl;
+void AcdPedestalFitResult::makeXmlNode(DomElement& node) const {
+  DomElement pedNode = AcdXmlUtil::makeChildNode(node,"acdPed");
+  AcdXmlUtil::addAttribute(pedNode,"mean",_mean);
+  AcdXmlUtil::addAttribute(pedNode,"width",_rms);
+  AcdXmlUtil::addAttribute(pedNode,"status",getStatus());
 };
 
 

@@ -202,17 +202,17 @@ Bool_t AcdCoherentNoise::readPedestals(const char* fileName) {
   return latchVal;
 }
 
-void AcdCoherentNoise::writeXmlSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "pedestalFile=" << pedFileName << std::endl;
-  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "inputDigi=" << obj->GetTitle() << std::endl;
-    }
-  }
+void AcdCoherentNoise::writeXmlSources( DomElement& node) const {
+  //std::string pedFileName;
+  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
+  //os << "pedestalFile=" << pedFileName << std::endl;
+  //TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
+  //if ( files != 0 ) {
+  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+  //    TObject* obj = files->At(i);
+  //    os << "inputDigi=" << obj->GetTitle() << std::endl;
+  //  }
+  //}
 }
 
 void AcdCoherentNoise::writeTxtSources(ostream& os) const {

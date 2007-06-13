@@ -4,6 +4,9 @@
 #include "AcdGainFit.h"
 #include "AcdMap.h"
 
+#include "AcdXmlUtil.h"
+#include "DomElement.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -19,12 +22,11 @@ AcdGainFitResult::AcdGainFitResult()
    _peak(0.),_width(0.){
 }
 
-void AcdGainFitResult::printXmlLine(ostream& os) const {
-  
-  os << "<acdGain peak=\"" << _peak
-     << "\" width=\"" << _width    
-     << "\" status=\"" << getStatus()
-     << "\"/>" << std::endl;
+void AcdGainFitResult::makeXmlNode(DomElement& node) const {
+  DomElement gainNode = AcdXmlUtil::makeChildNode(node,"acdGain");
+  AcdXmlUtil::addAttribute(gainNode,"peak",_peak);
+  AcdXmlUtil::addAttribute(gainNode,"width",_width);
+  AcdXmlUtil::addAttribute(gainNode,"status",getStatus());
 };
 
 void AcdGainFitResult::printTxtLine(ostream& os) const {

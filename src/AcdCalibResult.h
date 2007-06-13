@@ -7,6 +7,8 @@
 
 class AcdHistCalibMap;
 
+class DomElement;
+
 class AcdCalibResult {
 
 public:
@@ -24,7 +26,7 @@ public:
   AcdCalibResult();
   virtual ~AcdCalibResult(){;}
 
-  virtual void printXmlLine(ostream& /* os */) const {;};
+  virtual void makeXmlNode(DomElement& /* node */) const {;};
   virtual void printTxtLine(ostream& /* os */) const {;};
   virtual Bool_t readTxt(istream& /* is */) { return kFALSE; };
   
