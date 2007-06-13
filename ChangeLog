@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Jun 12 17:06:54 PDT 2007
+calibGenACD
+
+Modified Files:
+	.cvsignore 
+Log Message:
+update to use xmlBase to write xml instead of doing it by hand
+    *
+------------------------------------------------------------
 User: echarles  Tue Jun 12 17:06:04 PDT 2007
 calibGenACD/src
 
