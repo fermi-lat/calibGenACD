@@ -1,4 +1,21 @@
 ------------------------------------------------------------
+User: echarles  Tue Jun 12 17:06:55 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibMap.cxx AcdCalibMap.h 
+	AcdCalibResult.h AcdCoherentNoise.cxx AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.cxx AcdCoherentNoiseFit.h AcdGainFit.cxx 
+	AcdGainFit.h AcdMeritCalib.cxx AcdMeritCalib.h 
+	AcdMuonBenchCalib.cxx AcdMuonBenchCalib.h AcdMuonRoiCalib.cxx 
+	AcdMuonRoiCalib.h AcdMuonSvacCalib.cxx AcdMuonSvacCalib.h 
+	AcdMuonTkrCalib.cxx AcdMuonTkrCalib.h AcdPedestalFit.cxx 
+	AcdPedestalFit.h AcdStripChart.cxx AcdStripChart.h 
+	AcdStripFit.cxx AcdStripFit.h AcdVetoFit.cxx AcdVetoFit.h 
+Log Message:
+update to use xmlBase to write xml instead of doing it by hand
+    *
+------------------------------------------------------------
 User: echarles  Tue Jun 12 17:06:54 PDT 2007
 calibGenACD/cmt
 
