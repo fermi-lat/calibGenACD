@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Tue Jun 12 17:08:15 PDT 2007
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Change to using xmlBase to write xml instead of doing it by hand
+    *
+------------------------------------------------------------
+User: echarles  Tue Jun 12 17:08:15 PDT 2007
 calibGenACD/cmt
 
 Modified Files:
