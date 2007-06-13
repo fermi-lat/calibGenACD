@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Jun 12 17:06:04 PDT 2007
+calibGenACD/src
+
+Added Files:
+	DomElement.h DomElement.cxx AcdXmlUtil.h AcdXmlUtil.cxx 
+Log Message:
+added stuff for handling xml
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r7p2, operation: add
 Package: calibGenACD
