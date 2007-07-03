@@ -8,6 +8,7 @@
 #include "TSystem.h"
 #include "xmlBase/IFile.h"
 #include "facilities/Util.h"
+#include "facilities/XGetopt.h"
 #include <time.h>
 
 #include "TChain.h"
@@ -197,8 +198,8 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   }
     
   // timestamp
-  std::time_t theTime = std::time(0);
-  const char* timeString = std::ctime(&theTime);
+  time_t theTime = time(0);
+  const char* timeString = ctime(&theTime);
 
   m_timeStamp = string(timeString);
   m_timeStamp.erase(m_timeStamp.size()-1);

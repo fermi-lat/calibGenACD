@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <ctime>
 #include <cstdio>
 
 using std::cout;

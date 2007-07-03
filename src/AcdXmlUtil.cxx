@@ -10,6 +10,7 @@
 #include "xercesc/dom/DOMElement.hpp"
 #include "xercesc/dom/DOMDocument.hpp"
 #include "xercesc/dom/DOMImplementation.hpp"
+#include "xercesc/util/XercesDefs.hpp"
 #include <xercesc/util/XMLString.hpp>
 
 DomElement
@@ -17,7 +18,7 @@ AcdXmlUtil::makeDocument(const char* name){
 
   using XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation;
   using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-  using XERCES_CPP_NAMESPACE_QUALIFIER XMLString
+  using XERCES_CPP_NAMESPACE_QUALIFIER XMLString;
 
   XMLCh tempStr[100];
   XMLString::transcode(name,tempStr,99);
@@ -30,7 +31,7 @@ DomElement
 AcdXmlUtil::makeChildNode(DomElement& domNode, const char* name) {
 
   using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-  using XERCES_CPP_NAMESPACE_QUALIFIER XMLString
+  using XERCES_CPP_NAMESPACE_QUALIFIER XMLString;
 
   XMLCh tempStr[100];
   XMLString::transcode(name,tempStr,99);
