@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Thu Aug  2 12:56:50 PDT 2007
+calibGenACD/python
+
+Added Files:
+	.cvsignore AcdFunctions_copied.py AcdROOT_FitVetoGarc.py 
+	AcdROOT_LineFit.py AcdTileMapLookUp.py AcdXmlUtil.py 
+Log Message:
+added python tools for calib management
+    *
+------------------------------------------------------------
 User: echarles  Thu Aug  2 12:53:36 PDT 2007
 calibGenACD/python
 
