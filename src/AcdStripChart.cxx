@@ -15,6 +15,7 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
+#include <ctime>
 
 using std::cout;
 using std::cerr;

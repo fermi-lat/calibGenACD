@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <assert.h>
+#include <cassert>
 
 
 ClassImp(AcdCalibMap) ;

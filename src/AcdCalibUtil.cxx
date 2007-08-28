@@ -9,6 +9,8 @@
 #include "TF1.h"
 #include <cmath>
 
+#include <cmath>
+
 #include "./AcdHistCalibMap.h"
 #include "./AcdGainFit.h"
 #include "./AcdVetoFit.h"

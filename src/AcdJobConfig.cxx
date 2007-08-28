@@ -8,7 +8,9 @@
 #include "TSystem.h"
 #include "xmlBase/IFile.h"
 #include "facilities/Util.h"
+#ifdef WIN32
 #include "facilities/XGetopt.h"
+#endif
 #include <time.h>
 
 #include "TChain.h"
@@ -96,7 +98,11 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
+#ifdef WIN32
+  while ( (opt = facilities::getopt(argn, argc, "ho:d:r:S:m:p:g:PLc:I:n:s:b:")) != EOF ) {
+#else
   while ( (opt = getopt(argn, argc, "ho:d:r:S:m:p:g:PLc:I:n:s:b:")) != EOF ) {
+#endif
     switch (opt) {
     case 'h':   // help      
       usage();
