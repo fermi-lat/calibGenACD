@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: heather  Tue Aug 28 05:31:15 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibMap.cxx AcdCalibUtil.cxx AcdJobConfig.cxx 
+	AcdStripChart.cxx 
+Log Message:
+tag win patches
+    *
+------------------------------------------------------------
+User: heather  Tue Aug 28 05:31:15 PDT 2007
 calibGenACD/doc
 
 Modified Files:
