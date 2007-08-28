@@ -1,5 +1,5 @@
 package calibGenACD
-version v1r8
+version v1r8p1
 
 author Eric Charles <echarles@slac.stanford.edu>
 
@@ -47,6 +47,11 @@ apply_pattern root_package headers="\
 macro_prepend includes "-I $(CALIBGENACDROOT) " WIN32 "/I $(CALIBGENACDROOT) "
 
 macro calibgencal_headers   "" WIN32 
+
+private
+
+# force external variables to be found on windows
+apply_pattern use_facilities_symbols
 
 macro source "../src/*.cxx" WIN32 "../src/*.h ../src/*.cxx"
 
