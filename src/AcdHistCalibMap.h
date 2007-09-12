@@ -7,8 +7,23 @@
 #include "AcdMap.h"
 
 #include <map>
+#include <vector>
 #include <string>
 class TFile;
+
+
+class  AcdCalibHistHolder {
+public:
+  AcdCalibHistHolder(){;}  
+  virtual ~AcdCalibHistHolder(){;}
+  TH1* getHist(UInt_t idx);
+  void addHist(TH1& hist);  
+private:
+  std::vector<TH1*> m_hists;     // NOT owned
+  ClassDef(AcdCalibHistHolder,0)
+};
+
+
 
 class AcdHistCalibMap {
 
@@ -16,11 +31,11 @@ public:
 
   AcdHistCalibMap(TFile& file, AcdMap::Config config = AcdMap::LAT);
 
-  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, AcdMap::Config config = AcdMap::LAT);
+  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, AcdMap::Config config = AcdMap::LAT, UInt_t n=1);
   
   virtual ~AcdHistCalibMap();
   
-  TH1* getHist(UInt_t key);
+  TH1* getHist(UInt_t key, UInt_t idx=0);
 
   const TList& histograms() const { 
     return m_list;
@@ -36,7 +51,7 @@ public:
 
 protected:
 
-  void bookHists(const char* prefix);
+  void bookHists(const char* prefix, UInt_t n=1);
 
 private:
 
@@ -47,7 +62,7 @@ private:
   Float_t                m_hi;
 
   TList                  m_list;
-  std::map<UInt_t,TH1*>  m_map;
+  std::map<UInt_t,AcdCalibHistHolder>  m_map;
   
   ClassDef(AcdHistCalibMap,0) ;
 
@@ -58,13 +73,13 @@ private:
 #ifdef AcdHistCalibMap_cxx
 
 
-AcdHistCalibMap::AcdHistCalibMap(const char* prefix, UInt_t nBins, Float_t lo, Float_t hi, AcdMap::Config config)
+AcdHistCalibMap::AcdHistCalibMap(const char* prefix, UInt_t nBins, Float_t lo, Float_t hi, AcdMap::Config config, UInt_t n)
   :m_config(config),
    m_bins(nBins),
    m_lo(lo),
    m_hi(hi)
 {  
-  bookHists(prefix);
+  bookHists(prefix,n);
 }
 
 AcdHistCalibMap::~AcdHistCalibMap()
@@ -72,9 +87,9 @@ AcdHistCalibMap::~AcdHistCalibMap()
   // m_list.Delete();
 }
 
-TH1* AcdHistCalibMap::getHist(UInt_t key) {
-  std::map<UInt_t,TH1*>::iterator itr = m_map.find(key);
-  return itr == m_map.end() ? 0 : itr->second;
+TH1* AcdHistCalibMap::getHist(UInt_t key, UInt_t idx) {
+  std::map<UInt_t,AcdCalibHistHolder>::iterator itr = m_map.find(key);
+  return itr == m_map.end() ? 0 : itr->second.getHist(idx);
 }
 
 #endif // #ifdef AcdHistCalibMap_cxx

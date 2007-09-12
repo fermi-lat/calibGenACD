@@ -12,6 +12,7 @@
 #pragma link C++ class AcdCalibVersion;
 #pragma link C++ class AcdCalibUtil;
 #pragma link C++ class AcdMap;
+#pragma link C++ class AcdCalibHistHolder;
 #pragma link C++ class AcdHistCalibMap;
 
 #pragma link C++ class AcdCalibResult;

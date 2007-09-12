@@ -3,6 +3,18 @@
 
 #include "TFile.h"
 
+
+ClassImp(AcdCalibHistHolder) ;
+
+TH1* AcdCalibHistHolder::getHist(UInt_t idx) {
+  return idx < m_hists.size() ?  m_hists[idx] : 0;
+}
+
+void AcdCalibHistHolder::addHist(TH1& hist) {
+  m_hists.push_back(&hist);
+}
+
+
 ClassImp(AcdHistCalibMap) ;
 
 AcdHistCalibMap::AcdHistCalibMap(TFile& file, AcdMap::Config config) 
@@ -16,12 +28,12 @@ AcdHistCalibMap::AcdHistCalibMap(TFile& file, AcdMap::Config config)
       if ( h1 == 0 ) continue;
       m_list.Add(obj);
       UInt_t id = h1->GetUniqueID();
-      m_map[id] = h1;
+      m_map[id].addHist(*h1);
     }
   }
 }
 
-void AcdHistCalibMap::bookHists(const char* prefix) {
+void AcdHistCalibMap::bookHists(const char* prefix, UInt_t n) {
 
   if ( m_config == AcdMap::LAT ) {
     for ( UInt_t iPmt(0); iPmt < AcdMap::nPmt; iPmt++ ) {    
@@ -31,13 +43,16 @@ void AcdHistCalibMap::bookHists(const char* prefix) {
 	  UInt_t nCol = AcdMap::getNCol(iFace,iRow);
 	  for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
 	    UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	    std::string suffix;
-	    AcdMap::makeSuffix(suffix,iPmt,iFace,iRow,iCol);
-	    std::string histName(prefix); histName += suffix;
-	    TH1F* theHist = new TH1F(histName.c_str(),histName.c_str(),m_bins,m_lo,m_hi);
-	    theHist->SetUniqueID(key);
-	    m_map[key] = theHist;
-	    m_list.Add(theHist);
+	    for ( UInt_t idx(0); idx < n; idx++ ) {
+
+	      std::string suffix;
+	      AcdMap::makeSuffix(suffix,iPmt,iFace,iRow,iCol,idx);
+	      std::string histName(prefix); histName += suffix;
+	      TH1F* theHist = new TH1F(histName.c_str(),histName.c_str(),m_bins,m_lo,m_hi);
+	      theHist->SetUniqueID(key);
+	      m_map[key].addHist(*theHist);
+	      m_list.Add(theHist);
+	    }
 	  }
 	}
       }
@@ -51,13 +66,15 @@ void AcdHistCalibMap::bookHists(const char* prefix) {
       UInt_t face = AcdMap::getFace(id);
       UInt_t row = AcdMap::getRow(id);
       UInt_t col = AcdMap::getCol(id);
-      std::string suffix;
-      AcdMap::makeSuffix(suffix,pmt,face,row,col);
-      std::string histName(prefix); histName += suffix;
-      TH1F* theHist = new TH1F(histName.c_str(),histName.c_str(),m_bins,m_lo,m_hi);
-      theHist->SetUniqueID(id);
-      m_map[id] = theHist;
-      m_list.Add(theHist);      
+      for ( UInt_t idx(0); idx < n; idx++ ) {
+	std::string suffix;
+	AcdMap::makeSuffix(suffix,pmt,face,row,col,idx);
+	std::string histName(prefix); histName += suffix;
+	TH1F* theHist = new TH1F(histName.c_str(),histName.c_str(),m_bins,m_lo,m_hi);
+	theHist->SetUniqueID(id);
+	m_map[id].addHist(*theHist);
+	m_list.Add(theHist);      
+      }
     }
   }
 }
