@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: echarles  Wed Sep 12 15:00:31 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdHistCalibMap.cxx 
+	AcdHistCalibMap.h AcdMap.h 
+Log Message:
+added possibilty of having multiple hists per channel in a single AcdHistCalibMap
+    *
+------------------------------------------------------------
+User: echarles  Wed Sep 12 15:00:31 PDT 2007
 calibGenACD/calibGenACD
 
 Modified Files:
