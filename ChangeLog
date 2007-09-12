@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed Sep 12 15:00:31 PDT 2007
+calibGenACD/calibGenACD
+
+Modified Files:
+	LinkDef.h 
+Log Message:
+added possibilty of having multiple hists per channel in a single AcdHistCalibMap
+    *
+------------------------------------------------------------
 User: echarles  Wed Sep 12 11:57:19 PDT 2007
 calibGenACD/src
 
