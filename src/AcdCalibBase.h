@@ -42,6 +42,7 @@ public :
 	       HITMAP, 
 	       TIME_PROF,
 	       COHERENT_NOISE,
+               XOVER,
 	       MERIT };
 
 public :
@@ -114,13 +115,13 @@ protected:
   void addCalibration(int calibKey, AcdCalibMap& newCal);
 
   // This opens the output file and fills books the output histograms
-  AcdHistCalibMap* bookHists(int histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5);
+  AcdHistCalibMap* bookHists(int histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5, UInt_t nHist = 1);
   
   // the histogram for id:pmtId with a value
-  void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val);
+  void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val, UInt_t idx = 0);
   
   // set a bin in a histogram 
-  void fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err);
+  void fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err, UInt_t idx=0);
 
   // print stuff every 1k events, keep track of the current event
   void logEvent(int ievent, Bool_t passedCut,int runId,int evtId); 

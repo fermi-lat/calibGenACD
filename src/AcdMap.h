@@ -53,7 +53,7 @@ public:
   }
   static Bool_t channelExists(int iFace,int iRow,int iCol);
 
-  static void makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol);
+  static void makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol, UInt_t idx);
   
   static void nSpaces(std::ostream& os, int n);  
 
@@ -145,9 +145,12 @@ Bool_t AcdMap::channelExists(int iFace,int iRow,int iCol) {
   return true;
 }
 
-void AcdMap::makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol) {
+void AcdMap::makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol, UInt_t idx) {
   std::stringstream suf;
   suf << iPmt << '_' << iFace << iRow << iCol;
+  if ( idx > 0 ) {
+    suf << '_' << idx;
+  }
   suffix = suf.str();
 }
 

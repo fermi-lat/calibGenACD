@@ -76,7 +76,7 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
 }
 
-void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val)
+void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val, UInt_t idx)
 {
   UInt_t histId = AcdMap::makeKey(pmtId,id);
   
@@ -84,14 +84,14 @@ void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float v
     cout << "Missing " << id << endl;
     return;
   }
-  TH1* hist = histMap.getHist(histId);
+  TH1* hist = histMap.getHist(histId,idx);
   if ( hist == 0 ) {
     cout << "No histogram " << histId << ' ' << pmtId << ' ' << id << endl;
   }
   hist->Fill(val);
 }
 
-void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err)
+void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err, UInt_t idx)
 {
   UInt_t histId = AcdMap::makeKey(pmtId,id);
   
@@ -99,7 +99,7 @@ void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt
     cout << "Missing " << id << endl;
     return;
   }
-  TH1* hist = histMap.getHist(histId);
+  TH1* hist = histMap.getHist(histId,idx);
   if ( hist == 0 ) {
     cout << "No histogram " << histId << ' ' << pmtId << ' ' << id << endl;
   }
@@ -109,7 +109,7 @@ void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt
 
 
 
-AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low, Float_t hi ) {
+AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low, Float_t hi, UInt_t nHist ) {
   AcdHistCalibMap* map = getHistMap(histType);
   if ( map != 0 ) {
     std::cout << "Warning: replacing old histograms" << std::endl;
@@ -127,9 +127,10 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   case H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
   case H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
   case H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
+  case H_XOVER: name += "XOVER"; break;
   }
 
-  map = new AcdHistCalibMap(name,nBin,low,hi,m_config);
+  map = new AcdHistCalibMap(name,nBin,low,hi,m_config,nHist);
   m_histMaps[histType] = map;
   return map;
 } 
