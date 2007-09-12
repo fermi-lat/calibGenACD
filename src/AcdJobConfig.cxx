@@ -81,6 +81,7 @@ void AcdJobConfig::usage() {
        << "\t   -b <bins>         : number of time bins in strip chart [300]" << endl   
        << "\t   -p <pedFile>      : use pedestals from this file" << endl
        << "\t   -g <gainFile>     : use gains from this file" << endl
+       << "\t   -R <rangeFile>    : use range data from this file" << endl
        << endl;
 }
   
@@ -131,6 +132,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
       break;
     case 'g':   // gains
       m_gainFileName += string(optarg);
+      break;
+    case 'R':   // Ranges
+      m_rangeFileName += string(optarg);
       break;
     case 'P':   // periodic only
       m_optval_P = kTRUE;
@@ -193,9 +197,14 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     m_pedFileName = myFile.getString("parameters", "pedestalFile");
   } 
 
-  // pain file
+  // gain file
   if (myFile.contains("parameters","gainFile")  && m_gainFileName == "" ) {
     m_gainFileName = myFile.getString("parameters", "gainFile");
+  }
+
+  // range file
+  if (myFile.contains("parameters","rangeFile")  && m_rangeFileName == "" ) {
+    m_rangeFileName = myFile.getString("parameters", "rangeFile");
   }
 
   // output file prefix
@@ -277,6 +286,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   }
   if ( m_gainFileName != "" ) {   
     std::cout << "gain file: " << m_gainFileName << std::endl;
+  }
+  if ( m_rangeFileName != "" ) {   
+    std::cout << "range file: " << m_rangeFileName << std::endl;
   }
 
   return 0;

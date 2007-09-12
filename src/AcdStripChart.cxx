@@ -25,7 +25,7 @@ using std::string;
 ClassImp(AcdStripChart) ;
 
 AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins, const char*  timeStampFile)
-  :AcdCalibBase(),
+  :AcdCalibBase(AcdCalibBase::TIME_PROF),
    m_nBins(nBins),
    m_nEvtPerBin(0),
    m_digiChain(digiChain),
@@ -39,9 +39,9 @@ AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins, const char*  timeS
   Float_t lowBin = -0.5; 
   Float_t hiBin = (Float_t)nBins;
   hiBin -= 0.5;
-  m_phaStrip = bookHists(TIME_PROF_PHA,nBins,lowBin,hiBin);
-  m_hitStrip = bookHists(TIME_PROF_HIT,nBins,lowBin,hiBin);
-  m_vetoStrip = bookHists(TIME_PROF_VETO,nBins,lowBin,hiBin);
+  m_phaStrip = bookHists(H_TIME_PHA,nBins,lowBin,hiBin);
+  m_hitStrip = bookHists(H_TIME_HIT,nBins,lowBin,hiBin);
+  m_vetoStrip = bookHists(H_TIME_VETO,nBins,lowBin,hiBin);
    
   Bool_t ok = attachChains();
   if ( ! ok ) {

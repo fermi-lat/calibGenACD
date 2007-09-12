@@ -1,7 +1,7 @@
 #include <fstream>
 #include "TH1F.h"
 #include "TF1.h"
-#include "AcdMuonTkrCalib.h"
+#include "AcdCalibLoop_Recon.h"
 
 #include "AcdHistCalibMap.h"
 #include "AcdPedestalFit.h"
@@ -19,10 +19,10 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdMuonTkrCalib) ;
+ClassImp(AcdCalibLoop_Recon) ;
 
-AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(config),
+AcdCalibLoop_Recon::AcdCalibLoop_Recon(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength, AcdMap::Config config)
+  :AcdCalibBase(AcdCalibBase::GAIN,config),
    m_correctPathLength(correctPathLength),
    m_digiChain(digiChain),
    m_reconChain(reconChain), 
@@ -32,7 +32,7 @@ AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t c
    m_gains(0),
    m_peds(0){
 
-  m_gainHists = bookHists(GAIN,64,-0.5,4095.5);
+  m_gainHists = bookHists(H_GAIN,64,-0.5,4095.5);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {
@@ -41,13 +41,13 @@ AcdMuonTkrCalib::AcdMuonTkrCalib(TChain* digiChain, TChain *reconChain, Bool_t c
 }
 
 
-AcdMuonTkrCalib::~AcdMuonTkrCalib() 
+AcdCalibLoop_Recon::~AcdCalibLoop_Recon() 
 {
   if (m_digiEvent) delete m_digiEvent;
   if (m_reconEvent) delete m_reconEvent;	
 }
 
-Bool_t AcdMuonTkrCalib::attachChains() {
+Bool_t AcdCalibLoop_Recon::attachChains() {
   if (m_digiChain != 0) {
     m_digiEvent = 0;
     m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
@@ -71,7 +71,7 @@ Bool_t AcdMuonTkrCalib::attachChains() {
   return kTRUE;
 }
 
-void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi) {
+void AcdCalibLoop_Recon::fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi) {
 
   int rng0 = digi.getRange(AcdDigi::A);    
   int pmt0 = digi.getPulseHeight(AcdDigi::A);
@@ -119,7 +119,7 @@ void AcdMuonTkrCalib::fillGainHistCorrect(const AcdTkrIntersection& inter, const
 }
 
 
-Bool_t AcdMuonTkrCalib::readEvent(int ievent, Bool_t& filtered, 
+Bool_t AcdCalibLoop_Recon::readEvent(int ievent, Bool_t& filtered, 
 				  int& runId, int& evtId) {
   
   if(m_digiEvent) m_digiEvent->Clear();
@@ -145,7 +145,7 @@ Bool_t AcdMuonTkrCalib::readEvent(int ievent, Bool_t& filtered,
 }
 
 
-void AcdMuonTkrCalib::useEvent(Bool_t& used) {
+void AcdCalibLoop_Recon::useEvent(Bool_t& used) {
 
   used = kFALSE;
   const AcdRecon* acdRecon= m_reconEvent->getAcdRecon();
@@ -179,7 +179,7 @@ void AcdMuonTkrCalib::useEvent(Bool_t& used) {
   }
 }
 
-AcdGainFitMap* AcdMuonTkrCalib::fitGains(AcdGainFit& fitter) {
+AcdGainFitMap* AcdCalibLoop_Recon::fitGains(AcdGainFit& fitter) {
   m_gains = new AcdGainFitMap;
   addCalibration(GAIN,*m_gains);
   AcdHistCalibMap* hists = getHistMap(GAIN);
@@ -187,14 +187,14 @@ AcdGainFitMap* AcdMuonTkrCalib::fitGains(AcdGainFit& fitter) {
   return m_gains;
 }  
 
-Bool_t AcdMuonTkrCalib::readPedestals(const char* fileName) {
+Bool_t AcdCalibLoop_Recon::readPedestals(const char* fileName) {
   Bool_t latchVal = readCalib(PEDESTAL,fileName);
   AcdCalibMap* map = getCalibMap(PEDESTAL);
   m_peds = (AcdPedestalFitMap*)(map);
   return latchVal;
 }
 
-void AcdMuonTkrCalib::writeXmlSources(DomElement& node) const{
+void AcdCalibLoop_Recon::writeXmlSources(DomElement& node) const{
   //std::string pedFileName;
   //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   //os << "pedestalFile=" << pedFileName << std::endl;
@@ -214,7 +214,7 @@ void AcdMuonTkrCalib::writeXmlSources(DomElement& node) const{
   //}
 }
 
-void AcdMuonTkrCalib::writeTxtSources(ostream& os) const {
+void AcdCalibLoop_Recon::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << endl;

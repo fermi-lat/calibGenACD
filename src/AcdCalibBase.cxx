@@ -6,6 +6,7 @@
 #include "./AcdHistCalibMap.h"
 #include "./AcdPedestalFit.h"
 #include "./AcdGainFit.h"
+#include "./AcdRangeFit.h"
 #include "./AcdCalibMap.h"
 
 #include "AcdXmlUtil.h"
@@ -20,9 +21,9 @@ using std::string;
 
 ClassImp(AcdCalibBase) ;
 
-AcdCalibBase::AcdCalibBase(AcdMap::Config config)
+AcdCalibBase::AcdCalibBase(CALTYPE t, AcdMap::Config config)
   :m_config(config),
-   m_calType(PEDESTAL){
+   m_calType(t){
   resetCounters();
 }
 
@@ -85,7 +86,7 @@ void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float v
   }
   TH1* hist = histMap.getHist(histId);
   if ( hist == 0 ) {
-    cout << "No histogram " << id << endl;
+    cout << "No histogram " << histId << ' ' << pmtId << ' ' << id << endl;
   }
   hist->Fill(val);
 }
@@ -100,7 +101,7 @@ void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt
   }
   TH1* hist = histMap.getHist(histId);
   if ( hist == 0 ) {
-    cout << "No histogram " << id << endl;
+    cout << "No histogram " << histId << ' ' << pmtId << ' ' << id << endl;
   }
   hist->SetBinContent(binX,val);
   hist->SetBinError(binX,err);
@@ -116,16 +117,16 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   }
   TString name;
   switch (histType) {
-  case PEDESTAL: name += "PED"; break;
-  case GAIN: name += "GAIN"; break;
-  case UNPAIRED: name += "UNPAIRED"; break;
-  case RAW: name += "RAW"; break;
-  case VETO: name += "VETO"; break;
-  case VETO_FRAC: name += "VETO_FRAC"; break;
-  case TIME_PROF_PHA: name += "TIME_PROFILE_PHA"; break;
-  case TIME_PROF_HIT: name += "TIME_PROFILE_HIT"; break;
-  case TIME_PROF_VETO: name += "TIME_PROFILE_VETO"; break;
-  case COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
+  case H_RAW: name += "RAW"; break;
+  case H_GAIN: name += "GAIN"; break;
+  case H_VETO: name += "VETO"; break;
+  case H_UNPAIRED: name += "UNPAIRED"; break;
+  case H_FRAC: name += "FRAC"; break;
+  case H_RANGE: name += "RANGE"; break;
+  case H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
+  case H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
+  case H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
+  case H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
   }
 
   map = new AcdHistCalibMap(name,nBin,low,hi,m_config);
@@ -160,6 +161,9 @@ Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
     break;
   case GAIN:
     map = new AcdGainFitMap;
+    break;
+  case RANGE:
+    map = new AcdRangeFitMap;
     break;
   }
   if ( map == 0 ) return kFALSE;

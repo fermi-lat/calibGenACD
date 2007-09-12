@@ -1,7 +1,7 @@
 #include <fstream>
 #include "TH1F.h"
 #include "TF1.h"
-#include "AcdMuonSvacCalib.h"
+#include "AcdCalibLoop_Svac.h"
 
 #include "AcdHistCalibMap.h"
 #include "AcdPedestalFit.h"
@@ -19,17 +19,17 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdMuonSvacCalib) ;
+ClassImp(AcdCalibLoop_Svac) ;
 
-AcdMuonSvacCalib::AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(config),
+AcdCalibLoop_Svac::AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength, AcdMap::Config config)
+  :AcdCalibBase(AcdCalibBase::GAIN,config),
    m_correctPathLength(correctPathLength),
    m_svacChain(svacChain),
    m_gainHists(0),
    m_gains(0),
    m_peds(0){
 
-  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
+  m_gainHists = bookHists(H_GAIN,256,-0.5,4095.5);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {
@@ -38,11 +38,11 @@ AcdMuonSvacCalib::AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength, 
 }
 
 
-AcdMuonSvacCalib::~AcdMuonSvacCalib() 
+AcdCalibLoop_Svac::~AcdCalibLoop_Svac() 
 {
 }
 
-Bool_t AcdMuonSvacCalib::attachChains() {
+Bool_t AcdCalibLoop_Svac::attachChains() {
   if (m_svacChain != 0) {
     m_svacChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
@@ -69,7 +69,7 @@ Bool_t AcdMuonSvacCalib::attachChains() {
   return kTRUE;
 }
 
-void AcdMuonSvacCalib::fillGainHistCorrect(unsigned id, float pathLength) {
+void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength) {
 
   int rng0 = m_AcdRange[id][AcdDigi::A];
   int pmt0 = m_AcdPha[id][AcdDigi::A];
@@ -115,7 +115,7 @@ void AcdMuonSvacCalib::fillGainHistCorrect(unsigned id, float pathLength) {
 }
 
 
-Bool_t AcdMuonSvacCalib::readEvent(int ievent, Bool_t& filtered, 
+Bool_t AcdCalibLoop_Svac::readEvent(int ievent, Bool_t& filtered, 
 				   int& /* runId */, int& /*evtId*/) {
   
   if(m_svacChain) { 
@@ -127,7 +127,7 @@ Bool_t AcdMuonSvacCalib::readEvent(int ievent, Bool_t& filtered,
 }
 
 
-void AcdMuonSvacCalib::useEvent(Bool_t& used) {
+void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
 
   used = kFALSE;
   
@@ -142,7 +142,7 @@ void AcdMuonSvacCalib::useEvent(Bool_t& used) {
   }
 }
 
-AcdGainFitMap* AcdMuonSvacCalib::fitGains(AcdGainFit& fitter) {
+AcdGainFitMap* AcdCalibLoop_Svac::fitGains(AcdGainFit& fitter) {
   m_gains = new AcdGainFitMap;
   addCalibration(GAIN,*m_gains);
   AcdHistCalibMap* hists = getHistMap(GAIN);
@@ -150,14 +150,14 @@ AcdGainFitMap* AcdMuonSvacCalib::fitGains(AcdGainFit& fitter) {
   return m_gains;
 }  
 
-Bool_t AcdMuonSvacCalib::readPedestals(const char* fileName) {
+Bool_t AcdCalibLoop_Svac::readPedestals(const char* fileName) {
   Bool_t latchVal = readCalib(PEDESTAL,fileName);
   AcdCalibMap* map = getCalibMap(PEDESTAL);
   m_peds = (AcdPedestalFitMap*)(map);
   return latchVal;
 }
 
-void AcdMuonSvacCalib::writeXmlSources(DomElement& node) const{
+void AcdCalibLoop_Svac::writeXmlSources(DomElement& node) const{
   //std::string pedFileName;
   //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   //os << "pedestalFile=" << pedFileName << std::endl;
@@ -170,7 +170,7 @@ void AcdMuonSvacCalib::writeXmlSources(DomElement& node) const{
   //}
 }
 
-void AcdMuonSvacCalib::writeTxtSources(ostream& os) const {
+void AcdCalibLoop_Svac::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << endl;

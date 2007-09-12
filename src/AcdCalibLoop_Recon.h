@@ -1,5 +1,5 @@
-#ifndef AcdMuonSvacCalib_h
-#define AcdMuonSvacCalib_h 
+#ifndef AcdCalibLoop_Recon_h
+#define AcdCalibLoop_Recon_h 
 
 #include "AcdCalibBase.h"
 
@@ -11,16 +11,21 @@
 #include "TChain.h"
 #include <iostream>
 
+class AcdTkrIntersection;
+class AcdDigi;
+class DigiEvent;
+class ReconEvent;
 
-class AcdMuonSvacCalib : public AcdCalibBase {
+
+class AcdCalibLoop_Recon : public AcdCalibBase {
 
 public :
   
   // Standard ctor, where user provides the names of the input root files
   // and optionally the name of the output ROOT histogram file
-  AcdMuonSvacCalib(TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Recon(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength = kTRUE, AcdMap::Config = AcdMap::LAT);
   
-  virtual ~AcdMuonSvacCalib();  
+  virtual ~AcdCalibLoop_Recon();  
 
   // this just call down to the fitAll() routine in the fitter
   AcdGainFitMap* fitGains(AcdGainFit& fitter);
@@ -39,11 +44,12 @@ protected:
   void getFitDir();
     
   // 
-  void fillGainHistCorrect(unsigned id, float pathLength);
+  void fillGainHistCorrect(const AcdTkrIntersection& inter, const AcdDigi& digi);
 
   // return the total number of events in the chains
   virtual int getTotalEvents() const { 
-    if ( m_svacChain != 0 ) { return (int)(m_svacChain->GetEntries()); }
+    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
+    if ( m_reconChain != 0 ) { return (int)(m_reconChain->GetEntries()); }
     return 0;
   } 
 
@@ -60,16 +66,14 @@ private:
   Bool_t      m_correctPathLength;
 
   /// TChain input
-  TChain      *m_svacChain;
+  TChain      *m_digiChain;
+  TChain      *m_reconChain;
 
-  //  Variables that we need
-  Int_t  m_AcdPha[604][2];
-  Int_t  m_AcdRange[604][2];
+  /// pointer to a ReconEvent
+  DigiEvent* m_digiEvent;
 
-  Int_t m_AcdNumTkrIntSec;
-  Int_t m_AcdTkrIntSecTileId[20];
-  Int_t m_AcdTkrIntSecTkrIndex[20];
-  Float_t m_AcdTkrIntSecPathLengthInTile[20];    
+  /// pointer to a ReconEvent
+  ReconEvent* m_reconEvent;
 
   // 
   AcdHistCalibMap* m_gainHists;
@@ -77,7 +81,7 @@ private:
   AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
 
-  ClassDef(AcdMuonSvacCalib,0) ;
+  ClassDef(AcdCalibLoop_Recon,0) ;
     
 };
 
