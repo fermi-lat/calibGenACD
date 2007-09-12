@@ -5,8 +5,8 @@
 // found on file: acd_raw/Thermal_2_TrigOp_0726.root
 //////////////////////////////////////////////////////////
 
-#ifndef AcdMuonBenchCalib_h
-#define AcdMuonBenchCalib_h
+#ifndef AcdCalibLoop_Bench_h
+#define AcdCalibLoop_Bench_h
 
 #include "AcdCalibBase.h"
 
@@ -27,7 +27,7 @@
 #include <map>
 #include <string>
 
-class AcdMuonBenchCalib : public AcdCalibBase {
+class AcdCalibLoop_Bench : public AcdCalibBase {
 
 public:
 
@@ -85,8 +85,8 @@ private:
 
 public:
 
-  AcdMuonBenchCalib(TTree *tree=0, AcdMap::Config config = AcdMap::LAT);
-  virtual ~AcdMuonBenchCalib();
+  AcdCalibLoop_Bench(CALTYPE t, TTree *tree=0, AcdMap::Config config = AcdMap::LAT);
+  virtual ~AcdCalibLoop_Bench();
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
@@ -133,36 +133,36 @@ private:
   AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
 
-  ClassDef(AcdMuonBenchCalib,0) ;
+  ClassDef(AcdCalibLoop_Bench,0) ;
 
 };
 
 #endif
 
-#ifdef AcdMuonBenchCalib_cxx
+#ifdef AcdCalibLoop_Bench_cxx
 
-AcdMuonBenchCalib::AcdMuonBenchCalib(TTree *tree, AcdMap::Config config)
-  :AcdCalibBase(config)
+AcdCalibLoop_Bench::AcdCalibLoop_Bench(CALTYPE t, TTree *tree, AcdMap::Config config)
+  :AcdCalibBase(t,config)
 {
   m_pedHists =  bookHists(PEDESTAL,4096,-0.5,4095.5);
   m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
   Init(tree);
 }
 
-AcdMuonBenchCalib::~AcdMuonBenchCalib()
+AcdCalibLoop_Bench::~AcdCalibLoop_Bench()
 {
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
 
-Int_t AcdMuonBenchCalib::GetEntry(Long64_t entry)
+Int_t AcdCalibLoop_Bench::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
 }
 
-Long64_t AcdMuonBenchCalib::LoadTree(Long64_t entry)
+Long64_t AcdCalibLoop_Bench::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
   if (!fChain) return -5;
@@ -177,7 +177,7 @@ Long64_t AcdMuonBenchCalib::LoadTree(Long64_t entry)
   return centry;
 }
 
-void AcdMuonBenchCalib::Init(TTree *tree)
+void AcdCalibLoop_Bench::Init(TTree *tree)
 {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses of the tree
@@ -215,7 +215,7 @@ void AcdMuonBenchCalib::Init(TTree *tree)
   Notify();
 }
 
-Bool_t AcdMuonBenchCalib::Notify()
+Bool_t AcdCalibLoop_Bench::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -250,7 +250,7 @@ Bool_t AcdMuonBenchCalib::Notify()
   return kTRUE;
 }
 
-void AcdMuonBenchCalib::Show(Long64_t entry)
+void AcdCalibLoop_Bench::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
@@ -259,7 +259,7 @@ void AcdMuonBenchCalib::Show(Long64_t entry)
 }
 
 
-UInt_t AcdMuonBenchCalib::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol) {
+UInt_t AcdCalibLoop_Bench::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt_t iCol) {
   switch (face) {
   case 0: 
     return 25*iPmt + 5*iRow + iCol;
@@ -280,7 +280,7 @@ UInt_t AcdMuonBenchCalib::localIndex(UInt_t face, UInt_t iPmt, UInt_t iRow, UInt
   return 0;
 }
 
-Int_t* AcdMuonBenchCalib::getAdcPtr(UInt_t face) {
+Int_t* AcdCalibLoop_Bench::getAdcPtr(UInt_t face) {
   switch (face){
   case 0: return TOP;
   case 1: return NegX;
@@ -295,7 +295,7 @@ Int_t* AcdMuonBenchCalib::getAdcPtr(UInt_t face) {
   return 0;
 }
 
-Short_t* AcdMuonBenchCalib::getHitPtr(UInt_t face) {
+Short_t* AcdCalibLoop_Bench::getHitPtr(UInt_t face) {
   switch (face){
   case 0: return TOP_hit;
   case 1: return NegX_hit;
@@ -310,7 +310,7 @@ Short_t* AcdMuonBenchCalib::getHitPtr(UInt_t face) {
   return 0;
 }
 
-Short_t* AcdMuonBenchCalib::getRangePtr(UInt_t face) {
+Short_t* AcdCalibLoop_Bench::getRangePtr(UInt_t face) {
   switch (face){
   case 0: return TOP_range;
   case 1: return NegX_range;
@@ -325,4 +325,4 @@ Short_t* AcdMuonBenchCalib::getRangePtr(UInt_t face) {
   return 0;
 }
 
-#endif // #ifdef AcdMuonBenchCalib_cxx
+#endif // #ifdef AcdCalibLoop_Bench_cxx

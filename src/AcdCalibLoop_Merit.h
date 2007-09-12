@@ -1,5 +1,5 @@
-#ifndef AcdMeritCalib_h
-#define AcdMeritCalib_h 
+#ifndef AcdCalibLoop_Merit_h
+#define AcdCalibLoop_Merit_h 
 
 #include "AcdCalibBase.h"
 
@@ -17,14 +17,14 @@ class DigiEvent;
 class ReconEvent;
 
 
-class AcdMeritCalib : public AcdCalibBase {
+class AcdCalibLoop_Merit : public AcdCalibBase {
 
 public :
   
   // Standard ctor, where user provides the names of the input root files
-  AcdMeritCalib(TChain& digiChain, TChain& reconChain, TChain& meritChain);
+  AcdCalibLoop_Merit(TChain& digiChain, TChain& reconChain, TChain& meritChain);
   
-  virtual ~AcdMeritCalib();  
+  virtual ~AcdCalibLoop_Merit();  
 
   /// for writing output files
   virtual void writeXmlHeader(DomElement& node) const;
@@ -94,7 +94,7 @@ private:
   AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
   
-  ClassDef(AcdMeritCalib,0) ;
+  ClassDef(AcdCalibLoop_Merit,0) ;
     
 };
 

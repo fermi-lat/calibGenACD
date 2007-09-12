@@ -22,24 +22,34 @@ class AcdCalibBase {
 
 public :
 
+  enum HISTTYPE{H_RAW,
+		H_GAIN,
+		H_VETO,
+		H_FRAC,
+		H_RANGE,
+		H_UNPAIRED,
+		H_TIME_PHA,
+		H_TIME_HIT,
+		H_TIME_VETO,
+		H_COHERENT_NOISE};
+		
   enum CALTYPE{PEDESTAL, 
 	       GAIN, 
+	       VETO,
+	       RANGE,
+	       CNO,
 	       UNPAIRED, 
-	       RAW, 
-	       VETO, 
-	       VETO_FRAC, 
 	       HITMAP, 
-	       TIME_PROF_PHA,
-	       TIME_PROF_HIT,
-	       TIME_PROF_VETO,
-	       COHERENT_NOISE };
+	       TIME_PROF,
+	       COHERENT_NOISE,
+	       MERIT };
 
 public :
 
   // Standard ctor, where user provides the names the output histogram files
-  AcdCalibBase(AcdMap::Config config = AcdMap::LAT);
+  AcdCalibBase(CALTYPE t, AcdMap::Config config = AcdMap::LAT);
   
-  virtual ~AcdCalibBase();  
+  virtual ~AcdCalibBase();
    
   // access functions
 
@@ -53,7 +63,6 @@ public :
 
   // Which type of calibration are we running
   inline CALTYPE calType() const { return m_calType; }
-  inline void setCalType(CALTYPE t) { m_calType = t; }
 
   // Which instrument calibration?
   inline AcdMap::Config getConfig() const { return m_config; }
@@ -183,10 +192,10 @@ private:
   // Which type of calibration are we getting the histograms for?
   CALTYPE m_calType;
   
-  // These are the histograms
+  // These are the histograms, mapped by hist type
   std::map<int,AcdHistCalibMap*> m_histMaps;
 
-  // These are the results of the fits
+  // These are the results of the fits, mapped by the hist type
   std::map<int,AcdCalibMap*> m_fitMaps;
 
   ClassDef(AcdCalibBase,0) ;

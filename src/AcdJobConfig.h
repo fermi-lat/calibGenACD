@@ -39,6 +39,7 @@ public :
 
   inline const std::string& pedFileName() const { return m_pedFileName; }
   inline const std::string& gainFileName() const { return m_gainFileName; }  
+  inline const std::string& rangeFileName() const { return m_rangeFileName; }
 
   inline AcdMap::Config config() const { return m_config; }
   inline int optval_n() const { return m_optval_n; }
@@ -80,6 +81,7 @@ private:
 
   std::string m_pedFileName;
   std::string m_gainFileName;
+  std::string m_rangeFileName;
 
   AcdMap::Config m_config;
   int m_optval_n;

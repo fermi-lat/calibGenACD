@@ -1,5 +1,5 @@
-#ifndef AcdMuonRoiCalib_h
-#define AcdMuonRoiCalib_h 
+#ifndef AcdCalibLoop_Digi_h
+#define AcdCalibLoop_Digi_h 
 
 #include "AcdCalibBase.h"
 
@@ -11,22 +11,27 @@
 #include "./AcdGainFit.h"
 #include "./AcdPedestalFit.h"
 #include "./AcdVetoFit.h"
+#include "./AcdCnoFit.h"
+#include "./AcdRangeFit.h"
+#include "./AcdGarcGafeHits.h"
 
 class DigiEvent;
 
-class AcdMuonRoiCalib : public AcdCalibBase {
+class AcdCalibLoop_Digi : public AcdCalibBase {
 
 public :
   
   // Standard ctor, where user provides the input data
-  AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Digi(CALTYPE t, TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
   
-  virtual ~AcdMuonRoiCalib();  
+  virtual ~AcdCalibLoop_Digi();  
 
-  // these two just call down to the fitAll() routines in the fitters
+  // these just call down to the fitAll() routines in the fitters
   AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
   AcdGainFitMap* fitGains(AcdGainFit& fitter);
   AcdVetoFitMap* fitVetos(AcdVetoFit& fitter);
+  AcdCnoFitMap* fitCnos(AcdCnoFit& fitter);
+  AcdRangeFitMap* fitRanges(AcdRangeFit& fitter);
 
   TH2* getHitMapHist() {
     return m_hitMapHist;
@@ -35,13 +40,15 @@ public :
     return m_condArrHist;
   }
 
-  AcdHistCalibMap* makeVetoRatio();
+  AcdHistCalibMap* makeRatioPlots();
 
   /// for writing output files
   virtual void writeXmlSources(DomElement& node) const;
   virtual void writeTxtSources(ostream& os) const;
 
   Bool_t readPedestals(const char* fileName);
+
+  Bool_t readRanges(const char* fileName);
 
 protected:
 
@@ -61,6 +68,8 @@ protected:
 
   void compareDigiToGem();
 
+  void fillCnoData();
+
 private:
 
   /// Optional TChain input
@@ -73,21 +82,25 @@ private:
   Bool_t m_requirePeriodic;
 
   // 
-  AcdHistCalibMap* m_pedHists;
-  AcdHistCalibMap* m_gainHists;
-  AcdHistCalibMap* m_unPairHists;
   AcdHistCalibMap* m_rawHists;
+  AcdHistCalibMap* m_gainHists;
   AcdHistCalibMap* m_vetoHists;
-  AcdHistCalibMap* m_vfHists;
+  AcdHistCalibMap* m_fracHists;
+  AcdHistCalibMap* m_rangeHists;
+  AcdHistCalibMap* m_unPairHists;
 
   TH2* m_hitMapHist;
   TH2* m_condArrHist;
   
-  AcdGainFitMap* m_gains;
   AcdPedestalFitMap* m_peds;
+  AcdGainFitMap* m_gains;
   AcdVetoFitMap* m_vetos;
+  AcdCnoFitMap* m_cnos;
+  AcdRangeFitMap* m_ranges;
 
-  ClassDef(AcdMuonRoiCalib,0) ;
+  AcdGarcGafeHits m_garcGafeHits;  
+
+  ClassDef(AcdCalibLoop_Digi,0) ;
     
 };
 

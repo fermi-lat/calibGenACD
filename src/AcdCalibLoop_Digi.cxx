@@ -4,12 +4,13 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TF1.h"
-#include "AcdMuonRoiCalib.h"
+#include "AcdCalibLoop_Digi.h"
 
 #include "AcdHistCalibMap.h"
 #include "AcdPedestalFit.h"
 #include "AcdGainFit.h"
 #include "AcdCalibUtil.h"
+#include "AcdGarcGafeHits.h"
 
 #include "digiRootData/DigiEvent.h"
 
@@ -21,26 +22,38 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdMuonRoiCalib) ;
+ClassImp(AcdCalibLoop_Digi) ;
 
-AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
-  :AcdCalibBase(config), 
+AcdCalibLoop_Digi::AcdCalibLoop_Digi(CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
+  :AcdCalibBase(t,config), 
    m_digiChain(digiChain),
    m_digiEvent(0),
    m_requirePeriodic(requirePeriodic){
 
-  setCalType(PEDESTAL);
   m_peds = 0;
+  m_ranges = 0;
 
-  m_pedHists = bookHists(PEDESTAL,4096,-0.5,4095.5);
-  m_gainHists = bookHists(GAIN,64,-0.5,4095.5);
-  m_unPairHists = bookHists(UNPAIRED,512,-0.5,4095.5);
-  m_rawHists = bookHists(RAW,64,-0.5,4095.5);
-  m_vetoHists = bookHists(VETO,64,-0.5,4095.5);
-  m_vfHists = bookHists(VETO_FRAC,64,-0.5,4095.5);
-
-  m_hitMapHist = new TH2F("hitMapHist","hitMapHist",128,-0.5,127.5,3,0.5,3.5);  
-  m_condArrHist = new TH2F("condArrHist","condArrHist",32,-0.5,31.5,2,0.5,2.5);
+  if ( t == PEDESTAL ) {
+    m_rawHists = bookHists(H_RAW,4096,-0.5,4095.5);
+  } else if ( t == GAIN ) {
+    m_gainHists = bookHists(H_GAIN,64,-0.5,4095.5);    
+  } else if ( t == VETO ) {
+    m_rawHists = bookHists(H_RAW,64,-0.5,4095.5);
+    m_vetoHists = bookHists(H_VETO,64,-0.5,4095.5);
+    m_fracHists = bookHists(H_FRAC,64,-0.5,4095.5);
+  } else if ( t == RANGE ) {
+    m_rawHists = bookHists(H_RAW,4096,-0.5,4095.5);
+    m_rangeHists = bookHists(H_RANGE,4096,-0.5,4095.5);
+  } else if ( t == CNO ) {    
+    m_rawHists = bookHists(H_RAW,256,-0.5,255.5);
+    m_vetoHists = bookHists(H_VETO,256,-0.5,255.5);
+    m_fracHists = bookHists(H_FRAC,256,-0.5,255.5);
+  } else if ( t == UNPAIRED ) {
+    m_unPairHists = bookHists(H_RAW,512,-0.5,4095.5);
+  } else if ( t == HITMAP ) {
+    m_hitMapHist = new TH2F("hitMapHist","hitMapHist",128,-0.5,127.5,3,0.5,3.5);  
+    m_condArrHist = new TH2F("condArrHist","condArrHist",32,-0.5,31.5,2,0.5,2.5);
+  }
 
   Bool_t ok = attachChains();
   if ( ! ok ) {
@@ -49,12 +62,12 @@ AcdMuonRoiCalib::AcdMuonRoiCalib(TChain *digiChain, Bool_t requirePeriodic, AcdM
 }
 
 
-AcdMuonRoiCalib::~AcdMuonRoiCalib() 
+AcdCalibLoop_Digi::~AcdCalibLoop_Digi() 
 {
   if (m_digiEvent) delete m_digiEvent;	
 }
 
-Bool_t AcdMuonRoiCalib::attachChains() {
+Bool_t AcdCalibLoop_Digi::attachChains() {
   if (m_digiChain != 0) {
     m_digiEvent = 0;
     m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
@@ -70,7 +83,7 @@ Bool_t AcdMuonRoiCalib::attachChains() {
   return kTRUE;
 }
 
-Bool_t AcdMuonRoiCalib::readEvent(int ievent, Bool_t& filtered, 
+Bool_t AcdCalibLoop_Digi::readEvent(int ievent, Bool_t& filtered, 
 				  int& runId, int& evtId) {
   
   if(m_digiEvent) m_digiEvent->Clear();
@@ -101,7 +114,8 @@ Bool_t AcdMuonRoiCalib::readEvent(int ievent, Bool_t& filtered,
 }
 
 
-void AcdMuonRoiCalib::useEvent(Bool_t& used) {
+void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
+
 
   used = kFALSE;
   const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
@@ -111,23 +125,28 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
     used = kTRUE;
     compareDigiToGem();
     return;
+  } else if ( calType() == CNO ) {  
+    m_garcGafeHits.reset();
+    m_garcGafeHits.setCNO( m_digiEvent->getGem().getCnoVector() );
   }
 
   int nAcdDigi = acdDigiCol->GetLast() + 1;
   for(int i = 0; i != nAcdDigi; ++i) {
 
     AcdDigi* acdDigi = static_cast<AcdDigi*>(acdDigiCol->At(i));
-
     assert(acdDigi != 0);
 
     const AcdId& acdId = acdDigi->getId();
     int id = acdId.getId();
-    //int face = acdId.getFace();
-    //int row = face < 5 ? acdId.getRow() : 0;
-    //int col = face < 5 ? acdId.getColumn() : acdId.getRibbonNumber();
 
     if ( ! AcdMap::channelExists( id ) ) continue;
-    
+
+    if ( calType() == CNO ) {  
+      m_garcGafeHits.setDigi(*acdDigi);
+      continue;
+    }
+
+    // NOT CNO calibaration
     int rng0 = acdDigi->getRange(AcdDigi::A);    
     float pmt0 = (float)acdDigi->getPulseHeight(AcdDigi::A);
 
@@ -147,8 +166,7 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
 	pmt1 -=  pedRes_B->mean();
 	useA &= pmt0 > 50.;
 	useB &= pmt1 > 50.;
-      }
-      if ( calType() == VETO ) {
+      } else if ( calType() == VETO ) {
 	useA &= pmt0 > ( pedRes_A->mean() + 30. );
 	useB &= pmt1 > ( pedRes_B->mean() + 30. );
       }
@@ -156,12 +174,18 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
 
     switch ( calType () ) {
     case PEDESTAL:
-      if ( useA ) fillHist(*m_pedHists, id, AcdDigi::A, pmt0);
-      if ( useB ) fillHist(*m_pedHists, id, AcdDigi::B, pmt1);
+      if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
+      if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
       break;
     case GAIN:
       if ( useA ) fillHist(*m_gainHists, id, AcdDigi::A, pmt0);
       if ( useB ) fillHist(*m_gainHists, id, AcdDigi::B, pmt1);
+      break;
+    case RANGE:
+      if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
+      if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
+      if ( rng0 ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0);
+      if ( rng1 ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1);
       break;
     case UNPAIRED:
       if ( pmt1 == 0 && rng0 == 0) fillHist(*m_unPairHists, id, AcdDigi::A, pmt0);
@@ -178,33 +202,54 @@ void AcdMuonRoiCalib::useEvent(Bool_t& used) {
     }
     used = kTRUE;
   }
+
+  if ( calType() == CNO ) {  
+    fillCnoData();
+  }
 }
 
-AcdPedestalFitMap* AcdMuonRoiCalib::fitPedestals(AcdPedestalFit& fitter) { 
+AcdPedestalFitMap* AcdCalibLoop_Digi::fitPedestals(AcdPedestalFit& fitter) { 
   m_peds = new AcdPedestalFitMap;
   addCalibration(PEDESTAL,*m_peds);
-  AcdHistCalibMap* hists = getHistMap(PEDESTAL);
+  AcdHistCalibMap* hists = getHistMap(H_RAW);
   fitter.fitAll(*m_peds,*hists);
   return m_peds;
 }
 
-AcdGainFitMap* AcdMuonRoiCalib::fitGains(AcdGainFit& fitter) {
+AcdGainFitMap* AcdCalibLoop_Digi::fitGains(AcdGainFit& fitter) {
   m_gains = new AcdGainFitMap;
   addCalibration(GAIN,*m_gains);
-  AcdHistCalibMap* hists = getHistMap(GAIN);
+  AcdHistCalibMap* hists = getHistMap(H_GAIN);
   fitter.fitAll(*m_gains,*hists);
   return m_gains;
 }  
 
-AcdVetoFitMap* AcdMuonRoiCalib::fitVetos(AcdVetoFit& fitter) {
+AcdCnoFitMap* AcdCalibLoop_Digi::fitCnos(AcdCnoFit& fitter) {
+  m_cnos = new AcdCnoFitMap;
+  addCalibration(CNO,*m_cnos);
+  AcdHistCalibMap* hists = getHistMap(H_FRAC);
+  fitter.fitAll(*m_cnos,*hists);
+  return m_cnos;
+}  
+
+AcdVetoFitMap* AcdCalibLoop_Digi::fitVetos(AcdVetoFit& fitter) {
   m_vetos = new AcdVetoFitMap;
   addCalibration(VETO,*m_vetos);
-  AcdHistCalibMap* hists = getHistMap(VETO_FRAC);
+  AcdHistCalibMap* hists = getHistMap(H_FRAC);
   fitter.fitAll(*m_vetos,*hists);
   return m_vetos;
 }  
 
-AcdHistCalibMap* AcdMuonRoiCalib::makeVetoRatio() {
+AcdRangeFitMap* AcdCalibLoop_Digi::fitRanges(AcdRangeFit& fitter) {
+  m_ranges = new AcdRangeFitMap;
+  addCalibration(RANGE,*m_ranges);
+  AcdHistCalibMap* lowhists = getHistMap(H_RAW);
+  AcdHistCalibMap* highhists = getHistMap(H_RANGE);
+  fitter.fitAll(*m_ranges,*lowhists,*highhists);
+  return m_ranges;
+}  
+
+AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
   for ( UInt_t iPmt(0); iPmt < AcdMap::nPmt; iPmt++ ) {    
     for ( UInt_t iFace(0); iFace < AcdMap::nFace; iFace++ ) {
       UInt_t nRow = AcdMap::getNRow(iFace);
@@ -214,12 +259,12 @@ AcdHistCalibMap* AcdMuonRoiCalib::makeVetoRatio() {
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
 	  TH1* raw = m_rawHists->getHist(key);
 	  TH1* veto = m_vetoHists->getHist(key);
-	  TH1* vf = m_vfHists->getHist(key);
+	  TH1* vf = m_fracHists->getHist(key);
 	  if ( raw == 0 || veto == 0 || vf == 0 ) {
 	    std::cout << "missing one " << key << std::endl;
 	    continue;
 	  }
-	  Int_t nVeto = veto->GetEntries();
+	  Int_t nVeto = (Int_t)veto->GetEntries();
 	  if ( nVeto > 100 && veto->GetMaximum() > 10 ) {	  
 	    AcdCalibUtil::efficDivide(*vf,*veto,*raw,kFALSE,10.);
 	  }
@@ -227,11 +272,10 @@ AcdHistCalibMap* AcdMuonRoiCalib::makeVetoRatio() {
       }
     }
   }
-  return m_vfHists;
+  return m_fracHists;
 }
 
-
-void AcdMuonRoiCalib::compareDigiToGem() {
+void AcdCalibLoop_Digi::compareDigiToGem() {
 
   const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
   assert ( acdDigiCol != 0 );
@@ -306,10 +350,38 @@ void AcdMuonRoiCalib::compareDigiToGem() {
   }
 }
 
+void AcdCalibLoop_Digi::fillCnoData() {
+  for ( UInt_t iGarc(0); iGarc < 12; iGarc++ ) {
+    Bool_t cno(kFALSE); 
+    UInt_t nHits(0), nVeto(0);
+    m_garcGafeHits.garcStatus(iGarc,cno,nHits,nVeto);
+    if ( nHits > 1 ) continue;
+    Int_t gafe(-1);
+    if ( ! m_garcGafeHits.nextGarcHit(iGarc,gafe) ) continue;
+    UInt_t uGafe = (UInt_t)gafe;
+    UShort_t inPha = m_garcGafeHits.inPha(iGarc,uGafe);
+    UShort_t flags = m_garcGafeHits.flags(iGarc,uGafe);
+    if ( (flags & 0x4) != 0x4 ) continue; // low range
+
+    UInt_t tile(0); UInt_t pmt(0);
+    AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
+    UInt_t key = AcdMap::makeKey(pmt,tile);
+    AcdRangeFitResult* rangePed = m_ranges->find(key);
+    if ( rangePed == 0 ) {
+      std::cerr << "No range pedestal for Key " << tile << ' ' << pmt << std::endl;
+      continue;
+    }
+    UShort_t phaRed = inPha > rangePed->high() ? inPha - rangePed->high() : 0;
+    fillHist(*m_rawHists,tile,pmt,phaRed);
+    if ( cno ) {
+      fillHist(*m_vetoHists,tile,pmt,phaRed);
+    }
+  }
+}
 
 
 /// for writing output files
-void AcdMuonRoiCalib::writeXmlSources( DomElement& node) const {
+void AcdCalibLoop_Digi::writeXmlSources( DomElement& node) const {
   //std::string pedFileName;
   //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   //os << "pedestalFile=" << pedFileName << std::endl;
@@ -322,7 +394,7 @@ void AcdMuonRoiCalib::writeXmlSources( DomElement& node) const {
   //}
 }
 
-void AcdMuonRoiCalib::writeTxtSources(ostream& os) const {
+void AcdCalibLoop_Digi::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << endl;
@@ -336,10 +408,16 @@ void AcdMuonRoiCalib::writeTxtSources(ostream& os) const {
 }
 
 
-Bool_t AcdMuonRoiCalib::readPedestals(const char* fileName) {
+Bool_t AcdCalibLoop_Digi::readPedestals(const char* fileName) {
   Bool_t latchVal = readCalib(PEDESTAL,fileName);
   AcdCalibMap* map = getCalibMap(PEDESTAL);
   m_peds = (AcdPedestalFitMap*)(map);
   return latchVal;
 }
 
+Bool_t AcdCalibLoop_Digi::readRanges(const char* fileName) {
+  Bool_t latchVal = readCalib(RANGE,fileName);
+  AcdCalibMap* map = getCalibMap(RANGE);
+  m_ranges = (AcdRangeFitMap*)(map);
+  return latchVal;
+}

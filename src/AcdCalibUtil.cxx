@@ -14,6 +14,7 @@
 #include "./AcdHistCalibMap.h"
 #include "./AcdGainFit.h"
 #include "./AcdVetoFit.h"
+#include "./AcdCnoFit.h"
 #include "./AcdPadMap.h"
 
 ClassImp(AcdCalibUtil) ;
@@ -41,6 +42,19 @@ void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdVetoF
 
   if ( res != 0 ) {
     TLine* lmean = new TLine( res->veto(), 0.,  res->veto(), hAll.GetMaximum());
+    lmean->SetLineColor(2);
+    lmean->Draw();
+  }   
+}
+
+void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, AcdCnoFitResult* res) {
+  vp.cd();
+  hAll.Draw();
+  hCno.SetLineColor(4);
+  hCno.Draw("same");
+
+  if ( res != 0 ) {
+    TLine* lmean = new TLine( res->cno(), 0.,  res->cno(), hAll.GetMaximum());
     lmean->SetLineColor(2);
     lmean->Draw();
   }   
@@ -79,6 +93,27 @@ void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdGainFitResult* res
     lA->SetLineColor(2);
     lA->Draw();
   } 
+}
+
+AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
+				  AcdCnoFitMap& cnos, const char* prefix) {
+
+  AcdPadMap* padMap = new AcdPadMap(hCno.config(),prefix);
+  TList& hList = (TList&)hCno.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hv = (TH1*)(obj);
+    TH1* hr = hRaw.getHist(id);
+    if ( hv == 0 || hr == 0 ) continue;
+    AcdCnoFitResult* res = (AcdCnoFitResult*)(cnos.get(id));
+    drawCnoPlot(*pad,*hv,*hr,res);
+  }
+  return padMap;
 }
 
 AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,

@@ -1,7 +1,7 @@
 #include <fstream>
 #include "TH1F.h"
 #include "TF1.h"
-#include "AcdMeritCalib.h"
+#include "AcdCalibLoop_Merit.h"
 
 #include "AcdCalibUtil.h"
 #include "AcdMap.h"
@@ -17,10 +17,10 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdMeritCalib) ;
+ClassImp(AcdCalibLoop_Merit) ;
 
-AcdMeritCalib::AcdMeritCalib(TChain& digiChain, TChain& reconChain, TChain& meritChain)
-  :AcdCalibBase(), 
+AcdCalibLoop_Merit::AcdCalibLoop_Merit(TChain& digiChain, TChain& reconChain, TChain& meritChain)
+  :AcdCalibBase(AcdCalibBase::MERIT), 
    m_digiChain(&digiChain),
    m_reconChain(&reconChain),
    m_meritChain(&meritChain),
@@ -36,13 +36,13 @@ AcdMeritCalib::AcdMeritCalib(TChain& digiChain, TChain& reconChain, TChain& meri
 }
 
 
-AcdMeritCalib::~AcdMeritCalib() 
+AcdCalibLoop_Merit::~AcdCalibLoop_Merit() 
 {
   if (m_digiEvent) delete m_digiEvent;
   if (m_reconEvent) delete m_reconEvent;	
 }
 
-Bool_t AcdMeritCalib::attachChains() {
+Bool_t AcdCalibLoop_Merit::attachChains() {
   if (m_digiChain != 0) {
     m_digiEvent = 0;
     m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
@@ -105,7 +105,7 @@ Bool_t AcdMeritCalib::attachChains() {
   return kTRUE;
 }
 
-Bool_t AcdMeritCalib::readEvent(int ievent, Bool_t& filtered, 
+Bool_t AcdCalibLoop_Merit::readEvent(int ievent, Bool_t& filtered, 
 				int& runId, int& evtId) {
 
   filtered = kFALSE;
@@ -149,7 +149,7 @@ Bool_t AcdMeritCalib::readEvent(int ievent, Bool_t& filtered,
 }
 
 
-void AcdMeritCalib::useEvent(Bool_t& used) {
+void AcdCalibLoop_Merit::useEvent(Bool_t& used) {
 
   used = kFALSE;
   m_evtIdOut = m_digiEvent->getEventId(); 
@@ -301,7 +301,7 @@ void AcdMeritCalib::useEvent(Bool_t& used) {
 }
 
 
-Bool_t AcdMeritCalib::readPedestals(const char* fileName) {
+Bool_t AcdCalibLoop_Merit::readPedestals(const char* fileName) {
   Bool_t latchVal = readCalib(PEDESTAL,fileName);
   AcdCalibMap* map = getCalibMap(PEDESTAL);
   m_peds = (AcdPedestalFitMap*)(map);
@@ -309,7 +309,7 @@ Bool_t AcdMeritCalib::readPedestals(const char* fileName) {
 }
 
 
-Bool_t AcdMeritCalib::readGains(const char* fileName) {
+Bool_t AcdCalibLoop_Merit::readGains(const char* fileName) {
   Bool_t latchVal = readCalib(GAIN,fileName);
   AcdCalibMap* map = getCalibMap(GAIN);
   m_gains = (AcdGainFitMap*)(map);
@@ -317,15 +317,15 @@ Bool_t AcdMeritCalib::readGains(const char* fileName) {
 }
 
 /// for writing output files
-void AcdMeritCalib::writeXmlHeader(DomElement& node) const {
+void AcdCalibLoop_Merit::writeXmlHeader(DomElement& node) const {
   AcdCalibBase::writeXmlHeader(node);
 }
 
-void AcdMeritCalib::writeTxtHeader(ostream& os) const {
+void AcdCalibLoop_Merit::writeTxtHeader(ostream& os) const {
   AcdCalibBase::writeTxtHeader(os);
 }
 
-Float_t AcdMeritCalib::toMip(UInt_t channel, Int_t pha) const {
+Float_t AcdCalibLoop_Merit::toMip(UInt_t channel, Int_t pha) const {
   if ( pha == 0 ) return 0.; 
   if ( m_peds == 0 ) return -100.;
   if ( m_gains == 0 ) return -200.;

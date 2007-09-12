@@ -9,6 +9,8 @@ class AcdPedestalFitMap;
 class AcdGainFit;
 class AcdGainFitMap;
 class AcdGainFitResult;
+class AcdCnoFitMap;
+class AcdCnoFitResult;
 class AcdVetoFitMap;
 class AcdVetoFitResult;
 class AcdPadMap;
@@ -38,9 +40,16 @@ public :
   // draw a single veto plot
   static void drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdVetoFitResult* res);
 
+  // draw a single veto plot
+  static void drawCnoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCnoFitResult* res);
+
   // draw veto plots onto canvases
   static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
 			      AcdVetoFitMap& vetos, const char* prefix = "");
+
+  // draw veto plots onto canvases
+  static AcdPadMap* drawCnos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+			     AcdCnoFitMap& vetos, const char* prefix = "");
 
   // draw mip peaks onto canvases
   static AcdPadMap* drawMips(AcdHistCalibMap& h, AcdGainFitMap& gains, 

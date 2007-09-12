@@ -1,5 +1,5 @@
-#define AcdMuonBenchCalib_cxx
-#include "AcdMuonBenchCalib.h"
+#define AcdCalibLoop_Bench_cxx
+#include "AcdCalibLoop_Bench.h"
 
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -9,9 +9,9 @@
 #include <algorithm>
 #include <iterator>
 
-ClassImp(AcdMuonBenchCalib) ;
+ClassImp(AcdCalibLoop_Bench) ;
 
-Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
+Bool_t AcdCalibLoop_Bench::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
 
   // These sets are supposed to emulate the cuts in readACDNtuple
   // 
@@ -75,7 +75,7 @@ Bool_t AcdMuonBenchCalib::applyCorrelationCut(UInt_t whichCut, const std::set<UI
 }
 
 
-Bool_t AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
+Bool_t AcdCalibLoop_Bench::fillGainHists(const std::set<UInt_t>& hitTiles, const std::map<UInt_t,Int_t>& hitMap) {
 
   Bool_t retVal(kFALSE);
   for ( std::map<UInt_t,Int_t>::const_iterator itr = hitMap.begin(); itr != hitMap.end(); itr++ ) {
@@ -105,7 +105,7 @@ Bool_t AcdMuonBenchCalib::fillGainHists(const std::set<UInt_t>& hitTiles, const 
   return retVal;
 }
 
-Bool_t AcdMuonBenchCalib::readEvent(int ievent, Bool_t& filtered, 
+Bool_t AcdCalibLoop_Bench::readEvent(int ievent, Bool_t& filtered, 
 				    int& /*runId*/, int& /*evtId*/) {
 
   filtered = kFALSE;
@@ -117,7 +117,7 @@ Bool_t AcdMuonBenchCalib::readEvent(int ievent, Bool_t& filtered,
   return kTRUE;
 }
 
-void AcdMuonBenchCalib::useEvent(Bool_t& used) {
+void AcdCalibLoop_Bench::useEvent(Bool_t& used) {
 
   used = kFALSE;
   std::set<UInt_t> hitTiles;
@@ -168,7 +168,7 @@ void AcdMuonBenchCalib::useEvent(Bool_t& used) {
 
 }
 
-AcdPedestalFitMap* AcdMuonBenchCalib::fitPedestals(AcdPedestalFit& fitter) { 
+AcdPedestalFitMap* AcdCalibLoop_Bench::fitPedestals(AcdPedestalFit& fitter) { 
   m_peds = new AcdPedestalFitMap;
   addCalibration(PEDESTAL,*m_peds);
   AcdHistCalibMap* hists = getHistMap(PEDESTAL);
@@ -176,7 +176,7 @@ AcdPedestalFitMap* AcdMuonBenchCalib::fitPedestals(AcdPedestalFit& fitter) {
   return m_peds;
 }
 
-AcdGainFitMap* AcdMuonBenchCalib::fitGains(AcdGainFit& fitter) {
+AcdGainFitMap* AcdCalibLoop_Bench::fitGains(AcdGainFit& fitter) {
   m_gains = new AcdGainFitMap;
   addCalibration(GAIN,*m_gains);
   AcdHistCalibMap* hists = getHistMap(GAIN);
@@ -185,13 +185,13 @@ AcdGainFitMap* AcdMuonBenchCalib::fitGains(AcdGainFit& fitter) {
 }  
 
 
-void AcdMuonBenchCalib::writeXmlSources( DomElement& node) const {
+void AcdCalibLoop_Bench::writeXmlSources( DomElement& node) const {
   //std::string pedFileName;
   //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   //os << "peds=" << pedFileName << std::endl;
 }
 
-void AcdMuonBenchCalib::writeTxtSources(ostream& os) const {
+void AcdCalibLoop_Bench::writeTxtSources(ostream& os) const {
   std::string pedFileName;
   if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
   os << "#pedestalFile = " << pedFileName << std::endl;

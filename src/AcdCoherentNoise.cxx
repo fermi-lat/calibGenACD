@@ -24,7 +24,7 @@ ClassImp(AcdCoherentNoise) ;
 
 AcdCoherentNoise::AcdCoherentNoise(TChain* digiChain, UInt_t loDT, UInt_t hiDT, UInt_t nBins, 
 				   AcdMap::Config config)
-  :AcdCalibBase(config),
+  :AcdCalibBase(AcdCalibBase::COHERENT_NOISE,config),
    m_loDT(loDT),
    m_hiDT(hiDT),
    m_nBins(nBins),
