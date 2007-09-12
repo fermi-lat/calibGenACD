@@ -1,4 +1,29 @@
 ------------------------------------------------------------
+User: echarles  Wed Sep 12 11:57:19 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibUtil.cxx 
+	AcdCalibUtil.h AcdCoherentNoise.cxx AcdJobConfig.cxx 
+	AcdJobConfig.h AcdStripChart.cxx 
+Added Files:
+	AcdCalibLoop_Bench.cxx AcdCalibLoop_Bench.h 
+	AcdCalibLoop_Digi.cxx AcdCalibLoop_Digi.h 
+	AcdCalibLoop_Merit.cxx AcdCalibLoop_Merit.h 
+	AcdCalibLoop_Recon.cxx AcdCalibLoop_Recon.h 
+	AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h AcdCnoFit.cxx 
+	AcdCnoFit.h AcdCnoFitLibrary.cxx AcdCnoFitLibrary.h 
+	AcdGarcGafeHits.cxx AcdGarcGafeHits.h AcdRangeFit.cxx 
+	AcdRangeFit.h AcdRangeFitLibrary.cxx AcdRangeFitLibrary.h 
+Removed Files:
+	AcdMeritCalib.cxx AcdMeritCalib.h AcdMuonBenchCalib.cxx 
+	AcdMuonBenchCalib.h AcdMuonRoiCalib.cxx AcdMuonRoiCalib.h 
+	AcdMuonSvacCalib.cxx AcdMuonSvacCalib.h AcdMuonTkrCalib.cxx 
+	AcdMuonTkrCalib.h 
+Log Message:
+re-organize calibGenACD
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r8p1, operation: add
 Package: calibGenACD
