@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Wed Sep 12 17:19:25 PDT 2007
+calibGenACD/apps
+
+Modified Files:
+	runCoherentNoise.cxx runMeritCalib.cxx runMuonCalib_Roi.cxx 
+	runMuonCalib_Svac.cxx runMuonCalib_Tkr.cxx runPedestal.cxx 
+	runStripChart.cxx runVetoCalib.cxx 
+Log Message:
+more fixes for new updates after re-organization
+    *
+------------------------------------------------------------
 User: echarles  Wed Sep 12 15:00:31 PDT 2007
 calibGenACD/src
 
