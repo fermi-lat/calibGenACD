@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Wed Sep 12 17:19:26 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.h 
+Log Message:
+more fixes for new updates after re-organization
+    *
+------------------------------------------------------------
+User: echarles  Wed Sep 12 17:19:26 PDT 2007
 calibGenACD/cmt
 
 Modified Files:
