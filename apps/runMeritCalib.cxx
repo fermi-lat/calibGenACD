@@ -4,7 +4,7 @@
 #include "../src/AcdJobConfig.h"
 
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdMeritCalib.h"
+#include "../src/AcdCalibLoop_Merit.h"
 
 int main(int argn, char** argc) {
 
@@ -27,7 +27,7 @@ int main(int argn, char** argc) {
   if ( ! okToContinue ) return 1; // no input, fail
 
   // build filler & run over events  
-  AcdMeritCalib r(*jc.digiChain(),*jc.reconChain(),*jc.meritChain());
+  AcdCalibLoop_Merit r(*jc.digiChain(),*jc.reconChain(),*jc.meritChain());
   if ( jc.pedFileName() != "" ) {
     r.readPedestals(jc.pedFileName().c_str());
   }

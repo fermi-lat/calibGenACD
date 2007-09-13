@@ -3,7 +3,7 @@
 
 #include "../src/AcdJobConfig.h"
 
-#include "../src/AcdMuonRoiCalib.h"
+#include "../src/AcdCalibLoop_Digi.h"
 #include "../src/AcdPedestalFitLibrary.h"
 
 int main(int argn, char** argc) {
@@ -25,8 +25,8 @@ int main(int argn, char** argc) {
   if ( ! okToContinue ) return 1; // no input, fail
 
   // build filler & run over events
-  AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());
-  r.setCalType(AcdCalibBase::PEDESTAL);
+  AcdCalibLoop_Digi r(AcdCalibBase::PEDESTAL,jc.digiChain(),jc.optval_P(),jc.config());
+  //r.setCalType(AcdCalibBase::PEDESTAL);
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits

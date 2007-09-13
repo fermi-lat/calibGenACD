@@ -30,7 +30,7 @@ int main(int argn, char** argc) {
 
   /// build filler & run over events
   AcdCoherentNoise r(jc.digiChain(), 529, 2529, jc.optval_b(), jc.config() );
-  r.setCalType(AcdCalibBase::COHERENT_NOISE);
+  //r.setCalType(AcdCalibBase::COHERENT_NOISE);
 
   if ( jc.pedFileName() != "" ) {
     r.readPedestals(jc.pedFileName().c_str());

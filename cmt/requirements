@@ -22,21 +22,26 @@ apply_pattern root_package headers="\
  ../src/AcdCalibResult.h\
  ../src/AcdCalibVersion.h\
  ../src/AcdCalibUtil.h\
+ ../src/AcdGarcGafeHits.h\
  ../src/AcdCoherentNoise.h\
  ../src/AcdCoherentNoiseFit.h\
  ../src/AcdGainFit.h\
  ../src/AcdGainFitLibrary.h\
+ ../src/AcdCnoFit.h\
+ ../src/AcdCnoFitLibrary.h\
+ ../src/AcdRangeFit.h\
+ ../src/AcdRangeFitLibrary.h\
  ../src/AcdHistCalibMap.h\
  ../src/AcdMap.h\
  ../src/AcdJobConfig.h\
  ../src/AcdPadMap.h\
  ../src/AcdPedestalFit.h\
  ../src/AcdPedestalFitLibrary.h\
- ../src/AcdMuonBenchCalib.h\
- ../src/AcdMuonRoiCalib.h\
- ../src/AcdMuonTkrCalib.h\
- ../src/AcdMuonSvacCalib.h\
- ../src/AcdMeritCalib.h\
+ ../src/AcdCalibLoop_Bench.h\
+ ../src/AcdCalibLoop_Digi.h\
+ ../src/AcdCalibLoop_Merit.h\
+ ../src/AcdCalibLoop_Recon.h\
+ ../src/AcdCalibLoop_Svac.h\
  ../src/AcdStripChart.h\
  ../src/AcdStripFit.h\
  ../src/AcdVetoFit.h\
@@ -68,3 +73,4 @@ application runVetoCalib ../apps/runVetoCalib.cxx
 application runMeritCalib ../apps/runMeritCalib.cxx
 application runStripChart ../apps/runStripChart.cxx
 application runCoherentNoise ../apps/runCoherentNoise.cxx
+application runRangeCalib ../apps/runRangeFit.cxx

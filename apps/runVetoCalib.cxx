@@ -5,7 +5,7 @@
 
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdVetoFitLibrary.h"
-#include "../src/AcdMuonRoiCalib.h"
+#include "../src/AcdCalibLoop_Digi.h"
 
 #include "../src/AcdPadMap.h"
 
@@ -27,15 +27,15 @@ int main(int argn, char** argc) {
   Bool_t okToContinue = jc.checkDigi();
   if ( ! okToContinue ) return 1; // no input, fail
 
-  AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());
-  r.setCalType(AcdCalibBase::VETO);        
+  AcdCalibLoop_Digi r(AcdCalibBase::VETO,jc.digiChain(),jc.optval_P(),jc.config());
+  //r.setCalType(AcdCalibBase::VETO);        
   if ( jc.pedFileName() != "" ) {
     r.readPedestals(jc.pedFileName().c_str());
   }
   
   r.go(jc.optval_n(),jc.optval_s());    
 
-  r.makeVetoRatio();
+  r.makeRatioPlots();
 
   AcdVetoFitLibrary vetoFitter(AcdVetoFitLibrary::Counting);
   AcdVetoFitMap* vetos = r.fitVetos(vetoFitter);
@@ -47,14 +47,14 @@ int main(int argn, char** argc) {
   std::string outputHistFileRaw = jc.outputPrefix() + "_veto_all.root";
   std::string outputHistFileVeto = jc.outputPrefix() + "_veto_veto.root";
 
-  r.writeHistograms(AcdCalibBase::VETO_FRAC, outputHistFile.c_str());
-  r.writeHistograms(AcdCalibBase::RAW, outputHistFileRaw.c_str());
-  r.writeHistograms(AcdCalibBase::VETO, outputHistFileVeto.c_str());
+  r.writeHistograms(AcdCalibBase::H_VETO, outputHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::H_RAW, outputHistFileRaw.c_str());
+  r.writeHistograms(AcdCalibBase::H_FRAC, outputHistFileVeto.c_str());
   vetos->writeTxtFile(textFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),vetoFitter.algorithm(),r);
   vetos->writeXmlFile(xmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),vetoFitter.algorithm(),r);
 
   AcdPadMap* padMap(0);
-  padMap = AcdCalibUtil::drawVetos(*(r.getHistMap(AcdCalibBase::VETO)),*(r.getHistMap(AcdCalibBase::RAW)),*vetos,psFile.c_str());
+  padMap = AcdCalibUtil::drawVetos(*(r.getHistMap(AcdCalibBase::H_VETO)),*(r.getHistMap(AcdCalibBase::H_RAW)),*vetos,psFile.c_str());
   AcdCalibUtil::saveCanvases(padMap->canvasList());  
 
   return 0;
