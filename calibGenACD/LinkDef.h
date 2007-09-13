@@ -21,6 +21,8 @@
 #pragma link C++ class AcdPadMap;
 #pragma link C++ class AcdJobConfig;
 
+#pragma link C++ class AcdGarcGafeHits;
+
 #pragma link C++ class AcdGainFitResult;
 #pragma link C++ class AcdGainFitMap;
 #pragma link C++ class AcdGainFit;
@@ -30,6 +32,16 @@
 #pragma link C++ class AcdPedestalFitMap;
 #pragma link C++ class AcdPedestalFit;
 #pragma link C++ class AcdPedestalFitLibrary;
+
+#pragma link C++ class AcdCnoFitResult;
+#pragma link C++ class AcdCnoFitMap;
+#pragma link C++ class AcdCnoFit;
+#pragma link C++ class AcdCnoFitLibrary;
+
+#pragma link C++ class AcdRangeFitResult;
+#pragma link C++ class AcdRangeFitMap;
+#pragma link C++ class AcdRangeFit;
+#pragma link C++ class AcdRangeFitLibrary;
 
 #pragma link C++ class AcdVetoFitResult;
 #pragma link C++ class AcdVetoFitMap;
@@ -45,11 +57,13 @@
 #pragma link C++ class AcdCoherentNoiseFit;
 
 #pragma link C++ class AcdCalibBase;
-#pragma link C++ class AcdMuonBenchCalib;
-#pragma link C++ class AcdMuonRoiCalib;
-#pragma link C++ class AcdMuonTkrCalib;
-#pragma link C++ class AcdMuonSvacCalib;
-#pragma link C++ class AcdMeritCalib;
+
+#pragma link C++ class AcdCalibLoop_Bench;
+#pragma link C++ class AcdCalibLoop_Digi;
+#pragma link C++ class AcdCalibLoop_Merit;
+#pragma link C++ class AcdCalibLoop_Recon;
+#pragma link C++ class AcdCalibLoop_Svac;
+
 #pragma link C++ class AcdStripChart;
 #pragma link C++ class AcdCoherentNoise;
 

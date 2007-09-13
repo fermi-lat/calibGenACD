@@ -5,7 +5,7 @@
 
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdGainFitLibrary.h"
-#include "../src/AcdMuonRoiCalib.h"
+#include "../src/AcdCalibLoop_Digi.h"
 #include "../src/AcdPadMap.h"
 
 
@@ -29,8 +29,8 @@ int main(int argn, char** argc) {
 
 
   /// build filler & run over events
-  AcdMuonRoiCalib r(jc.digiChain(),jc.optval_P(),jc.config());
-  r.setCalType(AcdCalibBase::GAIN);        
+  AcdCalibLoop_Digi r(AcdCalibBase::GAIN,jc.digiChain(),jc.optval_P(),jc.config());
+  //r.setCalType(AcdCalibBase::GAIN);        
 
   bool removePeds = true;
   if ( jc.pedFileName() != "" ) {

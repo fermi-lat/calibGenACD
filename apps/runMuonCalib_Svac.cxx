@@ -5,7 +5,7 @@
 
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdGainFitLibrary.h"
-#include "../src/AcdMuonSvacCalib.h"
+#include "../src/AcdCalibLoop_Svac.h"
 #include "../src/AcdPadMap.h"
 
 int main(int argn, char** argc) {
@@ -27,8 +27,8 @@ int main(int argn, char** argc) {
   if ( ! okToContinue ) return 1; // no input, fail
 
   /// build filler & run over events
-  AcdMuonSvacCalib r(jc.svacChain(),jc.optval_L(),jc.config());
-  r.setCalType(AcdCalibBase::GAIN);        
+  AcdCalibLoop_Svac r(jc.svacChain(),jc.optval_L(),jc.config());
+  //r.setCalType(AcdCalibBase::GAIN);        
 
   bool removePeds(true);
   if ( jc.pedFileName() != "" && jc.svacChain() != 0 ) {

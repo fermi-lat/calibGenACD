@@ -31,7 +31,8 @@ public :
 		H_TIME_PHA,
 		H_TIME_HIT,
 		H_TIME_VETO,
-		H_COHERENT_NOISE};
+		H_COHERENT_NOISE,
+                H_XOVER};
 		
   enum CALTYPE{PEDESTAL, 
 	       GAIN, 

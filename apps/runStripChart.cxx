@@ -30,7 +30,7 @@ int main(int argn, char** argc) {
   /// build filler & run over events
   std::string outputTimestampFile = jc.outputPrefix() + "_timestamps.txt";
   AcdStripChart r(jc.digiChain(), jc.optval_b(), outputTimestampFile.c_str() );
-  r.setCalType(AcdCalibBase::TIME_PROF_PHA);        
+  //r.setCalType(AcdCalibBase::TIME_PROF_PHA);        
 
   bool removePeds(true);
   if ( jc.pedFileName() != "" && jc.reconChain() != 0 ) {
@@ -43,9 +43,9 @@ int main(int argn, char** argc) {
   std::string outputPhaHistFile = jc.outputPrefix() + "_PhaStrip.root";
   std::string outputHitHistFile = jc.outputPrefix() + "_HitStrip.root";
   std::string outputVetoHistFile = jc.outputPrefix() + "_VetoStrip.root";  
-  r.writeHistograms(AcdCalibBase::TIME_PROF_PHA, outputPhaHistFile.c_str());
-  r.writeHistograms(AcdCalibBase::TIME_PROF_HIT, outputHitHistFile.c_str());
-  r.writeHistograms(AcdCalibBase::TIME_PROF_VETO, outputVetoHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::H_TIME_PHA, outputPhaHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::H_TIME_HIT, outputHitHistFile.c_str());
+  r.writeHistograms(AcdCalibBase::H_TIME_VETO, outputVetoHistFile.c_str());
   
   // do fits
   AcdStripFit fitPha("StripPha",AcdCalibUtil::MEAN_ABSOLUTE,100,-50.,50.);  
@@ -64,17 +64,17 @@ int main(int argn, char** argc) {
   std::string outputVetoDeltaFile = jc.outputPrefix() + "_VetoDelta.root";
 
   AcdStripFitMap phaStripMap;
-  fitPha.fitAll(phaStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_PHA)));
+  fitPha.fitAll(phaStripMap,*(r.getHistMap(AcdCalibBase::H_TIME_PHA)));
   phaStripMap.writeTxtFile(outputPhaTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitPha.algorithm(),r);
   fitPha.fittedHists().writeHistograms(outputPhaDeltaFile.c_str());
 
   AcdStripFitMap hitStripMap;
-  fitHit.fitAll(hitStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_HIT)));
+  fitHit.fitAll(hitStripMap,*(r.getHistMap(AcdCalibBase::H_TIME_HIT)));
   hitStripMap.writeTxtFile(outputHitTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitHit.algorithm(),r);
   fitHit.fittedHists().writeHistograms(outputHitDeltaFile.c_str());
 
   AcdStripFitMap vetoStripMap;
-  fitVeto.fitAll(vetoStripMap,*(r.getHistMap(AcdCalibBase::TIME_PROF_VETO)));
+  fitVeto.fitAll(vetoStripMap,*(r.getHistMap(AcdCalibBase::H_TIME_VETO)));
   vetoStripMap.writeTxtFile(outputVetoTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitVeto.algorithm(),r);
   fitVeto.fittedHists().writeHistograms(outputVetoDeltaFile.c_str());
 
