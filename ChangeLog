@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed Sep 12 18:00:32 PDT 2007
+calibGenACD/apps
+
+Added Files:
+	runRangeFit.cxx 
+Log Message:
+added runRangeFit
+    *
+------------------------------------------------------------
 User: echarles  Wed Sep 12 17:19:26 PDT 2007
 calibGenACD/src
 
