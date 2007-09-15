@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep 14 20:09:06 PDT 2007
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Vastly simplify code, pull re-used code down into base classes
+    *
+------------------------------------------------------------
 User: echarles  Fri Sep 14 20:07:20 PDT 2007
 calibGenACD/apps
 
