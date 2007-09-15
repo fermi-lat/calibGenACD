@@ -1,4 +1,33 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep 14 20:07:01 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibLoop_Bench.cxx 
+	AcdCalibLoop_Bench.h AcdCalibLoop_Digi.cxx AcdCalibLoop_Digi.h 
+	AcdCalibLoop_Merit.cxx AcdCalibLoop_Merit.h 
+	AcdCalibLoop_Recon.cxx AcdCalibLoop_Recon.h 
+	AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h AcdCalibMap.cxx 
+	AcdCalibMap.h AcdCalibResult.cxx AcdCalibResult.h 
+	AcdCalibUtil.cxx AcdCalibUtil.h AcdCnoFit.cxx AcdCnoFit.h 
+	AcdCoherentNoise.cxx AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.cxx AcdCoherentNoiseFit.h AcdGainFit.cxx 
+	AcdGainFit.h AcdGarcGafeHits.h AcdHistCalibMap.h 
+	AcdJobConfig.h AcdMap.h AcdPadMap.h AcdPedestalFit.cxx 
+	AcdPedestalFit.h AcdRangeFit.cxx AcdRangeFit.h 
+	AcdStripChart.cxx AcdStripChart.h AcdStripFit.cxx 
+	AcdStripFit.h AcdVetoFit.cxx AcdVetoFit.h 
+Added Files:
+	AcdCalibEnum.h AcdCalibFit.cxx AcdCalibFit.h 
+Removed Files:
+	AcdCnoFitLibrary.cxx AcdCnoFitLibrary.h AcdGainFitLibrary.cxx 
+	AcdGainFitLibrary.h AcdPedestalFitLibrary.cxx 
+	AcdPedestalFitLibrary.h AcdRangeFitLibrary.cxx 
+	AcdRangeFitLibrary.h AcdVetoFitLibrary.cxx AcdVetoFitLibrary.h 
+Log Message:
+major reworking of package.  results are the same, but code is vastly simplified
+    *
+------------------------------------------------------------
 User: echarles  Fri Sep 14 20:06:59 PDT 2007
 calibGenACD/cmt
 
