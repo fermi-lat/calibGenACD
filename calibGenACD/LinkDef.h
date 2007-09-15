@@ -10,52 +10,44 @@
 #pragma link off all functions;
 
 #pragma link C++ class AcdCalibVersion;
-#pragma link C++ class AcdCalibUtil;
 #pragma link C++ class AcdMap;
+#pragma link C++ class AcdPadMap;
 #pragma link C++ class AcdCalibHistHolder;
 #pragma link C++ class AcdHistCalibMap;
 
+#pragma link C++ class AcdCalibDescription;
 #pragma link C++ class AcdCalibResult;
 #pragma link C++ class AcdCalibMap;
+#pragma link C++ class AcdCalibFit;
 
-#pragma link C++ class AcdPadMap;
+#pragma link C++ class AcdCalibUtil;
+
 #pragma link C++ class AcdJobConfig;
 
 #pragma link C++ class AcdGarcGafeHits;
 
-#pragma link C++ class AcdGainFitResult;
-#pragma link C++ class AcdGainFitMap;
-#pragma link C++ class AcdGainFit;
+#pragma link C++ class AcdGainFitDesc;
 #pragma link C++ class AcdGainFitLibrary;
 
-#pragma link C++ class AcdPedestalFitResult;
-#pragma link C++ class AcdPedestalFitMap;
-#pragma link C++ class AcdPedestalFit;
+#pragma link C++ class AcdPedestalFitDesc;
 #pragma link C++ class AcdPedestalFitLibrary;
 
-#pragma link C++ class AcdCnoFitResult;
-#pragma link C++ class AcdCnoFitMap;
-#pragma link C++ class AcdCnoFit;
+#pragma link C++ class AcdCnoFitDesc;
 #pragma link C++ class AcdCnoFitLibrary;
 
-#pragma link C++ class AcdRangeFitResult;
-#pragma link C++ class AcdRangeFitMap;
-#pragma link C++ class AcdRangeFit;
+#pragma link C++ class AcdRangeFitDesc;
 #pragma link C++ class AcdRangeFitLibrary;
 
-#pragma link C++ class AcdVetoFitResult;
-#pragma link C++ class AcdVetoFitMap;
-#pragma link C++ class AcdVetoFit;
+#pragma link C++ class AcdVetoFitDesc;
 #pragma link C++ class AcdVetoFitLibrary;
 
-#pragma link C++ class AcdStripFitResult;
-#pragma link C++ class AcdStripFitMap;
-#pragma link C++ class AcdStripFit;
+#pragma link C++ class AcdStripFitDesc;
+#pragma link C++ class AcdStripFitLibrary;
 
-#pragma link C++ class AcdCoherentNoiseFitResult;
-#pragma link C++ class AcdCoherentNoiseFitMap;
-#pragma link C++ class AcdCoherentNoiseFit;
+#pragma link C++ class AcdCoherentNoiseFitDesc;
+#pragma link C++ class AcdCoherentNoiseFitLibrary;
 
+#pragma link C++ class AcdCalibEventStats;
 #pragma link C++ class AcdCalibBase;
 
 #pragma link C++ class AcdCalibLoop_Bench;

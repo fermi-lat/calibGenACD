@@ -1,75 +1,38 @@
 #define AcdCoherentNoiseFit_cxx
 
-#include "AcdHistCalibMap.h"
 #include "AcdCoherentNoiseFit.h"
-#include "AcdMap.h"
-#include "AcdCalibUtil.h"
+#include "AcdCalibEnum.h"
 
-#include "AcdXmlUtil.h"
-#include "DomElement.h"
+#include "AcdHistCalibMap.h"
 
-#include "TF1.h"
+#include <TF1.h>
 
-#include <iostream>
-#include <fstream>
+ClassImp(AcdCoherentNoiseFitDesc) ;
 
-ClassImp(AcdCoherentNoiseFitResult) ;
+const std::string AcdCoherentNoiseFitDesc::s_calibType("ACD_CoherentNoise");
+const std::string AcdCoherentNoiseFitDesc::s_txtFormat("TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS");
 
-AcdCoherentNoiseFitResult::AcdCoherentNoiseFitResult(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, 
-						     const char* fitPars, STATUS status) 
-  :AcdCalibResult(status),
-   _min(min), _minTime(minTime), _max(max), _maxTime(maxTime),
-   _fitPars(fitPars){
+const AcdCoherentNoiseFitDesc& AcdCoherentNoiseFitDesc::ins() {
+  static const AcdCoherentNoiseFitDesc desc;
+  return desc;
 }
 
-AcdCoherentNoiseFitResult::AcdCoherentNoiseFitResult()
-  :AcdCalibResult(),
-   _min(0), _minTime(0), _max(0), _maxTime(0),
-   _fitPars("NONE"){
+AcdCoherentNoiseFitDesc::AcdCoherentNoiseFitDesc()
+  :AcdCalibDescription(AcdCalib::COHERENT_NOISE,s_calibType,s_txtFormat){
+  addVarName("min");
+  addVarName("min_time");
+  addVarName("max");
+  addVarName("man_time");
 }
 
-void AcdCoherentNoiseFitResult::makeXmlNode(DomElement& node) const{
-  DomElement noiseNode = AcdXmlUtil::makeChildNode(node,"acdNoise");
-  AcdXmlUtil::addAttribute(noiseNode,"min",_min);
-  AcdXmlUtil::addAttribute(noiseNode,"minTime",_minTime);
-  AcdXmlUtil::addAttribute(noiseNode,"max",_max);
-  AcdXmlUtil::addAttribute(noiseNode,"maxTime",_maxTime);
-  AcdXmlUtil::addAttribute(noiseNode,"fitPars",_fitPars);
-  AcdXmlUtil::addAttribute(noiseNode,"status",getStatus());
-};
-
-void AcdCoherentNoiseFitResult::printTxtLine(ostream& os) const {
-  os << _min << ' ' << _minTime << ' ' << _max << ' ' << _maxTime << ' ' 
-     << '"' << _fitPars << '"' << ' ' << getStatus();     
-};
-
-Bool_t AcdCoherentNoiseFitResult::readTxt(istream& is) { 
-  Float_t min, minTime, max, maxTime;
-  Int_t stat;
-  TString fitPars;
-  is >> min >> minTime >> max >> maxTime >> fitPars >> stat;
-  setVals(min,minTime,max,maxTime,fitPars,(STATUS)stat);
-  return kTRUE;
-};  
 
 
-ClassImp(AcdCoherentNoiseFitMap) ;
-
-AcdCoherentNoiseFitMap::AcdCoherentNoiseFitMap(){;}
-
-AcdCoherentNoiseFitMap::~AcdCoherentNoiseFitMap(){;}
+ClassImp(AcdCoherentNoiseFitLibrary) ;
 
 
-ClassImp(AcdCoherentNoiseFit) ;
+Int_t AcdCoherentNoiseFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
 
-AcdCoherentNoiseFit::AcdCoherentNoiseFit(const char* /* name */, 
-					 Int_t method)
-  :m_method(method){
-}
-
-AcdCoherentNoiseFit::~AcdCoherentNoiseFit() {;}
-
-Int_t AcdCoherentNoiseFit::fit(AcdCoherentNoiseFitResult& result, const TH1& in) {
+  TH1& in = *(holder.getHist(0));
 
   Float_t min = 1e9; 
   Float_t minTime = 0.;
@@ -106,41 +69,17 @@ Int_t AcdCoherentNoiseFit::fit(AcdCoherentNoiseFitResult& result, const TH1& in)
   Int_t status = nch.Fit(&ring,"","");
   
 
-  Float_t amp = ring.GetParameter(0);
-  Float_t decay = ring.GetParameter(1);
-  Float_t freq = ring.GetParameter(2);
-  Float_t phase = ring.GetParameter(3);
+  //Float_t amp = ring.GetParameter(0);
+  //Float_t decay = ring.GetParameter(1);
+  //Float_t freq = ring.GetParameter(2);
+  //Float_t phase = ring.GetParameter(3);
 
-  char fitPars[100];
-  sprintf(fitPars,"%3.1f %4.1f %5.4f %4.3f",amp,decay,freq,phase);
+  //char fitPars[100];
+  //sprintf(fitPars,"%3.1f %4.1f %5.4f %4.3f",amp,decay,freq,phase);
   
-  result.setVals(min,minTime,max,maxTime,fitPars,(AcdCoherentNoiseFitResult::STATUS)status);
+  //result.setVals(min,minTime,max,maxTime,fitPars,(AcdCoherentNoiseFitResult::STATUS)status);
+  result.setVals(min,minTime,max,maxTime,(AcdCalibResult::STATUS)status);
   return result.getStatus();
 }
 
-void AcdCoherentNoiseFit::fitAll(AcdCoherentNoiseFitMap& results, AcdHistCalibMap& hists) {
-  TList& theHists = const_cast<TList&>(hists.histograms());
-  TListIter itr(&theHists);
-  while ( TObject* obj = itr() ) {
-    TH1* hist = static_cast<TH1*>(obj);
-    UInt_t key = hist->GetUniqueID();
-    AcdCoherentNoiseFitResult* theResult = new AcdCoherentNoiseFitResult;
-    fit(*theResult,*hist);
-    results.add(key,*theResult);
-  } 
-}
 
-Int_t AcdCoherentNoiseFit::fitChannel(AcdCoherentNoiseFitMap& result, AcdHistCalibMap& input, UInt_t key) {
-  
-  TH1* hist = input.getHist(key);
-  if ( hist == 0 ) {
-    std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
-    return 0;
-  }
-  AcdCoherentNoiseFitResult* theResult = static_cast<AcdCoherentNoiseFitResult*>(result.get(key));
-  if ( theResult == 0 ) {
-    theResult = new AcdCoherentNoiseFitResult;
-    result.add(key,*theResult);
-  }
-  return fit(*theResult,*hist);
-}

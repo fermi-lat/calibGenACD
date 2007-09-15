@@ -1,13 +1,16 @@
 #ifndef AcdGarcGafeHits_h
 #define AcdGarcGafeHits_h
 
+// ROOT includes
 #include <Rtypes.h>
 
+// forward declares
 class TObjArray;
 class AcdDigi;
 class AcdHit;
 class AcdRecon;
 class AcdId;
+
 
 class AcdGarcGafeHits {
 

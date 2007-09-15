@@ -1,14 +1,19 @@
 #ifndef AcdJobConfig_h
 #define AcdJobConfig_h 
 
-#include <iostream>
-
-#include "Rtypes.h"
-#include <string>
-
+// local includes
 #include "./AcdMap.h"
 
+// ROOT includes
+#include "Rtypes.h"
+
+// stl includes
+#include <iostream>
+#include <string>
+
+// forward declares
 class TChain;
+
 
 class AcdJobConfig {
 

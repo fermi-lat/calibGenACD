@@ -2,92 +2,107 @@
 #ifndef AcdGainFit_h
 #define AcdGainFit_h
 
+// Base classes
 #include "AcdCalibResult.h"
-#include "AcdCalibMap.h"
+#include "AcdCalibFit.h"
 
+// stl includes
+#include <string>
+
+// ROOT includes
 #include "TH1.h"
-#include <map>
 
+// forward declares
 class AcdHistCalibMap;
 
-class AcdGainFitResult : public AcdCalibResult {
+
+class AcdGainFitDesc : public AcdCalibDescription {
 
 public:
 
-  AcdGainFitResult(Float_t peak, Float_t width, STATUS status);
-  AcdGainFitResult();
-
-  inline Float_t peak() const { return _peak; }
-  inline Float_t width() const { return _width; }
-  
-  inline void setVals(Float_t peak, Float_t width, STATUS status) {
-    _peak = peak; _width = width;
-    setStatus(status);
-  }
-
-  virtual void makeXmlNode(DomElement& node) const;
-  virtual void printTxtLine(ostream& os) const;
-  virtual Bool_t readTxt(istream& is);
+  static const AcdGainFitDesc& ins();
 
 private:
-  Float_t _peak;
-  Float_t _width;
-  
-  ClassDef(AcdGainFitResult,1);
-};
 
-
-class AcdGainFitMap : public AcdCalibMap {
-public:
-  AcdGainFitMap();
-  virtual ~AcdGainFitMap();
-
-  virtual AcdCalibResult* createHolder() const { return new AcdGainFitResult; }
-
-  AcdGainFitResult* find(UInt_t key) {
-    AcdCalibResult* res = get(key);
-    if ( res == 0 ) return 0;
-    AcdGainFitResult* fr = static_cast<AcdGainFitResult*>(res);
-    return fr;
-  }
-
-  virtual const char* calibType() const {
-    return "ACD_Gain";
-  }
-
-  virtual const char* txtFormat() const {
-    return "TILE PMT PEAK WIDTH STATUS";
-  }
-
-private:  
-
-  ClassDef(AcdGainFitMap,0) ;
-};
-
-
-class AcdGainFit {
+  static const std::string s_calibType;
+  static const std::string s_txtFormat;
 
 public:
 
-  AcdGainFit();
+  AcdGainFitDesc();
+  virtual ~AcdGainFitDesc(){;};
 
-  virtual ~AcdGainFit();
+private:
   
-  virtual Int_t fit(AcdGainFitResult& result, const TH1& hist);
+  ClassDef(AcdGainFitDesc,1);
+};
 
-  virtual Int_t fitChannel(AcdGainFitMap& result, AcdHistCalibMap& input, UInt_t key);
 
-  void fitAll(AcdGainFitMap& results, AcdHistCalibMap& hists);
+
+
+class AcdGainFitLibrary : public AcdCalibFit {
+
+public:
+  
+  static Int_t findLowestNonZeroBin(const TH1& hist);
+  static Int_t findNextLocalMax(const TH1& hist, Int_t startBin);
+  static Int_t findNextLocalMin(const TH1& hist, Int_t startBin); 
+  static Int_t findHalfMaxHigh(const TH1& hist, Int_t maxBin);
+  static Int_t findHalfMaxLow(const TH1& hist, Int_t maxBin);
+
+  static Int_t extractFeatures(Bool_t removePed, const TH1& hist, Int_t rebin, 
+			       Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax);
+
+public:
+
+  enum FitType { None = 0, 
+		 Stats = 1,
+		 Fallback = 2,
+		 Landau = 3,
+		 P7 = 4,
+		 P5 = 5,
+		 LogNormal = 6 };
+
+public:
+
+  AcdGainFitLibrary(FitType type, Bool_t pedRemove = kTRUE)
+    :AcdCalibFit(&AcdGainFitDesc::ins()),
+     _type(type),_pedRemove(pedRemove){}
+
+  AcdGainFitLibrary(){}
+
+  virtual ~AcdGainFitLibrary() {;}
+  
+  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+
+  inline FitType fitType() const { return _type; };
+  inline void setFitType(FitType type) { _type = type; };
+
+  inline Bool_t pedRemove() const { return _pedRemove; };
+  inline void setPedRemove(Bool_t val) { _pedRemove = val; };
 
   virtual const char* algorithm() const {
-    static const char* def("Default");
-    return def;
+    static const char* names[7] = {"None","Stats","Fallback","Landau","P7","P5","LogNormal"};
+    return names[_type];
   }
+
+protected:
+
+  Int_t stats(AcdCalibResult& result, const TH1& hist);
+  Int_t fallback(AcdCalibResult& result, const TH1& hist);
+  Int_t fitLandau(AcdCalibResult& result, const TH1& hist);
+  Int_t fitP7(AcdCalibResult& result, const TH1& hist);
+  Int_t fitP5(AcdCalibResult& result, const TH1& hist);
+  Int_t fitLogNormal(AcdCalibResult& result, const TH1& hist);
 
 private:
   
-  ClassDef(AcdGainFit,0) ;
+  FitType _type;
+  Bool_t _pedRemove;
+
+  ClassDef(AcdGainFitLibrary,0) ;
 };
+
 
 #endif
 

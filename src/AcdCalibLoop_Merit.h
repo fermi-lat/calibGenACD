@@ -1,21 +1,19 @@
 #ifndef AcdCalibLoop_Merit_h
 #define AcdCalibLoop_Merit_h 
 
+
+// base class
 #include "AcdCalibBase.h"
 
-#include "TTree.h"
-#include "TH1.h"
-#include "TChain.h"
+// stl includes
 #include <iostream>
 
-#include "./AcdGainFit.h"
-#include "./AcdPedestalFit.h"
-
+// forward declares
 class AcdTkrIntersection;
 class AcdDigi;
 class DigiEvent;
 class ReconEvent;
-
+class TTree;
 
 class AcdCalibLoop_Merit : public AcdCalibBase {
 
@@ -26,26 +24,11 @@ public :
   
   virtual ~AcdCalibLoop_Merit();  
 
-  /// for writing output files
-  virtual void writeXmlHeader(DomElement& node) const;
-  virtual void writeTxtHeader(ostream& os) const;
-  
-  Bool_t readPedestals(const char* fileName);
-  Bool_t readGains(const char* fileName);    
-
   inline TTree* outputTree() { return m_outputTree; }
 
 protected:
 
   Bool_t attachChains();
-
-  // return the total number of events in the chains
-  virtual int getTotalEvents() const { 
-    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
-    if ( m_reconChain != 0 ) { return (int)(m_reconChain->GetEntries()); }
-    if ( m_meritChain != 0 ) { return (int)(m_meritChain->GetEntries()); }
-    return 0;
-  } 
 
   // read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
@@ -56,11 +39,6 @@ protected:
   Float_t toMip(UInt_t channel, Int_t pha) const;
 
 private:
-
-  /// TChain input
-  TChain      *m_digiChain;
-  TChain      *m_reconChain;
-  TChain      *m_meritChain;
 
   /// pointer to a ReconEvent
   DigiEvent* m_digiEvent;
@@ -90,10 +68,7 @@ private:
   Int_t m_hit;
 
   TTree* m_outputTree;
- 
-  AcdGainFitMap* m_gains;
-  AcdPedestalFitMap* m_peds;
-  
+   
   ClassDef(AcdCalibLoop_Merit,0) ;
     
 };

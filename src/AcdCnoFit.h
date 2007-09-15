@@ -2,84 +2,84 @@
 #ifndef AcdCnoFit_h
 #define AcdCnoFit_h
 
+// Base classes
 #include "AcdCalibResult.h"
-#include "AcdCalibMap.h"
+#include "AcdCalibFit.h"
 
+// stl includes
+#include <string>
+
+// ROOT includes
 #include "TH1.h"
-#include <map>
 
+// forward declares
 class AcdHistCalibMap;
 
-class AcdCnoFitResult : public AcdCalibResult {
+
+class AcdCnoFitDesc : public AcdCalibDescription {
 
 public:
 
-  AcdCnoFitResult(Float_t cno, Float_t width, STATUS status);
-  AcdCnoFitResult();
-
-  inline Float_t cno() const { return _cno; }
-  inline Float_t width() const { return _width; }
-  
-  inline void setVals(Float_t cno, Float_t width, STATUS status) {
-    _cno = cno; _width = width;
-    setStatus(status);
-  }
-
-  virtual void makeXmlNode(DomElement& node) const;
-  virtual void printTxtLine(ostream& os) const;
-  virtual Bool_t readTxt(istream& is);
+  static const AcdCnoFitDesc& ins();
 
 private:
-  Float_t _cno;
-  Float_t _width;
-  
-  ClassDef(AcdCnoFitResult,1);
-};
 
-
-class AcdCnoFitMap : public AcdCalibMap {
-public:
-  AcdCnoFitMap();
-  virtual ~AcdCnoFitMap();
-
-  virtual AcdCalibResult* createHolder() const { return new AcdCnoFitResult; }
-
-  virtual const char* calibType() const {
-    return "ACD_Cno";
-  }
-
-  virtual const char* txtFormat() const {
-    return "TILE PMT CNO WIDTH STATUS";
-  }
-
-private:  
-
-  ClassDef(AcdCnoFitMap,0) ;
-};
-
-
-class AcdCnoFit {
+  static const std::string s_calibType; // "ACD_Cno";
+  static const std::string s_txtFormat; //"TILE PMT CNO WIDTH STATUS";
 
 public:
 
-  AcdCnoFit();
+  AcdCnoFitDesc();
+  virtual ~AcdCnoFitDesc(){;};
 
-  virtual ~AcdCnoFit();
+private:
   
-  virtual Int_t fit(AcdCnoFitResult& result, const TH1& hist);
+  ClassDef(AcdCnoFitDesc,1);
+};
 
-  virtual Int_t fitChannel(AcdCnoFitMap& result, AcdHistCalibMap& input, UInt_t key);
 
-  void fitAll(AcdCnoFitMap& results, AcdHistCalibMap& hists);
+class AcdCnoFitLibrary : public AcdCalibFit {
+
+public:
+  
+  static Int_t findFirstBinAboveVal(const TH1& hist, Float_t val);
+
+public:
+
+  enum FitType { None = 0, 
+		 Counting = 1,
+		 Erf = 2 };
+
+public:
+
+  AcdCnoFitLibrary(FitType type)
+    :AcdCalibFit(&AcdCnoFitDesc::ins()),
+    _type(type){}
+
+  AcdCnoFitLibrary(){}
+
+  virtual ~AcdCnoFitLibrary() {;}
+  
+  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+
+  inline FitType fitType() const { return _type; };
+  inline void setFitType(FitType type) { _type = type; };
 
   virtual const char* algorithm() const {
-    static const char* def("Default");
-    return def;
+    static const char* names[3] = {"None","Counting","Erf"};
+    return names[_type];
   }
+
+protected:
+
+  Int_t counting(AcdCalibResult& result, const TH1& hist);
+  Int_t fitErf(AcdCalibResult& result, const TH1& hist);
 
 private:
   
-  ClassDef(AcdCnoFit,0) ;
+  FitType _type;
+
+  ClassDef(AcdCnoFitLibrary,0) ;
 };
 
 #endif

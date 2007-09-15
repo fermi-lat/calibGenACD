@@ -1,7 +1,8 @@
-#include <fstream>
+#include "AcdCalibLoop_Merit.h"
+
 #include "TH1F.h"
 #include "TF1.h"
-#include "AcdCalibLoop_Merit.h"
+#include "TChain.h"
 
 #include "AcdCalibUtil.h"
 #include "AcdMap.h"
@@ -11,6 +12,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <fstream>
 
 using std::cout;
 using std::cerr;
@@ -20,14 +22,13 @@ using std::string;
 ClassImp(AcdCalibLoop_Merit) ;
 
 AcdCalibLoop_Merit::AcdCalibLoop_Merit(TChain& digiChain, TChain& reconChain, TChain& meritChain)
-  :AcdCalibBase(AcdCalibBase::MERIT), 
-   m_digiChain(&digiChain),
-   m_reconChain(&reconChain),
-   m_meritChain(&meritChain),
+  :AcdCalibBase(AcdCalib::MERITCALIB), 
    m_digiEvent(0),
-   m_reconEvent(0),
-   m_gains(0),
-   m_peds(0){
+   m_reconEvent(0){
+
+  setChain(AcdCalib::DIGI,&digiChain);
+  setChain(AcdCalib::RECON,&reconChain);
+  setChain(AcdCalib::MERIT,&meritChain);    
   
   Bool_t ok = attachChains();
   if ( ! ok ) {
@@ -43,43 +44,47 @@ AcdCalibLoop_Merit::~AcdCalibLoop_Merit()
 }
 
 Bool_t AcdCalibLoop_Merit::attachChains() {
-  if (m_digiChain != 0) {
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  TChain* reconChain = getChain(AcdCalib::RECON);
+  TChain* meritChain = getChain(AcdCalib::MERIT);
+
+  if (digiChain != 0) {
     m_digiEvent = 0;
-    m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
-    m_digiChain->SetBranchStatus("*",0);  // disable all branches
+    digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
+    digiChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_digiChain->SetBranchStatus("m_acd*",1);
-    m_digiChain->SetBranchStatus("m_eventId", 1); 
-    m_digiChain->SetBranchStatus("m_runId", 1);
+    digiChain->SetBranchStatus("m_acd*",1);
+    digiChain->SetBranchStatus("m_eventId", 1); 
+    digiChain->SetBranchStatus("m_runId", 1);
   }
   
-  if (m_reconChain != 0) {
+  if (reconChain != 0) {
     m_reconEvent = 0;
-    m_reconChain->SetBranchAddress("ReconEvent", &m_reconEvent);
-    m_reconChain->SetBranchStatus("*",0);  // disable all branches
+    reconChain->SetBranchAddress("ReconEvent", &m_reconEvent);
+    reconChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_reconChain->SetBranchStatus("m_acd",1);
-    m_reconChain->SetBranchStatus("m_eventId", 1); 
-    m_reconChain->SetBranchStatus("m_runId", 1);
+    reconChain->SetBranchStatus("m_acd",1);
+    reconChain->SetBranchStatus("m_eventId", 1); 
+    reconChain->SetBranchStatus("m_runId", 1);
   }
   
-  if(m_meritChain ) {
-    m_meritChain->SetBranchStatus("*",0);
+  if(meritChain ) {
+    meritChain->SetBranchStatus("*",0);
     
-    m_meritChain->SetBranchStatus("TkrNumTracks",1);
-    m_meritChain->SetBranchAddress("TkrNumTracks",&m_TkrNumTracks);
+    meritChain->SetBranchStatus("TkrNumTracks",1);
+    meritChain->SetBranchAddress("TkrNumTracks",&m_TkrNumTracks);
 
-    m_meritChain->SetBranchStatus("Tkr1SSDVeto",1);
-    m_meritChain->SetBranchAddress("Tkr1SSDVeto",&m_Tkr1SSDVeto);
+    meritChain->SetBranchStatus("Tkr1SSDVeto",1);
+    meritChain->SetBranchAddress("Tkr1SSDVeto",&m_Tkr1SSDVeto);
 
-    m_meritChain->SetBranchStatus("Tkr1Hits",1);
-    m_meritChain->SetBranchAddress("Tkr1Hits",&m_Tkr1Hits);
+    meritChain->SetBranchStatus("Tkr1Hits",1);
+    meritChain->SetBranchAddress("Tkr1Hits",&m_Tkr1Hits);
 
-    m_meritChain->SetBranchStatus("Tkr1Chisq",1);
-    m_meritChain->SetBranchAddress("Tkr1Chisq",&m_Tkr1Chisq);
+    meritChain->SetBranchStatus("Tkr1Chisq",1);
+    meritChain->SetBranchAddress("Tkr1Chisq",&m_Tkr1Chisq);
 
-    m_meritChain->SetBranchStatus("CalMIPRatio",1);
-    m_meritChain->SetBranchAddress("CalMIPRatio",&m_CalMIPRatio);
+    meritChain->SetBranchStatus("CalMIPRatio",1);
+    meritChain->SetBranchAddress("CalMIPRatio",&m_CalMIPRatio);
     
 
   }
@@ -113,9 +118,13 @@ Bool_t AcdCalibLoop_Merit::readEvent(int ievent, Bool_t& filtered,
   if(m_digiEvent) m_digiEvent->Clear();
   if(m_reconEvent) m_reconEvent->Clear();
 
-  if(m_meritChain) {
-    m_meritChain->LoadTree(ievent);
-    m_meritChain->GetEvent(ievent);
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  TChain* reconChain = getChain(AcdCalib::RECON);
+  TChain* meritChain = getChain(AcdCalib::MERIT);
+
+  if(meritChain) {
+    meritChain->LoadTree(ievent);
+    meritChain->GetEvent(ievent);
   }
 
   // filter on the merit quantities
@@ -131,13 +140,13 @@ Bool_t AcdCalibLoop_Merit::readEvent(int ievent, Bool_t& filtered,
   if ( m_CalMIPRatio > 1.5) filtered = kTRUE;
   if ( filtered ) return kTRUE;
   
-  if(m_digiChain) { 
-    m_digiChain->GetEvent(ievent);
+  if(digiChain) { 
+    digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
   }
  
-  if(m_reconChain) m_reconChain->GetEvent(ievent);  
+  if(reconChain) reconChain->GetEvent(ievent);  
   if(m_digiEvent && m_reconEvent) {
     int reconEventId = m_reconEvent->getEventId(); 
     int reconRunNum = m_reconEvent->getRunId();
@@ -301,42 +310,19 @@ void AcdCalibLoop_Merit::useEvent(Bool_t& used) {
 }
 
 
-Bool_t AcdCalibLoop_Merit::readPedestals(const char* fileName) {
-  Bool_t latchVal = readCalib(PEDESTAL,fileName);
-  AcdCalibMap* map = getCalibMap(PEDESTAL);
-  m_peds = (AcdPedestalFitMap*)(map);
-  return latchVal;
-}
-
-
-Bool_t AcdCalibLoop_Merit::readGains(const char* fileName) {
-  Bool_t latchVal = readCalib(GAIN,fileName);
-  AcdCalibMap* map = getCalibMap(GAIN);
-  m_gains = (AcdGainFitMap*)(map);
-  return latchVal;
-}
-
-/// for writing output files
-void AcdCalibLoop_Merit::writeXmlHeader(DomElement& node) const {
-  AcdCalibBase::writeXmlHeader(node);
-}
-
-void AcdCalibLoop_Merit::writeTxtHeader(ostream& os) const {
-  AcdCalibBase::writeTxtHeader(os);
-}
-
 Float_t AcdCalibLoop_Merit::toMip(UInt_t channel, Int_t pha) const {
   if ( pha == 0 ) return 0.; 
-  if ( m_peds == 0 ) return -100.;
-  if ( m_gains == 0 ) return -200.;
-  const AcdPedestalFitResult* pedRes = m_peds->find(channel);
-  if ( pedRes == 0 ) return -300.;
-  Float_t ped = pedRes->mean();
+
+  Float_t ped = getPeds(channel);
+  if ( ped < 0 ) return -100;
+
   Float_t redPha = (Float_t)(pha) - ped;
-  const AcdGainFitResult* gainRes = m_gains->find(channel);
-  if ( gainRes == 0 ) return -400.;
-  Float_t peak = gainRes->peak();
-  peak -= ped;
-  redPha /= peak;
+  
+  // FIXME
+  // Float_t mipPeak = getGains(channel);
+  Float_t mipPeak = 1000.;
+  if ( mipPeak < 0 ) return -200.;
+  mipPeak -= ped;
+  redPha /= mipPeak;
   return redPha;
 }

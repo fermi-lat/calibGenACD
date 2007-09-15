@@ -1,14 +1,10 @@
 #ifndef AcdCalibLoop_Svac_h
 #define AcdCalibLoop_Svac_h 
 
+// base classs
 #include "AcdCalibBase.h"
 
-#include "./AcdGainFit.h"
-#include "./AcdPedestalFit.h"
-
-#include "TTree.h"
-#include "TH1.h"
-#include "TChain.h"
+// stl includes
 #include <iostream>
 
 
@@ -21,16 +17,7 @@ public :
   AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibLoop_Svac();  
-
-  // this just call down to the fitAll() routine in the fitter
-  AcdGainFitMap* fitGains(AcdGainFit& fitter);
   
-  Bool_t readPedestals(const char* fileName);
-
-  /// for writing output files
-  virtual void writeXmlSources(DomElement& node) const;
-  virtual void writeTxtSources(ostream& os) const;
-
 protected:
 
   Bool_t attachChains();
@@ -40,12 +27,6 @@ protected:
     
   // 
   void fillGainHistCorrect(unsigned id, float pathLength);
-
-  // return the total number of events in the chains
-  virtual int getTotalEvents() const { 
-    if ( m_svacChain != 0 ) { return (int)(m_svacChain->GetEntries()); }
-    return 0;
-  } 
 
   // read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
@@ -59,9 +40,6 @@ private:
   // Local options
   Bool_t      m_correctPathLength;
 
-  /// TChain input
-  TChain      *m_svacChain;
-
   //  Variables that we need
   Int_t  m_AcdPha[604][2];
   Int_t  m_AcdRange[604][2];
@@ -74,9 +52,6 @@ private:
   // 
   AcdHistCalibMap* m_gainHists;
     
-  AcdGainFitMap* m_gains;
-  AcdPedestalFitMap* m_peds;
-
   ClassDef(AcdCalibLoop_Svac,0) ;
     
 };

@@ -1,39 +1,31 @@
-#include <fstream>
-#include "TH1F.h"
-#include "TF1.h"
 #include "AcdCalibLoop_Svac.h"
 
-#include "AcdHistCalibMap.h"
-#include "AcdPedestalFit.h"
-#include "AcdGainFit.h"
-#include "AcdCalibUtil.h"
+#include "TH1F.h"
+#include "TChain.h"
 
-#include "digiRootData/DigiEvent.h"
-#include "reconRootData/ReconEvent.h"
+#include "AcdHistCalibMap.h"
+#include "AcdCalibUtil.h"
+#include "AcdCalibMap.h"
+
+#include "digiRootData/AcdDigi.h"
 
 #include <cassert>
 #include <cmath>
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
 
 ClassImp(AcdCalibLoop_Svac) ;
 
 AcdCalibLoop_Svac::AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(AcdCalibBase::GAIN,config),
+  :AcdCalibBase(AcdCalib::GAIN,config),
    m_correctPathLength(correctPathLength),
-   m_svacChain(svacChain),
-   m_gainHists(0),
-   m_gains(0),
-   m_peds(0){
+   m_gainHists(0){
 
-  m_gainHists = bookHists(H_GAIN,256,-0.5,4095.5);
+  setChain(AcdCalib::SVAC,svacChain);
+  m_gainHists = bookHists(AcdCalib::H_GAIN,256,-0.5,4095.5);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {
-    cerr << "ERR:  Failed to attach to input chains."  << endl;
+    std::cerr << "ERR:  Failed to attach to input chains."  << std::endl;
   }
 }
 
@@ -43,26 +35,27 @@ AcdCalibLoop_Svac::~AcdCalibLoop_Svac()
 }
 
 Bool_t AcdCalibLoop_Svac::attachChains() {
-  if (m_svacChain != 0) {
-    m_svacChain->SetBranchStatus("*",0);  // disable all branches
+  TChain* svacChain =getChain(AcdCalib::SVAC);
+  if (svacChain != 0) {
+    svacChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_svacChain->SetBranchAddress("AcdPha",&(m_AcdPha[0][0]));
-    m_svacChain->SetBranchStatus("AcdPha",1);
+    svacChain->SetBranchAddress("AcdPha",&(m_AcdPha[0][0]));
+    svacChain->SetBranchStatus("AcdPha",1);
 
-    m_svacChain->SetBranchAddress("AcdRange",&(m_AcdRange[0][0]));
-    m_svacChain->SetBranchStatus("AcdRange", 1); 
+    svacChain->SetBranchAddress("AcdRange",&(m_AcdRange[0][0]));
+    svacChain->SetBranchStatus("AcdRange", 1); 
 
-    m_svacChain->SetBranchAddress("AcdNumTkrIntSec",&m_AcdNumTkrIntSec);
-    m_svacChain->SetBranchStatus("AcdNumTkrIntSec", 1);
+    svacChain->SetBranchAddress("AcdNumTkrIntSec",&m_AcdNumTkrIntSec);
+    svacChain->SetBranchStatus("AcdNumTkrIntSec", 1);
 
-    m_svacChain->SetBranchAddress("AcdTkrIntSecTileId",&(m_AcdTkrIntSecTileId[0]));
-    m_svacChain->SetBranchStatus("AcdTkrIntSecTileId", 1);    
+    svacChain->SetBranchAddress("AcdTkrIntSecTileId",&(m_AcdTkrIntSecTileId[0]));
+    svacChain->SetBranchStatus("AcdTkrIntSecTileId", 1);    
 
-    m_svacChain->SetBranchAddress("AcdTkrIntSecTkrIndex",&(m_AcdTkrIntSecTkrIndex[0]));
-    m_svacChain->SetBranchStatus("AcdTkrIntSecTkrIndex", 1);    
+    svacChain->SetBranchAddress("AcdTkrIntSecTkrIndex",&(m_AcdTkrIntSecTkrIndex[0]));
+    svacChain->SetBranchStatus("AcdTkrIntSecTkrIndex", 1);    
 
-    m_svacChain->SetBranchAddress("AcdTkrIntSecPathLengthInTile",&(m_AcdTkrIntSecPathLengthInTile[0]));
-    m_svacChain->SetBranchStatus("AcdTkrIntSecPathLengthInTile", 1);
+    svacChain->SetBranchAddress("AcdTkrIntSecPathLengthInTile",&(m_AcdTkrIntSecPathLengthInTile[0]));
+    svacChain->SetBranchStatus("AcdTkrIntSecPathLengthInTile", 1);
     
   }
 
@@ -93,13 +86,12 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength) {
   UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
 
-  AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
-  AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);
+  float pedA = getPeds(keyA);
+  float pedB = getPeds(keyB);
+  if ( pedA < 0 || pedB < 0 ) return;
 
-  if ( pedRes_A == 0 && pedRes_B == 0 ) return;
-
-  Float_t redPha_A = ((Float_t)(pmt0)) - pedRes_A->mean();
-  Float_t redPha_B = ((Float_t)(pmt1)) - pedRes_B->mean();
+  Float_t redPha_A = ((Float_t)(pmt0)) - pedA;
+  Float_t redPha_B = ((Float_t)(pmt1)) - pedB;
 
   if ( m_correctPathLength ) {
     redPha_A /= pathFactor;
@@ -118,8 +110,9 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength) {
 Bool_t AcdCalibLoop_Svac::readEvent(int ievent, Bool_t& filtered, 
 				   int& /* runId */, int& /*evtId*/) {
   
-  if(m_svacChain) { 
-    m_svacChain->GetEvent(ievent);
+  TChain* svacChain =getChain(AcdCalib::SVAC);
+  if(svacChain) { 
+    svacChain->GetEvent(ievent);
   }
   filtered = kFALSE;
   
@@ -135,51 +128,11 @@ void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
 
     if ( m_AcdTkrIntSecTkrIndex[i] > 0 ) continue;
 
+    used = kTRUE;
     unsigned id = m_AcdTkrIntSecTileId[i];
     float path = m_AcdTkrIntSecPathLengthInTile[i];
 
     fillGainHistCorrect(id,path);
   }
+
 }
-
-AcdGainFitMap* AcdCalibLoop_Svac::fitGains(AcdGainFit& fitter) {
-  m_gains = new AcdGainFitMap;
-  addCalibration(GAIN,*m_gains);
-  AcdHistCalibMap* hists = getHistMap(GAIN);
-  fitter.fitAll(*m_gains,*hists);
-  return m_gains;
-}  
-
-Bool_t AcdCalibLoop_Svac::readPedestals(const char* fileName) {
-  Bool_t latchVal = readCalib(PEDESTAL,fileName);
-  AcdCalibMap* map = getCalibMap(PEDESTAL);
-  m_peds = (AcdPedestalFitMap*)(map);
-  return latchVal;
-}
-
-void AcdCalibLoop_Svac::writeXmlSources(DomElement& node) const{
-  //std::string pedFileName;
-  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  //os << "pedestalFile=" << pedFileName << std::endl;
-  //TObjArray* files = m_svacChain != 0 ? m_svacChain->GetListOfFiles() : 0;
-  //if ( files != 0 ) {
-  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-  //    TObject* obj = files->At(i);
-  //    os << "inputSvac=" << obj->GetTitle() << std::endl;
-  //  }
-  //}
-}
-
-void AcdCalibLoop_Svac::writeTxtSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "#pedestalFile = " << pedFileName << endl;
-  TObjArray* files = m_svacChain != 0 ? m_svacChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "#inputSvacFile = " << obj->GetTitle() << endl;
-    }
-  }
-}
-

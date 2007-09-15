@@ -1,98 +1,61 @@
 #define AcdRangeFit_cxx
 
-#include "AcdHistCalibMap.h"
 #include "AcdRangeFit.h"
-#include "AcdMap.h"
 
-#include "AcdXmlUtil.h"
-#include "DomElement.h"
+#include "AcdCalibEnum.h"
+#include "AcdHistCalibMap.h"
 
-#include <iostream>
-#include <fstream>
+#include "TF1.h"
 
-ClassImp(AcdRangeFitResult) ;
+ClassImp(AcdRangeFitDesc) ;
 
-AcdRangeFitResult::AcdRangeFitResult(UInt_t low, UInt_t high, STATUS status) 
-  :AcdCalibResult(status),
-   _low(low),
-   _high(high){
+const std::string AcdRangeFitDesc::s_calibType("ACD_Range");
+const std::string AcdRangeFitDesc::s_txtFormat("TILE PMT LOW_MAX HIGH_MIN STATUS");
+
+const AcdRangeFitDesc& AcdRangeFitDesc::ins() {
+  static const AcdRangeFitDesc desc;
+  return desc;
 }
 
-AcdRangeFitResult::AcdRangeFitResult()
-  :AcdCalibResult(),
-   _low(0),
-   _high(0){
+AcdRangeFitDesc::AcdRangeFitDesc()
+  :AcdCalibDescription(AcdCalib::RANGE,s_calibType,s_txtFormat){
+  addVarName("low_max");
+  addVarName("high_min");
 }
 
-void AcdRangeFitResult::makeXmlNode(DomElement& node) const {
-  DomElement rangeNode = AcdXmlUtil::makeChildNode(node,"acdRange");
-  AcdXmlUtil::addAttribute(rangeNode,"low",(Int_t)_low);
-  AcdXmlUtil::addAttribute(rangeNode,"high",(Int_t)_high);
-  AcdXmlUtil::addAttribute(rangeNode,"status",getStatus());
-};
 
-void AcdRangeFitResult::printTxtLine(ostream& os) const {
-  os << _low << ' ' << _high << ' ' << getStatus();     
-};
-
-Bool_t AcdRangeFitResult::readTxt(istream& is) { 
-  UInt_t low, high;
-  Int_t stat;
-  is >> low >> high >> stat;
-  setVals(low, high,(STATUS)stat);
-  return kTRUE;
-};  
+ClassImp(AcdRangeFitLibrary) ;
 
 
-ClassImp(AcdRangeFitMap) ;
+Int_t AcdRangeFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
 
-AcdRangeFitMap::AcdRangeFitMap(){;}
-
-AcdRangeFitMap::~AcdRangeFitMap(){;}
-
-ClassImp(AcdRangeFit) ;
-
-AcdRangeFit::AcdRangeFit(){;}
-
-AcdRangeFit::~AcdRangeFit() {;}
-
-Int_t AcdRangeFit::fit(AcdRangeFitResult& result, const TH1& /* low */, const TH1& /* high */) {
-  result.setVals(0.,0.,AcdRangeFitResult::NOFIT);
-  return result.getStatus();
-}
-
-void AcdRangeFit::fitAll(AcdRangeFitMap& results, AcdHistCalibMap& lowHists, AcdHistCalibMap& highHists) {
-  TList& theHists = const_cast<TList&>(lowHists.histograms());
-  TListIter itr(&theHists);
-  while ( TObject* obj = itr() ) {
-    TH1* lowhist = static_cast<TH1*>(obj);
-    UInt_t key = lowhist->GetUniqueID();
-    TH1* highhist = highHists.getHist(key);
-    if ( highhist == 0 ) {
-      std::cerr << "No High histogram w/ key " << key << " to fit" << std::endl;
-      return;
+  TH1& lowhist = const_cast<TH1&>(*(holder.getHist(0)));
+  TH1& highhist = const_cast<TH1&>(*(holder.getHist(1)));
+ 
+  Int_t returnCode = AcdCalibResult::NOFIT;
+  if ( _type == None ) {
+    return returnCode;
+  }
+  UInt_t nB = lowhist.GetNbinsX();
+  UInt_t hiRange(0);
+  for ( UInt_t i(1); i <= nB; i++ ) {
+    if ( highhist.GetBinContent(i) > 0 ) {
+      hiRange = i;
+      break;
     }
-    AcdRangeFitResult* theResult = new AcdRangeFitResult;
-    fit(*theResult,*lowhist,*highhist);
-    results.add(key,*theResult);
-  } 
+  }
+  UInt_t lowRange(0);
+  for ( UInt_t j(nB); j > 0; j-- ) {
+    if ( lowhist.GetBinContent(j) > 0 ) {
+     lowRange = j;
+     break;
+    }
+  }
+  returnCode = AcdCalibResult::OK;
+  result.setVals(lowRange,hiRange,AcdCalibResult::OK);
+  return returnCode;
 }
 
-Int_t AcdRangeFit::fitChannel(AcdRangeFitMap& result, AcdHistCalibMap& low, AcdHistCalibMap& high, UInt_t key) {
-  
-  TH1* lowhist = low.getHist(key);
-  TH1* highhist = high.getHist(key);
-  
-  if ( lowhist == 0 ) {
-    std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
-    return 0;
-  }
-  AcdRangeFitResult* theResult = static_cast<AcdRangeFitResult*>(result.get(key));
-  if ( theResult == 0 ) {
-    theResult = new AcdRangeFitResult;
-    result.add(key,*theResult);
-  }
-  
-  return fit(*theResult,*lowhist,*highhist);
 
-}
+
+

@@ -8,24 +8,28 @@
 #ifndef AcdCalibLoop_Bench_h
 #define AcdCalibLoop_Bench_h
 
+// base class
 #include "AcdCalibBase.h"
 
+// local includes
+#include "AcdCalibEnum.h"
+#include "AcdHistCalibMap.h"
+
+// ROOT includes
 #include "TROOT.h"
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1.h"
 
-#include "AcdHistCalibMap.h"
-
-#include "./AcdGainFit.h"
-#include "./AcdPedestalFit.h"
-
+// stl includes
 #include <iostream>
 #include <sstream>
 #include <vector>
 #include <set>
 #include <map>
 #include <string>
+
+
 
 class AcdCalibLoop_Bench : public AcdCalibBase {
 
@@ -85,21 +89,13 @@ private:
 
 public:
 
-  AcdCalibLoop_Bench(CALTYPE t, TTree *tree=0, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Bench(AcdCalib::CALTYPE t, TChain *tree=0, AcdMap::Config config = AcdMap::LAT);
   virtual ~AcdCalibLoop_Bench();
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
-
-  // these two just call down to the fitAll() routines in the fitters
-  AcdPedestalFitMap* fitPedestals(AcdPedestalFit& fitter);
-  AcdGainFitMap* fitGains(AcdGainFit& fitter);
-
-  /// for writing the list of input files  
-  virtual void writeXmlSources(DomElement& node) const;
-  virtual void writeTxtSources(ostream& os) const;
 
 protected:
 
@@ -114,11 +110,6 @@ protected:
   // these is emulate the cuts in ReadActNtuple
   Bool_t applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits);
 
-  // return the total number of events in the chains
-  virtual int getTotalEvents() const { 
-    return fChain != 0 ? (int)(fChain->GetEntries()) : 0; 
-  } 
-
   // read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
 			   int& /*runId*/, int& /*evtId*/);
@@ -130,9 +121,6 @@ private:
   AcdHistCalibMap* m_pedHists;
   AcdHistCalibMap* m_gainHists;
   
-  AcdGainFitMap* m_gains;
-  AcdPedestalFitMap* m_peds;
-
   ClassDef(AcdCalibLoop_Bench,0) ;
 
 };
@@ -141,11 +129,13 @@ private:
 
 #ifdef AcdCalibLoop_Bench_cxx
 
-AcdCalibLoop_Bench::AcdCalibLoop_Bench(CALTYPE t, TTree *tree, AcdMap::Config config)
+AcdCalibLoop_Bench::AcdCalibLoop_Bench(AcdCalib::CALTYPE t, TChain *tree, AcdMap::Config config)
   :AcdCalibBase(t,config)
 {
-  m_pedHists =  bookHists(PEDESTAL,4096,-0.5,4095.5);
-  m_gainHists = bookHists(GAIN,256,-0.5,4095.5);
+
+  setChain(AcdCalib::BENCH,tree);
+  m_pedHists =  bookHists(AcdCalib::H_RAW,4096,-0.5,4095.5);
+  m_gainHists = bookHists(AcdCalib::H_GAIN,256,-0.5,4095.5);
   Init(tree);
 }
 

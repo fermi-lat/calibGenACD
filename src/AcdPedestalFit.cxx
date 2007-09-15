@@ -1,112 +1,63 @@
 #define AcdPedestalFit_cxx
+
 #include "AcdPedestalFit.h"
+
 #include "AcdHistCalibMap.h"
-#include "AcdMap.h"
 
-#include "AcdXmlUtil.h"
-#include "DomElement.h"
+ClassImp(AcdPedestalFitDesc) ;
 
-#include <iostream>
-#include <fstream>
+const std::string AcdPedestalFitDesc::s_calibType("ACD_Ped");
+const std::string AcdPedestalFitDesc::s_txtFormat("TILE PMT MEAN WIDTH STATUS");
 
-ClassImp(AcdPedestalFitResult) ;
-
-AcdPedestalFitResult::AcdPedestalFitResult(Float_t mean, Float_t rms, STATUS status) 
-  :AcdCalibResult(status),
-   _mean(mean),_rms(rms){
+const AcdPedestalFitDesc& AcdPedestalFitDesc::ins() {
+  static const AcdPedestalFitDesc desc;
+  return desc;
 }
 
-AcdPedestalFitResult::AcdPedestalFitResult()
-  :AcdCalibResult(),
-   _mean(0.),_rms(0.){
+AcdPedestalFitDesc::AcdPedestalFitDesc()
+  :AcdCalibDescription(AcdCalib::PEDESTAL,s_calibType,s_txtFormat){
+  addVarName("mean");
+  addVarName("width");
 }
 
 
-void AcdPedestalFitResult::makeXmlNode(DomElement& node) const {
-  DomElement pedNode = AcdXmlUtil::makeChildNode(node,"acdPed");
-  AcdXmlUtil::addAttribute(pedNode,"mean",_mean);
-  AcdXmlUtil::addAttribute(pedNode,"width",_rms);
-  AcdXmlUtil::addAttribute(pedNode,"status",getStatus());
-};
+ClassImp(AcdPedestalFitLibrary) ;
 
-
-void AcdPedestalFitResult::printTxtLine(ostream& os) const {
-  os << _mean << ' ' << _rms << ' ' << getStatus();
-};
-
-Bool_t AcdPedestalFitResult::readTxt(istream& is) { 
-  Float_t mean, rms;
-  Int_t stat;
-  is >> mean >> rms >> stat;
-  setVals(mean,rms,(STATUS)stat);
-  return kTRUE;
-};  
-
-ClassImp(AcdPedestalFitMap) ;
-
-AcdPedestalFitMap::~AcdPedestalFitMap() {
-}
-
-
-
-//void AcdPedestalFitMap::writeXmlHeader(ostream& ped, 
-//				       const char* system,
-//				       const char* instrument,
-//				       const char* timestamp,
-//				       const char* version) const {  
-//  using std::endl;
-//  ped << "<!DOCTYPE acdCalib SYSTEM \"" << system << "\" [] >" << endl;
-//  ped << "<acdCalib>" << endl;
-//  ped << "<generic instrument=\"" << instrument 
-//      << "\" timestamp=\"" << timestamp 
-//      << "\" calibType=\"ACD_Ped\" "
-//      << "fmtVersion=\"" << version 
-//      << "\">" << endl;
-//  ped << "  <inputSample startTime=\"" << 0
-//      << "\" stopTime=\"" << 0
-//      << "\" triggers=\"" << 0
-//      << "\" source=\"" << 0
-//      << "\" mode=\"" << 0
-//      << "\"/>" << endl;
-// ped << "</generic>" << endl;
-//  ped << "<dimension nFace=\"7\" nRow=\"5\" nCol=\"5\"/>" << endl;    
-//}
-
-ClassImp(AcdPedestalFit) ;
-
-AcdPedestalFit::AcdPedestalFit() {
-}
-
-UInt_t AcdPedestalFit::fit(AcdPedestalFitResult& result, const TH1& /* hist */) {
-  result.setVals(0.,0.,AcdCalibResult::NOFIT);
-  return result.getStatus();
-}
-
-void AcdPedestalFit::fitAll(AcdPedestalFitMap& results, AcdHistCalibMap& hists) {
-  TList& theHists = const_cast<TList&>(hists.histograms());
-  TListIter itr(&theHists);
-  while ( TObject* obj = itr() ) {
-    TH1* hist = static_cast<TH1*>(obj);
-    UInt_t key = hist->GetUniqueID();
-    AcdPedestalFitResult* theResult = new AcdPedestalFitResult;
-    fit(*theResult,*hist);
-    results.add(key,*theResult);
-  } 
-}
-
-UInt_t AcdPedestalFit::fitChannel(AcdPedestalFitMap& result, AcdHistCalibMap& input, UInt_t key) {
+Int_t AcdPedestalFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
   
-  TH1* hist = input.getHist(key);
-  if ( hist == 0 ) {
-    std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
-    return 0;
-  }
-  AcdPedestalFitResult* theResult = static_cast<AcdPedestalFitResult*>(result.get(key));
-  if ( theResult == 0 ) {
-    theResult = new AcdPedestalFitResult;
-    result.add(key,*theResult);
+  Int_t returnCode(-1);
+  switch ( _type ) {
+  case None:
+    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    break;
+  case PeakValue:
+    returnCode = fitPeak(result,holder);
+    break;
+  case MeanValue:
+    returnCode = fitMean(result,holder);  
+    break;
   }
   
-  return fit(*theResult,*hist);
+  return returnCode;
+}
 
+UInt_t AcdPedestalFitLibrary::fitMean(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+  TH1& theHist = const_cast<TH1&>(*(holder.getHist(0)));
+  float av = theHist.GetMean(); 
+  float rms = theHist.GetRMS();
+  theHist.SetAxisRange(av-5*rms,av+5*rms);
+  av = theHist.GetMean(); rms = theHist.GetRMS();
+  theHist.SetAxisRange(av-5*rms,av+5*rms);
+  av = theHist.GetMean(); rms = theHist.GetRMS();
+  result.setVals(av,rms,AcdCalibResult::OK);
+  return 1;
+}
+
+
+UInt_t AcdPedestalFitLibrary::fitPeak(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+  TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
+  Long64_t maxbin = hist.GetMaximumBin(); //finds tallest bin
+  float pedestal = hist.GetBinCenter(maxbin); 
+  result.setVals(pedestal,0.,AcdCalibResult::OK);
+  return 1;
 }

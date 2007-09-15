@@ -17,35 +17,32 @@ use RootcintPolicy v* GlastPolicy
 
 # See RootPolicy for discussion of this pattern
 apply_pattern root_package headers="\
- ../src/AcdCalibBase.h\
- ../src/AcdCalibMap.h\
- ../src/AcdCalibResult.h\
+ ../src/AcdCalibEnum.h\
  ../src/AcdCalibVersion.h\
- ../src/AcdCalibUtil.h\
+ ../src/AcdCalibResult.h\
+ ../src/AcdCalibMap.h\
+ ../src/AcdMap.h\
+ ../src/AcdPadMap.h\
  ../src/AcdGarcGafeHits.h\
- ../src/AcdCoherentNoise.h\
+ ../src/AcdCalibFit.h\
+ ../src/AcdHistCalibMap.h\
+ ../src/AcdCalibUtil.h\
  ../src/AcdCoherentNoiseFit.h\
  ../src/AcdGainFit.h\
- ../src/AcdGainFitLibrary.h\
- ../src/AcdCnoFit.h\
- ../src/AcdCnoFitLibrary.h\
- ../src/AcdRangeFit.h\
- ../src/AcdRangeFitLibrary.h\
- ../src/AcdHistCalibMap.h\
- ../src/AcdMap.h\
- ../src/AcdJobConfig.h\
- ../src/AcdPadMap.h\
  ../src/AcdPedestalFit.h\
- ../src/AcdPedestalFitLibrary.h\
+ ../src/AcdCnoFit.h\
+ ../src/AcdStripFit.h\
+ ../src/AcdVetoFit.h\
+ ../src/AcdRangeFit.h\
+ ../src/AcdJobConfig.h\
+ ../src/AcdCalibBase.h\
  ../src/AcdCalibLoop_Bench.h\
  ../src/AcdCalibLoop_Digi.h\
  ../src/AcdCalibLoop_Merit.h\
  ../src/AcdCalibLoop_Recon.h\
  ../src/AcdCalibLoop_Svac.h\
- ../src/AcdStripChart.h\
- ../src/AcdStripFit.h\
- ../src/AcdVetoFit.h\
- ../src/AcdVetoFitLibrary.h"\
+ ../src/AcdCoherentNoise.h\
+ ../src/AcdStripChart.h"\
  includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"
 
 #the following prepend makes the includes folder available locally: avoid the package_include
@@ -70,6 +67,7 @@ application runMuonCalib_Tkr ../apps/runMuonCalib_Tkr.cxx
 application runMuonCalib_Svac ../apps/runMuonCalib_Svac.cxx
 application runPedestal ../apps/runPedestal.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
+application runCnoCalib ../apps/runCnoCalib.cxx
 application runMeritCalib ../apps/runMeritCalib.cxx
 application runStripChart ../apps/runStripChart.cxx
 application runCoherentNoise ../apps/runCoherentNoise.cxx

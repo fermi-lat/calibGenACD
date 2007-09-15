@@ -1,23 +1,19 @@
 #ifndef AcdCoherentNoise_h
 #define AcdCoherentNoise_h 
 
+// base class
 #include "AcdCalibBase.h"
 
-#include "./AcdGainFit.h"
-#include "./AcdPedestalFit.h"
-
-#include "TTree.h"
-#include "TH1.h"
-#include "TChain.h"
+// stl includes
 #include <iostream>
 #include <set>
 #include <map>
 #include <vector>
 
-class AcdTkrIntersection;
+// forward declares
 class AcdDigi;
 class DigiEvent;
-class ReconEvent;
+
 
 // this is just for stupid CINT
 class AcdBinDataMap {
@@ -58,12 +54,6 @@ public :
 
   void fillHistograms();
   
-  Bool_t readPedestals(const char* fileName);
-
-  /// for writing output files
-  virtual void writeXmlSources(DomElement& node) const;
-  virtual void writeTxtSources(ostream& os) const;
-
 protected:
 
   Bool_t attachChains();
@@ -76,12 +66,6 @@ protected:
 			   int& runId, int& evtId);    
 
   virtual void useEvent(Bool_t& used);
-  
-  // return the total number of events in the chains
-  virtual int getTotalEvents() const { 
-    if ( m_digiChain != 0 ) { return (int)(m_digiChain->GetEntries()); }
-    return 0;
-  }
 
 private:
 
@@ -92,17 +76,11 @@ private:
   Float_t m_binSize;
   mutable Int_t m_currentBin;
 
-  /// TChain input
-  TChain      *m_digiChain;
-
   /// pointer to a ReconEvent
   DigiEvent* m_digiEvent;
 
   // The strip charts
   AcdHistCalibMap* m_histMap;
-
-  // Pedestal values for pedestal subtraction
-  AcdPedestalFitMap* m_peds;
 
   // stashed values
   mutable std::map<UInt_t, AcdBinDataMap> m_vals;

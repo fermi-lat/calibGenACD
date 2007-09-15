@@ -5,6 +5,8 @@
 
 #include "../src/AcdCalibUtil.h"
 #include "../src/AcdCalibLoop_Merit.h"
+#include "TFile.h"
+#include "TTree.h"
 
 int main(int argn, char** argc) {
 
@@ -29,10 +31,10 @@ int main(int argn, char** argc) {
   // build filler & run over events  
   AcdCalibLoop_Merit r(*jc.digiChain(),*jc.reconChain(),*jc.meritChain());
   if ( jc.pedFileName() != "" ) {
-    r.readPedestals(jc.pedFileName().c_str());
+    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
   }
   if ( jc.gainFileName() != "" ) {
-    r.readGains(jc.gainFileName().c_str());
+    r.readCalib(AcdCalib::GAIN,jc.gainFileName().c_str());
   }
 
   r.go(jc.optval_n(),jc.optval_s());    

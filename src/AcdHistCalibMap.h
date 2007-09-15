@@ -2,13 +2,19 @@
 #ifndef AcdHistCalibMap_h
 #define AcdHistCalibMap_h
 
-#include "TH1.h"
-#include "TList.h"
+// local includes
 #include "AcdMap.h"
 
+// ROOT includes
+#include "TH1.h"
+#include "TList.h"
+
+// stl includes
 #include <map>
 #include <vector>
 #include <string>
+
+// forward declares
 class TFile;
 
 
@@ -36,6 +42,12 @@ public:
   virtual ~AcdHistCalibMap();
   
   TH1* getHist(UInt_t key, UInt_t idx=0);
+
+  AcdCalibHistHolder* getHolder(UInt_t key);
+
+  const std::map<UInt_t,AcdCalibHistHolder>& theMap() const {
+    return m_map;
+  }
 
   const TList& histograms() const { 
     return m_list;
@@ -90,6 +102,11 @@ AcdHistCalibMap::~AcdHistCalibMap()
 TH1* AcdHistCalibMap::getHist(UInt_t key, UInt_t idx) {
   std::map<UInt_t,AcdCalibHistHolder>::iterator itr = m_map.find(key);
   return itr == m_map.end() ? 0 : itr->second.getHist(idx);
+}
+
+AcdCalibHistHolder* AcdHistCalibMap::getHolder(UInt_t key) {
+  std::map<UInt_t,AcdCalibHistHolder>::iterator itr = m_map.find(key);
+  return itr == m_map.end() ? 0 : &(itr->second);
 }
 
 #endif // #ifdef AcdHistCalibMap_cxx

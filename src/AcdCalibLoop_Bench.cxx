@@ -1,6 +1,7 @@
 #define AcdCalibLoop_Bench_cxx
 #include "AcdCalibLoop_Bench.h"
 
+#include "AcdCalibMap.h"
 #include <TStyle.h>
 #include <TCanvas.h>
 
@@ -154,7 +155,7 @@ void AcdCalibLoop_Bench::useEvent(Bool_t& used) {
 	  Short_t isHit = hitPtr[iLocal];
 	  if ( isHit > 0 ) { continue; }	      
 	  
-	  if ( calType() == PEDESTAL ) {
+	  if ( calType() == AcdCalib::PEDESTAL ) {
 	    fillHist(*m_pedHists,iTile, iPmt, adcCounts);	   
 	  }
 	}
@@ -162,38 +163,8 @@ void AcdCalibLoop_Bench::useEvent(Bool_t& used) {
     }
   }
   
-  if ( calType() == GAIN ) {
+  if ( calType() == AcdCalib::GAIN ) {
     used = fillGainHists(hitTiles,hitMap);
   }
 
 }
-
-AcdPedestalFitMap* AcdCalibLoop_Bench::fitPedestals(AcdPedestalFit& fitter) { 
-  m_peds = new AcdPedestalFitMap;
-  addCalibration(PEDESTAL,*m_peds);
-  AcdHistCalibMap* hists = getHistMap(PEDESTAL);
-  fitter.fitAll(*m_peds,*hists);
-  return m_peds;
-}
-
-AcdGainFitMap* AcdCalibLoop_Bench::fitGains(AcdGainFit& fitter) {
-  m_gains = new AcdGainFitMap;
-  addCalibration(GAIN,*m_gains);
-  AcdHistCalibMap* hists = getHistMap(GAIN);
-  fitter.fitAll(*m_gains,*hists);
-  return m_gains;
-}  
-
-
-void AcdCalibLoop_Bench::writeXmlSources( DomElement& node) const {
-  //std::string pedFileName;
-  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  //os << "peds=" << pedFileName << std::endl;
-}
-
-void AcdCalibLoop_Bench::writeTxtSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "#pedestalFile = " << pedFileName << std::endl;
-}
-
