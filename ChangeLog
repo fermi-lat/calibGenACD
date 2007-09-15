@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Fri Sep 14 20:06:59 PDT 2007
+calibGenACD/calibGenACD
+
+Modified Files:
+	LinkDef.h 
+Log Message:
+major reworking of package.  results are the same, but code is vastly simplified
+    *
+------------------------------------------------------------
+User: echarles  Fri Sep 14 20:06:59 PDT 2007
 calibGenACD/apps
 
 Modified Files:
