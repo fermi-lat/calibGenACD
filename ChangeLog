@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep 14 20:07:20 PDT 2007
+calibGenACD/apps
+
+Added Files:
+	runCnoCalib.cxx 
+Log Message:
+added runCnoCalib
+    *
+------------------------------------------------------------
 User: echarles  Fri Sep 14 20:07:01 PDT 2007
 calibGenACD/src
 
