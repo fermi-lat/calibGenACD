@@ -1,3 +1,6 @@
+v2 EAC 070914
+Vastly simplify code, pull re-used code down into base classes
+
 v1r8p1 HMK v070826
 Couple of Windows patches
 
