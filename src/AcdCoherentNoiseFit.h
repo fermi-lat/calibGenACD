@@ -1,98 +1,81 @@
 #ifndef AcdCoherentNoiseFit_h
 #define AcdCoherentNoiseFit_h
 
+// Base classes
 #include "AcdCalibResult.h"
-#include "AcdCalibMap.h"
-#include "AcdHistCalibMap.h"
+#include "AcdCalibFit.h"
 
+// stl includes
+#include <string>
+
+// ROOT includes
 #include "TH1.h"
-#include <map>
 
+// forward declares
 class AcdHistCalibMap;
 
-class AcdCoherentNoiseFitResult : public AcdCalibResult {
+
+
+class AcdCoherentNoiseFitDesc : public AcdCalibDescription {
 
 public:
 
-  AcdCoherentNoiseFitResult(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, 
-			    const char* fitPars, STATUS status);
-  AcdCoherentNoiseFitResult();
-  
-  inline Float_t max() const { return _max; }
-  inline Float_t maxTime() const { return _maxTime; }
-  inline Float_t min() const { return _min; }
-  inline Float_t minTime() const { return _minTime; }
-  inline const TString& fitPars() const { return _fitPars; }
-  
-  inline void setVals(Float_t min, Float_t minTime, Float_t max, Float_t maxTime, 
-		      const char* fitPars, STATUS status){
-    _min = min; _minTime = minTime; _max = max; _maxTime = maxTime;
-    _fitPars = fitPars;
-    setStatus(status);
-  }
-
-  virtual void makeXmlNode(DomElement& node) const;
-  virtual void printTxtLine(ostream& os) const;
-  virtual Bool_t readTxt(istream& is);
+  static const AcdCoherentNoiseFitDesc& ins();
 
 private:
-  Float_t _min;
-  Float_t _minTime;
-  Float_t _max;
-  Float_t _maxTime;
-  TString _fitPars;
+  
+  static const std::string s_calibType; // "ACD_CoherentNoise";
+  static const std::string s_txtFormat; // "TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS";
 
-  ClassDef(AcdCoherentNoiseFitResult,1);
+public:
+  AcdCoherentNoiseFitDesc();
+  virtual ~AcdCoherentNoiseFitDesc(){;};
+
+private:
+
+  ClassDef(AcdCoherentNoiseFitDesc,1);
 };
 
 
-class AcdCoherentNoiseFitMap : public AcdCalibMap {
-public:
-  AcdCoherentNoiseFitMap();
-  virtual ~AcdCoherentNoiseFitMap();
 
-  virtual AcdCalibResult* createHolder() const { return new AcdCoherentNoiseFitResult; }
-
-  virtual const char* calibType() const {
-    return "ACD_CoherentNoise";
-  }
-
-  virtual const char* txtFormat() const {
-    return "TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS";
-  }
-
-private:  
-
-  ClassDef(AcdCoherentNoiseFitMap,0) ;
-};
-
-
-class AcdCoherentNoiseFit {
+class AcdCoherentNoiseFitLibrary : public AcdCalibFit {
 
 public:
 
-  AcdCoherentNoiseFit(const char* name, 
-		      Int_t method = 0);
-  
-  virtual ~AcdCoherentNoiseFit();
-  
-  virtual Int_t fit(AcdCoherentNoiseFitResult& result, const TH1& hist);
+  enum FitType { None = 0, 
+		 Minuit = 1 };
 
-  virtual Int_t fitChannel(AcdCoherentNoiseFitMap& result, AcdHistCalibMap& input, UInt_t key);
+public:
 
-  void fitAll(AcdCoherentNoiseFitMap& results, AcdHistCalibMap& hists);
+  AcdCoherentNoiseFitLibrary(FitType type)
+    :AcdCalibFit(&AcdCoherentNoiseFitDesc::ins()),
+    _type(type){}
+
+  AcdCoherentNoiseFitLibrary(){}
+
+  virtual ~AcdCoherentNoiseFitLibrary() {;}
+  
+  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+
+  inline FitType fitType() const { return _type; };
+  inline void setFitType(FitType type) { _type = type; };
 
   virtual const char* algorithm() const {
-    static const char* def("Default");
-    return def;
+    static const char* names[2] = {"None","Minuit"};
+    return names[_type];
   }
 
+protected:
+
 private:
+  
+  FitType _type;
 
-  Int_t m_method;
-
-  ClassDef(AcdCoherentNoiseFit,0) ;
+  ClassDef(AcdCoherentNoiseFitLibrary,0) ;
 };
+
+
+
 
 #endif
 

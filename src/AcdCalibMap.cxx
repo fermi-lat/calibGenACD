@@ -1,22 +1,31 @@
-#define AcdGainFit_cxx
+#define AcdcalibMap_cxx
 
-#include "AcdHistCalibMap.h"
-#include "AcdGainFit.h"
-#include "AcdMap.h"
-#include "AcdCalibVersion.h"
+// base class
+#include "AcdCalibMap.h"
+
+// local headers
+#include "AcdCalibEnum.h"
 #include "AcdCalibBase.h"
+#include "AcdCalibVersion.h"
+#include "AcdMap.h"
 #include "AcdXmlUtil.h"
 #include "DomElement.h"
+#include "AcdHistCalibMap.h"
+#include "AcdCalibResult.h"
 
+// stl includes
 #include <iostream>
 #include <fstream>
-
 #include <cassert>
 
 
 ClassImp(AcdCalibMap) ;
 
-AcdCalibMap::AcdCalibMap(){;}
+AcdCalibMap::AcdCalibMap(const AcdCalibDescription& desc)
+  :m_desc(&desc){;}
+
+AcdCalibMap::AcdCalibMap()
+  :m_desc(0){;}
 
 AcdCalibMap::~AcdCalibMap() {
   for ( std::map<UInt_t,AcdCalibResult*>::iterator itr = m_map.begin();
@@ -45,6 +54,10 @@ AcdCalibResult* AcdCalibMap::get(UInt_t key) {
   return itr == m_map.end()  ? 0 : itr->second;
 }
 
+AcdCalibResult* AcdCalibMap::makeNew() const {
+  return new AcdCalibResult(AcdCalibResult::NOFIT,*m_desc);
+}
+
 Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
@@ -59,7 +72,7 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
   os << "#SYSTEM = " << "acdCalib" << endl
      << "#instrument= " << instrument << endl
      << "#timestamp = " << timestamp << endl
-     << "#calibType = " << calibType() << endl
+     << "#calibType = " << m_desc->calibType() << endl
      << "#algorithm = " << algorithm << endl
      << "#DTDVersion = " << AcdCalibVersion::dtdVersion() << endl
      << "#fmtVersion = " << AcdCalibVersion::fmtVersion() << endl;
@@ -67,7 +80,7 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
   // this line is needed as a tag
   os << "#START" << endl;
   // skip this line
-  os << txtFormat() << endl;
+  os << m_desc->txtFormat() << endl;
     
   writeTxt(os);
   os.close();
@@ -121,7 +134,7 @@ void AcdCalibMap::writeXmlHeader(DomElement& node,
   //os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
   DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");
   AcdXmlUtil::addAttribute(genNode,"instrument",instrument);
-  AcdXmlUtil::addAttribute(genNode,"calibType",calibType());
+  AcdXmlUtil::addAttribute(genNode,"calibType",m_desc->calibType().c_str());
   AcdXmlUtil::addAttribute(genNode,"algorithm",algorithm);
   AcdXmlUtil::addAttribute(genNode,"DTDVersion",AcdCalibVersion::dtdVersion());
   AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());  
@@ -197,7 +210,7 @@ Bool_t AcdCalibMap::readTxt(istream& is) {
     if ( !is.good() ) return kFALSE;
     UInt_t key = AcdMap::makeKey(iPmt,id);
 
-    AcdCalibResult* result = createHolder();
+    AcdCalibResult* result = makeNew();
     assert( result != 0 );
 
     result->readTxt(is);

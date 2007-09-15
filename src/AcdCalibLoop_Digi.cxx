@@ -1,14 +1,12 @@
 
-
-#include <fstream>
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TF1.h"
 #include "AcdCalibLoop_Digi.h"
 
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TChain.h"
+
 #include "AcdHistCalibMap.h"
-#include "AcdPedestalFit.h"
-#include "AcdGainFit.h"
+#include "AcdCalibMap.h"
 #include "AcdCalibUtil.h"
 #include "AcdGarcGafeHits.h"
 
@@ -16,6 +14,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <fstream>
 
 using std::cout;
 using std::cerr;
@@ -24,33 +23,30 @@ using std::string;
 
 ClassImp(AcdCalibLoop_Digi) ;
 
-AcdCalibLoop_Digi::AcdCalibLoop_Digi(CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
+AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalib::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
   :AcdCalibBase(t,config), 
-   m_digiChain(digiChain),
    m_digiEvent(0),
    m_requirePeriodic(requirePeriodic){
 
-  m_peds = 0;
-  m_ranges = 0;
+  setChain(AcdCalib::DIGI,digiChain);
 
-  if ( t == PEDESTAL ) {
-    m_rawHists = bookHists(H_RAW,4096,-0.5,4095.5);
-  } else if ( t == GAIN ) {
-    m_gainHists = bookHists(H_GAIN,64,-0.5,4095.5);    
-  } else if ( t == VETO ) {
-    m_rawHists = bookHists(H_RAW,64,-0.5,4095.5);
-    m_vetoHists = bookHists(H_VETO,64,-0.5,4095.5);
-    m_fracHists = bookHists(H_FRAC,64,-0.5,4095.5);
-  } else if ( t == RANGE ) {
-    m_rawHists = bookHists(H_RAW,4096,-0.5,4095.5);
-    m_rangeHists = bookHists(H_RANGE,4096,-0.5,4095.5);
-  } else if ( t == CNO ) {    
-    m_rawHists = bookHists(H_RAW,256,-0.5,255.5);
-    m_vetoHists = bookHists(H_VETO,256,-0.5,255.5);
-    m_fracHists = bookHists(H_FRAC,256,-0.5,255.5);
-  } else if ( t == UNPAIRED ) {
-    m_unPairHists = bookHists(H_RAW,512,-0.5,4095.5);
-  } else if ( t == HITMAP ) {
+  if ( t == AcdCalib::PEDESTAL ) {
+    m_rawHists = bookHists(AcdCalib::H_RAW,4096,-0.5,4095.5);
+  } else if ( t == AcdCalib::GAIN ) {
+    m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,4095.5);    
+  } else if ( t == AcdCalib::VETO ) {
+    m_rawHists = bookHists(AcdCalib::H_RAW,64,-0.5,4095.5);
+    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,4095.5);
+    m_fracHists = bookHists(AcdCalib::H_FRAC,64,-0.5,4095.5);
+  } else if ( t == AcdCalib::RANGE ) {
+    m_rangeHists = bookHists(AcdCalib::H_RANGE,4096,-0.5,4095.5,2);
+  } else if ( t == AcdCalib::CNO ) {    
+    m_rawHists = bookHists(AcdCalib::H_RAW,256,-0.5,255.5);
+    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,255.5);
+    m_fracHists = bookHists(AcdCalib::H_FRAC,256,-0.5,255.5);
+  } else if ( t == AcdCalib::UNPAIRED ) {
+    m_unPairHists = bookHists(AcdCalib::H_RAW,512,-0.5,4095.5);
+  } else if ( t == AcdCalib::HITMAP ) {
     m_hitMapHist = new TH2F("hitMapHist","hitMapHist",128,-0.5,127.5,3,0.5,3.5);  
     m_condArrHist = new TH2F("condArrHist","condArrHist",32,-0.5,31.5,2,0.5,2.5);
   }
@@ -68,16 +64,17 @@ AcdCalibLoop_Digi::~AcdCalibLoop_Digi()
 }
 
 Bool_t AcdCalibLoop_Digi::attachChains() {
-  if (m_digiChain != 0) {
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  if (digiChain != 0) {
     m_digiEvent = 0;
-    m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
-    m_digiChain->SetBranchStatus("*",0);  // disable all branches
+    digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
+    digiChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_digiChain->SetBranchStatus("m_acd*",1);
-    m_digiChain->SetBranchStatus("m_eventId", 1); 
-    m_digiChain->SetBranchStatus("m_runId", 1);
+    digiChain->SetBranchStatus("m_acd*",1);
+    digiChain->SetBranchStatus("m_eventId", 1); 
+    digiChain->SetBranchStatus("m_runId", 1);
     //if ( m_requirePeriodic ) {
-    m_digiChain->SetBranchStatus("m_gem", 1);
+    digiChain->SetBranchStatus("m_gem", 1);
     //}
   }
   return kTRUE;
@@ -89,19 +86,19 @@ Bool_t AcdCalibLoop_Digi::readEvent(int ievent, Bool_t& filtered,
   if(m_digiEvent) m_digiEvent->Clear();
 
   filtered = kFALSE;
-
-  if(m_digiChain) { 
-    m_digiChain->GetEvent(ievent);
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  if(digiChain) { 
+    digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
     switch ( calType () ) {
-    case PEDESTAL:
+    case AcdCalib::PEDESTAL:
       if ( m_requirePeriodic &&
 	   (m_digiEvent->getGem().getConditionSummary() != 32 &&  
 	    m_digiEvent->getGem().getConditionSummary() != 128 ) )
 	filtered = kTRUE;
       break;
-    case HITMAP:
+    case AcdCalib::HITMAP:
       if ( m_digiEvent->getGem().getConditionSummary() >= 32 ) 
 	filtered = kTRUE;
       break;
@@ -121,11 +118,11 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
   const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
   if (!acdDigiCol) return;
 
-  if ( calType() == HITMAP ) {
+  if ( calType() == AcdCalib::HITMAP ) {
     used = kTRUE;
     compareDigiToGem();
     return;
-  } else if ( calType() == CNO ) {  
+  } else if ( calType() == AcdCalib::CNO ) {  
     m_garcGafeHits.reset();
     m_garcGafeHits.setCNO( m_digiEvent->getGem().getCnoVector() );
   }
@@ -141,7 +138,7 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
 
     if ( ! AcdMap::channelExists( id ) ) continue;
 
-    if ( calType() == CNO ) {  
+    if ( calType() == AcdCalib::CNO ) {  
       m_garcGafeHits.setDigi(*acdDigi);
       continue;
     }
@@ -155,43 +152,46 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
 
     Bool_t useA = rng0 == 0 && pmt0 > 0;
     Bool_t useB = rng1 == 0 && pmt1 > 0;
-    if ( m_peds != 0 ) {
-      UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
-      UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
-      AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
-      AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);      
-      if ( pedRes_A == 0 && pedRes_B == 0 ) return;
-      if ( calType() == GAIN ) {
-	pmt0 -=  pedRes_A->mean();
-	pmt1 -=  pedRes_B->mean();
-	useA &= pmt0 > 50.;
-	useB &= pmt1 > 50.;
-      } else if ( calType() == VETO ) {
-	useA &= pmt0 > ( pedRes_A->mean() + 30. );
-	useB &= pmt1 > ( pedRes_B->mean() + 30. );
-      }
+
+    UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
+    UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+
+    if ( calType() == AcdCalib::GAIN ) {
+      float pedA = getPeds(keyA);
+      float pedB = getPeds(keyB);
+      if ( pedA < 0 || pedB < 0 ) return;
+      pmt0 -=  pedA;
+      pmt1 -=  pedB;
+      useA &= pmt0 > 50.;
+      useB &= pmt1 > 50.;
+    } else if ( calType() == AcdCalib::VETO ) {
+      float pedA = getPeds(keyA);
+      float pedB = getPeds(keyB);
+      if ( pedA < 0 || pedB < 0 ) return;
+      useA &= pmt0 > ( pedA + 30. );
+      useB &= pmt1 > ( pedB + 30. );
     }
 
     switch ( calType () ) {
-    case PEDESTAL:
+    case AcdCalib::PEDESTAL:
       if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
       if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
       break;
-    case GAIN:
+    case AcdCalib::GAIN:
       if ( useA ) fillHist(*m_gainHists, id, AcdDigi::A, pmt0);
       if ( useB ) fillHist(*m_gainHists, id, AcdDigi::B, pmt1);
       break;
-    case RANGE:
-      if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
-      if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
-      if ( rng0 ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0);
-      if ( rng1 ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1);
+    case AcdCalib::RANGE:
+      if ( useA ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 0);
+      if ( useB ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 0);
+      if ( rng0 ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 1);
+      if ( rng1 ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 1);
       break;
-    case UNPAIRED:
+    case AcdCalib::UNPAIRED:
       if ( pmt1 == 0 && rng0 == 0) fillHist(*m_unPairHists, id, AcdDigi::A, pmt0);
       if ( pmt0 == 0 && rng1 == 0) fillHist(*m_unPairHists, id, AcdDigi::B, pmt1);
       break;
-    case VETO:
+    case AcdCalib::VETO:
       if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
       if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);      
       if ( useA && acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
@@ -203,51 +203,11 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
     used = kTRUE;
   }
 
-  if ( calType() == CNO ) {  
+  if ( calType() == AcdCalib::CNO ) {  
     fillCnoData();
   }
 }
 
-AcdPedestalFitMap* AcdCalibLoop_Digi::fitPedestals(AcdPedestalFit& fitter) { 
-  m_peds = new AcdPedestalFitMap;
-  addCalibration(PEDESTAL,*m_peds);
-  AcdHistCalibMap* hists = getHistMap(H_RAW);
-  fitter.fitAll(*m_peds,*hists);
-  return m_peds;
-}
-
-AcdGainFitMap* AcdCalibLoop_Digi::fitGains(AcdGainFit& fitter) {
-  m_gains = new AcdGainFitMap;
-  addCalibration(GAIN,*m_gains);
-  AcdHistCalibMap* hists = getHistMap(H_GAIN);
-  fitter.fitAll(*m_gains,*hists);
-  return m_gains;
-}  
-
-AcdCnoFitMap* AcdCalibLoop_Digi::fitCnos(AcdCnoFit& fitter) {
-  m_cnos = new AcdCnoFitMap;
-  addCalibration(CNO,*m_cnos);
-  AcdHistCalibMap* hists = getHistMap(H_FRAC);
-  fitter.fitAll(*m_cnos,*hists);
-  return m_cnos;
-}  
-
-AcdVetoFitMap* AcdCalibLoop_Digi::fitVetos(AcdVetoFit& fitter) {
-  m_vetos = new AcdVetoFitMap;
-  addCalibration(VETO,*m_vetos);
-  AcdHistCalibMap* hists = getHistMap(H_FRAC);
-  fitter.fitAll(*m_vetos,*hists);
-  return m_vetos;
-}  
-
-AcdRangeFitMap* AcdCalibLoop_Digi::fitRanges(AcdRangeFit& fitter) {
-  m_ranges = new AcdRangeFitMap;
-  addCalibration(RANGE,*m_ranges);
-  AcdHistCalibMap* lowhists = getHistMap(H_RAW);
-  AcdHistCalibMap* highhists = getHistMap(H_RANGE);
-  fitter.fitAll(*m_ranges,*lowhists,*highhists);
-  return m_ranges;
-}  
 
 AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
   for ( UInt_t iPmt(0); iPmt < AcdMap::nPmt; iPmt++ ) {    
@@ -365,59 +325,10 @@ void AcdCalibLoop_Digi::fillCnoData() {
 
     UInt_t tile(0); UInt_t pmt(0);
     AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
-    UInt_t key = AcdMap::makeKey(pmt,tile);
-    AcdRangeFitResult* rangePed = m_ranges->find(key);
-    if ( rangePed == 0 ) {
-      std::cerr << "No range pedestal for Key " << tile << ' ' << pmt << std::endl;
-      continue;
-    }
-    UShort_t phaRed = inPha > rangePed->high() ? inPha - rangePed->high() : 0;
-    fillHist(*m_rawHists,tile,pmt,phaRed);
+    //UInt_t key = AcdMap::makeKey(pmt,tile);
+    fillHist(*m_rawHists,tile,pmt,inPha);
     if ( cno ) {
-      fillHist(*m_vetoHists,tile,pmt,phaRed);
+      fillHist(*m_vetoHists,tile,pmt,inPha);
     }
   }
-}
-
-
-/// for writing output files
-void AcdCalibLoop_Digi::writeXmlSources( DomElement& node) const {
-  //std::string pedFileName;
-  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  //os << "pedestalFile=" << pedFileName << std::endl;
-  //TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
-  //if ( files != 0 ) {
-  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-  //    TObject* obj = files->At(i);
-  //    os << "inputDigi=" << obj->GetTitle() << std::endl;
-  //  }
-  //}
-}
-
-void AcdCalibLoop_Digi::writeTxtSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "#pedestalFile = " << pedFileName << endl;
-  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "#inputDigiFile = " << obj->GetTitle() << endl;
-    }
-  }
-}
-
-
-Bool_t AcdCalibLoop_Digi::readPedestals(const char* fileName) {
-  Bool_t latchVal = readCalib(PEDESTAL,fileName);
-  AcdCalibMap* map = getCalibMap(PEDESTAL);
-  m_peds = (AcdPedestalFitMap*)(map);
-  return latchVal;
-}
-
-Bool_t AcdCalibLoop_Digi::readRanges(const char* fileName) {
-  Bool_t latchVal = readCalib(RANGE,fileName);
-  AcdCalibMap* map = getCalibMap(RANGE);
-  m_ranges = (AcdRangeFitMap*)(map);
-  return latchVal;
 }

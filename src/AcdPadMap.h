@@ -1,14 +1,23 @@
 #ifndef AcdPadMap_h
 #define AcdPadMap_h 
 
+// base class headers
+#include "TObject.h"
+
+// local includes
+#include "./AcdMap.h"
+
+// stl includes
 #include <iostream>
 #include <map>
 
-#include "./AcdMap.h"
+// ROOT includes
 #include "TString.h"
 #include "TList.h"
 
+// forward declares
 class TVirtualPad;
+
 
 class AcdPadMap : public TObject {
 

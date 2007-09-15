@@ -3,83 +3,75 @@
 #define AcdVetoFit_h
 
 #include "AcdCalibResult.h"
-#include "AcdCalibMap.h"
+#include <string>
 
+#include "AcdCalibFit.h"
 #include "TH1.h"
-#include <map>
-
 class AcdHistCalibMap;
 
-class AcdVetoFitResult : public AcdCalibResult {
+class AcdVetoFitDesc : public AcdCalibDescription {
 
 public:
-
-  AcdVetoFitResult(Float_t veto, Float_t width, STATUS status);
-  AcdVetoFitResult();
-
-  inline Float_t veto() const { return _veto; }
-  inline Float_t width() const { return _width; }
-  
-  inline void setVals(Float_t veto, Float_t width, STATUS status) {
-    _veto = veto; _width = width;
-    setStatus(status);
-  }
-
-  virtual void makeXmlNode(DomElement& node) const;
-  virtual void printTxtLine(ostream& os) const;
-  virtual Bool_t readTxt(istream& is);
+  static const AcdVetoFitDesc& ins();
 
 private:
-  Float_t _veto;
-  Float_t _width;
+
+ static const std::string s_calibType; // "ACD_Veto";
+  static const std::string s_txtFormat; //"TILE PMT VETO WIDTH STATUS";
+
+public:
+  AcdVetoFitDesc();
+  virtual ~AcdVetoFitDesc(){;};
+
+private:
   
-  ClassDef(AcdVetoFitResult,1);
+  ClassDef(AcdVetoFitDesc,1);
 };
 
 
-class AcdVetoFitMap : public AcdCalibMap {
-public:
-  AcdVetoFitMap();
-  virtual ~AcdVetoFitMap();
 
-  virtual AcdCalibResult* createHolder() const { return new AcdVetoFitResult; }
-
-  virtual const char* calibType() const {
-    return "ACD_Veto";
-  }
-
-  virtual const char* txtFormat() const {
-    return "TILE PMT VETO WIDTH STATUS";
-  }
-
-private:  
-
-  ClassDef(AcdVetoFitMap,0) ;
-};
-
-
-class AcdVetoFit {
+class AcdVetoFitLibrary : public  AcdCalibFit{
 
 public:
-
-  AcdVetoFit();
-
-  virtual ~AcdVetoFit();
   
-  virtual Int_t fit(AcdVetoFitResult& result, const TH1& hist);
+  static Int_t findFirstBinAboveVal(const TH1& hist, Float_t val);
 
-  virtual Int_t fitChannel(AcdVetoFitMap& result, AcdHistCalibMap& input, UInt_t key);
+public:
 
-  void fitAll(AcdVetoFitMap& results, AcdHistCalibMap& hists);
+  enum FitType { None = 0, 
+		 Counting = 1,
+		 Erf = 2 };
+
+public:
+
+  AcdVetoFitLibrary(FitType type)
+    :AcdCalibFit(&AcdVetoFitDesc::ins()),
+    _type(type){}
+
+  AcdVetoFitLibrary(){}
+
+  virtual ~AcdVetoFitLibrary() {;}
+  
+  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+
+  inline FitType fitType() const { return _type; };
+  inline void setFitType(FitType type) { _type = type; };
 
   virtual const char* algorithm() const {
-    static const char* def("Default");
-    return def;
+    static const char* names[3] = {"None","Counting","Erf"};
+    return names[_type];
   }
+
+protected:
+
+  Int_t counting(AcdCalibResult& result, const TH1& hist);
+  Int_t fitErf(AcdCalibResult& result, const TH1& hist);
 
 private:
   
-  ClassDef(AcdVetoFit,0) ;
+  FitType _type;
+
+  ClassDef(AcdVetoFitLibrary,0) ;
 };
 
 #endif

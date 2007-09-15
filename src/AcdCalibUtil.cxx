@@ -1,5 +1,14 @@
 #define AcdCalibUtil_cxx
+
 #include "AcdCalibUtil.h"
+
+#include "AcdCalibEnum.h"
+#include "AcdPadMap.h"
+
+#include "AcdHistCalibMap.h"
+#include "AcdCalibMap.h"
+#include "AcdCalibResult.h"
+
 
 #include "TString.h"
 #include "TCanvas.h"
@@ -9,13 +18,7 @@
 #include "TF1.h"
 #include <cmath>
 
-#include <cmath>
 
-#include "./AcdHistCalibMap.h"
-#include "./AcdGainFit.h"
-#include "./AcdVetoFit.h"
-#include "./AcdCnoFit.h"
-#include "./AcdPadMap.h"
 
 ClassImp(AcdCalibUtil) ;
 
@@ -34,33 +37,35 @@ void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* s
   }
 }
 
-void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdVetoFitResult* res) {
+void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCalibResult* res) {
   vp.cd();
   hAll.Draw();
   hVeto.SetLineColor(4);
   hVeto.Draw("same");
 
   if ( res != 0 ) {
-    TLine* lmean = new TLine( res->veto(), 0.,  res->veto(), hAll.GetMaximum());
+    float veto = (*res)[0];
+    TLine* lmean = new TLine( veto, 0., veto, hAll.GetMaximum());
     lmean->SetLineColor(2);
     lmean->Draw();
   }   
 }
 
-void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, AcdCnoFitResult* res) {
+void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, AcdCalibResult* res) {
   vp.cd();
   hAll.Draw();
   hCno.SetLineColor(4);
   hCno.Draw("same");
 
   if ( res != 0 ) {
-    TLine* lmean = new TLine( res->cno(), 0.,  res->cno(), hAll.GetMaximum());
+    float cno = (*res)[0];
+    TLine* lmean = new TLine( cno, 0.,  cno, hAll.GetMaximum());
     lmean->SetLineColor(2);
     lmean->Draw();
   }   
 }
 
-void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdGainFitResult* res, Bool_t onLog) {
+void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdCalibResult* res, Bool_t onLog) {
 
   // set plot limits & such
   Double_t ymin = onLog ? 1. : 0.;
@@ -89,14 +94,15 @@ void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdGainFitResult* res
 
   // add a line showing the fitted value for MIP peak, if extant
   if ( res != 0 ) {
-    TLine* lA = new TLine( res->peak(), hist.GetMinimum(),  res->peak(), hist.GetMaximum());
+    float peak = (*res)[0];
+    TLine* lA = new TLine( peak, hist.GetMinimum(),  peak, hist.GetMaximum());
     lA->SetLineColor(2);
     lA->Draw();
   } 
 }
 
 AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
-				  AcdCnoFitMap& cnos, const char* prefix) {
+				  AcdCalibMap& cnos, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(hCno.config(),prefix);
   TList& hList = (TList&)hCno.histograms();
@@ -110,14 +116,14 @@ AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
     TH1* hv = (TH1*)(obj);
     TH1* hr = hRaw.getHist(id);
     if ( hv == 0 || hr == 0 ) continue;
-    AcdCnoFitResult* res = (AcdCnoFitResult*)(cnos.get(id));
+    AcdCalibResult* res = cnos.get(id);
     drawCnoPlot(*pad,*hv,*hr,res);
   }
   return padMap;
 }
 
 AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
-				   AcdVetoFitMap& vetos, const char* prefix) {
+				   AcdCalibMap& vetos, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(hVeto.config(),prefix);
   TList& hList = (TList&)hVeto.histograms();
@@ -131,13 +137,13 @@ AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw
     TH1* hv = (TH1*)(obj);
     TH1* hr = hRaw.getHist(id);
     if ( hv == 0 || hr == 0 ) continue;
-    AcdVetoFitResult* res = (AcdVetoFitResult*)(vetos.get(id));
+    AcdCalibResult* res = vetos.get(id);
     drawVetoPlot(*pad,*hv,*hr,res);
   }
   return padMap;
 }
 
-AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdGainFitMap& gains, 
+AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdCalibMap& gains, 
 				  Bool_t onLog, const char* prefix) {
   AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
   TList& hList = (TList&)h.histograms();
@@ -150,7 +156,7 @@ AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdGainFitMap& gains,
     if ( pad == 0 ) continue;
     TH1* hh = (TH1*)(obj);
     if ( hh == 0) continue;
-    AcdGainFitResult* res = (AcdGainFitResult*)(gains.get(id));
+    AcdCalibResult* res = gains.get(id);
     drawMipPlot(*pad,*hh,res,onLog);
   }
   return padMap;
@@ -190,10 +196,10 @@ void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_
   Float_t sum(0.);
   Bool_t calcMean(kFALSE);
   switch ( method ) {
-  case PLAIN: break;
-  case MEAN_ABSOLUTE: 
-  case MEAN_RELATIVE: 
-  case MEAN_SIGMA: 
+  case AcdCalib::PLAIN: break;
+  case AcdCalib::MEAN_ABSOLUTE: 
+  case AcdCalib::MEAN_RELATIVE: 
+  case AcdCalib::MEAN_SIGMA: 
     calcMean = kTRUE;
     break;
   }
@@ -204,13 +210,13 @@ void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_
     Float_t err = input.GetBinError(i);
     Float_t valDif = val - ref;
     switch ( method ) {
-    case PLAIN:
-    case MEAN_ABSOLUTE:
+    case AcdCalib::PLAIN:
+    case AcdCalib::MEAN_ABSOLUTE:
       break;
-    case MEAN_RELATIVE:
+    case AcdCalib::MEAN_RELATIVE:
       if ( ref > 1e-9 ) { valDif /= ref; }
       break;
-    case MEAN_SIGMA:
+    case AcdCalib::MEAN_SIGMA:
       if ( err > 1e-9 ) { valDif /= err; }
       break;
     }

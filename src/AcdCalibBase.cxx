@@ -1,17 +1,25 @@
-#include <fstream>
-#include "TH1F.h"
-#include "TF1.h"
+// base class
 #include "AcdCalibBase.h"
 
-#include "./AcdHistCalibMap.h"
-#include "./AcdPedestalFit.h"
-#include "./AcdGainFit.h"
-#include "./AcdRangeFit.h"
-#include "./AcdCalibMap.h"
+// stl
+#include <fstream>
 
+// ROOT
+#include "TH1F.h"
+#include "TF1.h"
+#include "TChain.h"
+
+// local headers
+#include "AcdHistCalibMap.h"
+#include "AcdPedestalFit.h"
+#include "AcdGainFit.h"
+#include "AcdRangeFit.h"
+#include "AcdCalibMap.h"
+#include "AcdCalibFit.h"
 #include "AcdXmlUtil.h"
 #include "DomElement.h"
 
+// other packages
 #include "digiRootData/DigiEvent.h"
 
 using std::cout;
@@ -19,42 +27,76 @@ using std::cerr;
 using std::endl;
 using std::string;
 
+
+ClassImp(AcdCalibEventStats) ;
+
+AcdCalibEventStats::AcdCalibEventStats(){
+  resetCounters();
+}
+
+void AcdCalibEventStats::logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId,int evtId) {
+  m_evtId = evtId;
+  m_runId = runId;
+  m_nTrigger++;
+  if ( passedCut ) {
+    m_nUsed++;  
+  }
+  if ( !filtered) {
+    m_nFilter++;
+  }
+  if ( ievent == m_startEvent ) { 
+    firstEvent();
+  }
+  else if ( ievent % 1000000 == 0 ) { std::cout << "x " << ievent / 1000000 << 'M' << std::endl; }
+  else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
+  else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
+  else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }
+}
+
+
 ClassImp(AcdCalibBase) ;
 
-AcdCalibBase::AcdCalibBase(CALTYPE t, AcdMap::Config config)
+AcdCalibBase::AcdCalibBase(AcdCalib::CALTYPE t, AcdMap::Config config)
   :m_config(config),
-   m_calType(t){
-  resetCounters();
+   m_calType(t),
+   m_histMaps(AcdCalib::H_NHIST,0),
+   m_fitMaps(AcdCalib::NDESC,0),
+   m_chains(AcdCalib::NCHAIN,0){  
 }
 
 
 AcdCalibBase::~AcdCalibBase()
 {
-  for ( std::map<int,AcdHistCalibMap*>::iterator itr = m_histMaps.begin(); itr != m_histMaps.end(); itr++ ) {
-    AcdHistCalibMap* aMap = itr->second;
+  for ( std::vector<AcdHistCalibMap*>::iterator itr = m_histMaps.begin(); itr != m_histMaps.end(); itr++ ) {
+    AcdHistCalibMap* aMap = *itr;
     delete aMap;
   }
-  for ( std::map<int,AcdCalibMap*>::iterator itr2 = m_fitMaps.begin(); itr2 != m_fitMaps.end(); itr2++ ) {
-    AcdCalibMap* aMap2 = itr2->second;
+  for ( std::vector<AcdCalibMap*>::iterator itr2 = m_fitMaps.begin(); itr2 != m_fitMaps.end(); itr2++ ) {
+    AcdCalibMap* aMap2 = *itr2;
     delete aMap2;
   }
+  //for ( std::vector<TChain*>::iterator itr3 = m_chains.begin(); itr3 != m_chains.end(); itr3++ ) {
+  //  TChain* aChain = *itr3;
+  //  delete aChain;
+  //}  
 }
 
 
 void AcdCalibBase::go(int numEvents, int startEvent) {
 
-  m_startEvent = startEvent;
   int nTotal = getTotalEvents();
-  m_last = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
+  int last = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
+  m_eventStats.setRange(startEvent,last);
 
   cout << "Number of events in the chain: " << nTotal << endl;
-  cout << "Number of events used: " << m_last-startEvent << endl;
+  cout << "Number of events used: " << last-startEvent << endl;
   cout << "Starting at event: " << startEvent << endl;
 
-  for (Int_t ievent= startEvent; ievent!=m_last; ievent++ ) {
+  for (Int_t ievent= startEvent; ievent < last; ievent++ ) {
     
     Bool_t filtered(kFALSE);
-    Bool_t ok = readEvent(ievent,filtered,m_runId,m_evtId);
+    Int_t runId, evtId;
+    Bool_t ok = readEvent(ievent,filtered, runId, evtId);
 
     if ( !ok ) {
       cout << "Failed to read event " << ievent << " aborting" << endl;
@@ -63,14 +105,13 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
     Bool_t used(kFALSE);
     if ( !filtered ) {
-      m_nFilter++;
       useEvent(used);
     }
     
-    logEvent(ievent,used,m_runId,m_evtId);
+    m_eventStats.logEvent(ievent,used,filtered,runId,evtId);
   }
 
-  lastEvent(m_runId,m_evtId);
+  m_eventStats.lastEvent();
 
   cout << endl;
 
@@ -109,25 +150,28 @@ void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt
 
 
 
-AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low, Float_t hi, UInt_t nHist ) {
+AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBin, Float_t low, Float_t hi, UInt_t nHist ) {
   AcdHistCalibMap* map = getHistMap(histType);
   if ( map != 0 ) {
     std::cout << "Warning: replacing old histograms" << std::endl;
     delete map;
   }
   TString name;
+
   switch (histType) {
-  case H_RAW: name += "RAW"; break;
-  case H_GAIN: name += "GAIN"; break;
-  case H_VETO: name += "VETO"; break;
-  case H_UNPAIRED: name += "UNPAIRED"; break;
-  case H_FRAC: name += "FRAC"; break;
-  case H_RANGE: name += "RANGE"; break;
-  case H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
-  case H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
-  case H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
-  case H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
-  case H_XOVER: name += "XOVER"; break;
+  case AcdCalib::H_RAW: name += "RAW"; break;
+  case AcdCalib::H_GAIN: name += "GAIN"; break;
+  case AcdCalib::H_VETO: name += "VETO"; break;
+  case AcdCalib::H_UNPAIRED: name += "UNPAIRED"; break;
+  case AcdCalib::H_FRAC: name += "FRAC"; break;
+  case AcdCalib::H_RANGE: name += "RANGE"; break;
+  case AcdCalib::H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
+  case AcdCalib::H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
+  case AcdCalib::H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
+  case AcdCalib::H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
+  case AcdCalib::H_NONE:
+  default:
+    return 0;
   }
 
   map = new AcdHistCalibMap(name,nBin,low,hi,m_config,nHist);
@@ -135,7 +179,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists( int histType, UInt_t nBin, Float_t low
   return map;
 } 
 
-void AcdCalibBase::addCalibration(int calibKey, AcdCalibMap& newCal) {  
+void AcdCalibBase::addCalibration(AcdCalib::CALTYPE calibKey, AcdCalibMap& newCal) {  
   AcdCalibMap* old = getCalibMap(calibKey);
   if ( old != 0 ) {
     std::cout << "Warning: replacing calibration" << std::endl;
@@ -144,29 +188,29 @@ void AcdCalibBase::addCalibration(int calibKey, AcdCalibMap& newCal) {
   m_fitMaps[calibKey] = &newCal;
 }
 
-Bool_t AcdCalibBase::writeHistograms(int histType, const char* newFileName ) {
+Bool_t AcdCalibBase::writeHistograms(AcdCalib::HISTTYPE histType, const char* newFileName ) {
   AcdHistCalibMap* map = getHistMap(histType);
   if ( map == 0 ) return kFALSE;
   return map->writeHistograms(newFileName);
 }
 
-Bool_t AcdCalibBase::readCalib(int calKey, const char* fileName) {
+Bool_t AcdCalibBase::readCalib(AcdCalib::CALTYPE calKey, const char* fileName) {
   AcdCalibMap* map = getCalibMap(calKey);
   if ( map != 0 ) {
     std::cout << "Warning: replacing old calibration" << std::endl;
     delete map;
   }
-  switch ( calKey ) {
-  case PEDESTAL:
-    map = new AcdPedestalFitMap;
-    break;
-  case GAIN:
-    map = new AcdGainFitMap;
-    break;
-  case RANGE:
-    map = new AcdRangeFitMap;
-    break;
+  const AcdCalibDescription* desc = AcdCalibDescription::getDesc(calKey);
+  if ( desc == 0 ) {
+    switch (calKey) {
+    case AcdCalib::PEDESTAL:  desc = &AcdPedestalFitDesc::ins(); break;
+    case AcdCalib::GAIN:      desc = &AcdGainFitDesc::ins(); break;
+    default: 
+      ;
+    }
   }
+  map = new AcdCalibMap(*desc);
+
   if ( map == 0 ) return kFALSE;
   addCalibration(calKey,*map);
   return map->readTxtFile(fileName);
@@ -191,40 +235,165 @@ void AcdCalibBase::writeXmlHeader(DomElement& node) const {
   writeXmlSources(sourceNode);
 }
 
-void AcdCalibBase::writeTxtHeader(ostream& os) const {
-  os << "#startTime = " << runId_first() << ':'  << evtId_first() << endl
-     << "#stopTime = " << runId_last() << ':'  << evtId_last() << endl
-     << "#triggers = " << nUsed() << '/' << nFilter() << '/' << nTrigger() << endl
+void AcdCalibBase::writeTxtHeader(std::ostream& os) const {
+  os << "#startTime = " << m_eventStats.runId_first() << ':'  << m_eventStats.evtId_first() << endl
+     << "#stopTime = " << m_eventStats.runId_last() << ':'  << m_eventStats.evtId_last() << endl
+     << "#triggers = " << m_eventStats.nUsed() << '/' << m_eventStats.nFilter() << '/' << m_eventStats.nTrigger() << endl
      << "#source = " << endl
      << "#mode = " << 0 << endl;
   writeTxtSources(os);
 }
 
-void AcdCalibBase::logEvent(int ievent, Bool_t passedCut, int runId,int evtId) {
 
-  m_evtId = evtId;
-  m_runId = runId;
-  m_nTrigger++;
-  if ( passedCut ) {
-    m_nUsed++;  
-  }
-  if ( ievent == m_startEvent ) { 
-    firstEvent(runId,evtId);
-  }
-  else if ( ievent % 1000000 == 0 ) { std::cout << "x " << ievent / 1000000 << 'M' << std::endl; }
-  else if ( ievent % 100000 == 0 ) { std::cout << 'x' << std::endl; }
-  else if ( ievent % 10000 == 0 ) { std::cout << 'x' << std::flush; }
-  else if ( ievent % 1000 == 0 ) { std::cout << '.' << std::flush; }
+/// for writing output files
+void AcdCalibBase::writeXmlSources( DomElement& node) const {
+  writeCalibXml(node,AcdCalib::PEDESTAL);
+  writeChainXml(node,AcdCalib::DIGI);
+  writeChainXml(node,AcdCalib::RECON);
+  writeChainXml(node,AcdCalib::MERIT);
+  writeChainXml(node,AcdCalib::SVAC);
+  writeChainXml(node,AcdCalib::BENCH);  
 }
 
+void AcdCalibBase::writeTxtSources(std::ostream& os) const {
+  writeCalibTxt(os,AcdCalib::PEDESTAL);
+  writeChainTxt(os,AcdCalib::DIGI);
+  writeChainTxt(os,AcdCalib::RECON);
+  writeChainTxt(os,AcdCalib::MERIT);
+  writeChainTxt(os,AcdCalib::SVAC);
+  writeChainTxt(os,AcdCalib::BENCH);  
+}
+
+
 // get the maps of the histograms to be fit
-AcdHistCalibMap* AcdCalibBase::getHistMap(int key) {
-  std::map<int,AcdHistCalibMap*>::iterator itr = m_histMaps.find(key);
-  return itr == m_histMaps.end() ? 0 : itr->second;
+AcdHistCalibMap* AcdCalibBase::getHistMap(AcdCalib::HISTTYPE hType) {
+  return hType < 0 ? 0 : m_histMaps[hType];
+}
+const AcdHistCalibMap* AcdCalibBase::getHistMap(AcdCalib::HISTTYPE hType) const {
+  return hType < 0 ? 0 : m_histMaps[hType];
 }
 
 // get the results maps
-AcdCalibMap* AcdCalibBase::getCalibMap(int key) {
-  std::map<int,AcdCalibMap*>::iterator itr = m_fitMaps.find(key);
-  return itr == m_fitMaps.end() ? 0 : itr->second;
+AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalib::CALTYPE cType) {
+  return cType < 0 ? 0 : m_fitMaps[cType];
 }
+const AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalib::CALTYPE cType) const {
+  return cType < 0 ? 0 : m_fitMaps[cType];
+}
+
+// get a particular chain
+TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) {
+  return chain < 0 ? 0 : m_chains[chain];
+}
+const TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) const {
+  return chain < 0 ? 0 : m_chains[chain];
+}
+
+
+AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalib::CALTYPE cType, AcdCalib::HISTTYPE hType) { 
+  AcdCalibMap* result = new AcdCalibMap(*(fitter.desc()));
+  addCalibration(cType,*result);
+  AcdHistCalibMap* hists = getHistMap(hType);
+  fitter.fitAll(*result,*hists);
+  return result;
+}
+
+// get the pedestal for a channel
+float AcdCalibBase::getPeds(UInt_t key) const {
+  const AcdCalibMap* peds = m_fitMaps[AcdCalib::PEDESTAL];
+  if ( peds == 0 ) return -1;
+  const AcdCalibResult * pedRes = peds->get(key);
+  if ( pedRes == 0 ) return -2;
+  return (*pedRes)[0];
+}
+
+// 
+void AcdCalibBase::writeCalibTxt(std::ostream& os, AcdCalib::CALTYPE cType) const {
+
+  std::string tag;
+  switch (cType) {
+  case AcdCalib::PEDESTAL: tag += "#pedestalFile = "; break;
+  case AcdCalib::GAIN:     tag += "#gainFile = ";     break;
+  case AcdCalib::RANGE:    tag += "#rangeFile = ";    break;
+  default:
+    return;
+  }
+  const AcdCalibMap* calib = getCalibMap(cType);
+  if ( calib == 0 ) return;
+  os << tag << calib->fileName() << endl;
+}
+
+//
+void AcdCalibBase::writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const {
+  std::string tag;
+  switch (chain) {
+  case AcdCalib::DIGI:  tag += "#inputDigiFile = ";  break;
+  case AcdCalib::RECON: tag += "#inputReconFile = "; break;
+  case AcdCalib::MERIT: tag += "#inputMeritFile = "; break;
+  case AcdCalib::SVAC:  tag += "#inputSvacFile = ";  break;
+  case AcdCalib::BENCH: tag += "#inputBenchFile = "; break;
+  default:
+    return;
+  }
+  const TChain* tchain = getChain(chain);
+  if ( tchain == 0 ) return;
+  TObjArray* files = tchain->GetListOfFiles();
+  if ( files == 0 ) return;
+  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+    TObject* obj = files->At(i);
+    os << tag << obj->GetTitle() << endl;
+  }
+}
+
+// 
+void AcdCalibBase::writeCalibXml(DomElement& node, AcdCalib::CALTYPE cType) const {
+  std::string tag;
+  switch (cType) {
+  case AcdCalib::PEDESTAL: tag += "pedestal"; break;
+  case AcdCalib::GAIN:     tag += "gain";     break;
+  case AcdCalib::RANGE:    tag += "range";    break;
+  default:
+    return;
+  }
+  const AcdCalibMap* calib = getCalibMap(cType);
+  if ( calib == 0 ) return;
+  DomElement cNode = AcdXmlUtil::makeChildNode(node,tag.c_str());
+  AcdXmlUtil::addAttribute(cNode,"fileName",calib->fileName());
+}
+
+//
+void AcdCalibBase::writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const {
+  std::string tag;
+  switch (chain) {
+  case AcdCalib::DIGI:  tag += "digiFiles";  break;
+  case AcdCalib::RECON: tag += "reconFiles"; break;
+  case AcdCalib::MERIT: tag += "meritFiles"; break;
+  case AcdCalib::SVAC:  tag += "svacFiles";  break;
+  case AcdCalib::BENCH: tag += "benchFiles"; break;
+  default:
+    return;
+  }
+  const TChain* tchain = getChain(chain);
+  if ( tchain == 0 ) return;
+  TObjArray* files = tchain->GetListOfFiles();
+  if ( files == 0 ) return;
+  DomElement cNode = AcdXmlUtil::makeChildNode(node,tag.c_str());
+  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+    TObject* obj = files->At(i);
+    DomElement ccNode = AcdXmlUtil::makeChildNode(cNode,"file");
+    AcdXmlUtil::addAttribute(ccNode,"fileName",obj->GetTitle());
+  }
+}
+
+
+// return the total number of events in the chains
+int AcdCalibBase::getTotalEvents() const {
+  for ( int i(0); i < AcdCalib::NCHAIN; i++ ) {
+    TChain* chain = m_chains[i];
+    if ( chain != 0 ) {
+      return (int)chain->GetEntries();
+    }
+  }
+  return -1;
+}
+

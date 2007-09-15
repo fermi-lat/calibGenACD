@@ -4,9 +4,10 @@
 #include "../src/AcdJobConfig.h"
 
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdGainFitLibrary.h"
+#include "../src/AcdGainFit.h"
 #include "../src/AcdCalibLoop_Recon.h"
 #include "../src/AcdPadMap.h"
+#include "../src/AcdCalibMap.h"
 
 
 int main(int argn, char** argc) {
@@ -30,18 +31,17 @@ int main(int argn, char** argc) {
 
   /// build filler & run over events
   AcdCalibLoop_Recon r(jc.digiChain(),jc.reconChain(),jc.optval_L(),jc.config());
-  //r.setCalType(AcdCalibBase::GAIN);        
 
   bool removePeds(true);
   if ( jc.pedFileName() != "" && jc.reconChain() != 0 ) {
-    r.readPedestals(jc.pedFileName().c_str());
+    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
     removePeds = false;
   }
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
   AcdGainFitLibrary gainFitter(AcdGainFitLibrary::P5,removePeds);
-  AcdGainFitMap* gains = r.fitGains(gainFitter);
+  AcdCalibMap* gains = r.fit(gainFitter,AcdCalib::GAIN,AcdCalib::H_GAIN);
 
   // output
   std::string gainTextFile = jc.outputPrefix() + "_gain.txt";
@@ -49,7 +49,7 @@ int main(int argn, char** argc) {
   std::string outputHistFile = jc.outputPrefix() + "_gain.root";
   std::string psFile = jc.outputPrefix() + "_gain_";
 
-  r.writeHistograms(AcdCalibBase::GAIN, outputHistFile.c_str());
+  r.writeHistograms(AcdCalib::H_GAIN, outputHistFile.c_str());
   gains->writeTxtFile(gainTextFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),gainFitter.algorithm(),r);
   gains->writeXmlFile(gainXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),gainFitter.algorithm(),r);
 
@@ -58,7 +58,7 @@ int main(int argn, char** argc) {
 
   AcdPadMap* logPads(0);
   AcdPadMap* linPads(0);
-  AcdHistCalibMap* hists = r.getHistMap(AcdCalibBase::GAIN);
+  AcdHistCalibMap* hists = r.getHistMap(AcdCalib::H_GAIN);
  
   logPads = AcdCalibUtil::drawMips(*hists,*gains,kTRUE,psFile_log.c_str());    
   AcdCalibUtil::saveCanvases(logPads->canvasList());

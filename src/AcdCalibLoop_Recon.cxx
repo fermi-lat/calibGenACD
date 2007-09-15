@@ -1,39 +1,34 @@
-#include <fstream>
-#include "TH1F.h"
-#include "TF1.h"
 #include "AcdCalibLoop_Recon.h"
 
 #include "AcdHistCalibMap.h"
-#include "AcdPedestalFit.h"
-#include "AcdGainFit.h"
 #include "AcdCalibUtil.h"
+#include "AcdCalibMap.h"
 
 #include "digiRootData/DigiEvent.h"
 #include "reconRootData/ReconEvent.h"
 
+#include "TH1F.h"
+#include "TChain.h"
+
 #include <cassert>
 #include <cmath>
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
 
 ClassImp(AcdCalibLoop_Recon) ;
 
 AcdCalibLoop_Recon::AcdCalibLoop_Recon(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(AcdCalibBase::GAIN,config),
+  :AcdCalibBase(AcdCalib::GAIN,config),
    m_correctPathLength(correctPathLength),
-   m_digiChain(digiChain),
-   m_reconChain(reconChain), 
    m_digiEvent(0),
    m_reconEvent(0),
-   m_gainHists(0),
-   m_gains(0),
-   m_peds(0){
+   m_gainHists(0){
 
-  m_gainHists = bookHists(H_GAIN,64,-0.5,4095.5);
+  setChain(AcdCalib::DIGI,digiChain);
+  setChain(AcdCalib::RECON,reconChain);
+
+  m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,4095.5);
   
+
   Bool_t ok = attachChains();
   if ( ! ok ) {
     cerr << "ERR:  Failed to attach to input chains."  << endl;
@@ -48,24 +43,27 @@ AcdCalibLoop_Recon::~AcdCalibLoop_Recon()
 }
 
 Bool_t AcdCalibLoop_Recon::attachChains() {
-  if (m_digiChain != 0) {
+
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  if (digiChain != 0) {
     m_digiEvent = 0;
-    m_digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
-    m_digiChain->SetBranchStatus("*",0);  // disable all branches
+    digiChain->SetBranchAddress("DigiEvent", &m_digiEvent);
+    digiChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_digiChain->SetBranchStatus("m_acd*",1);
-    m_digiChain->SetBranchStatus("m_eventId", 1); 
-    m_digiChain->SetBranchStatus("m_runId", 1);
+    digiChain->SetBranchStatus("m_acd*",1);
+    digiChain->SetBranchStatus("m_eventId", 1); 
+    digiChain->SetBranchStatus("m_runId", 1);
   }
   
-  if (m_reconChain != 0) {
+  TChain* reconChain = getChain(AcdCalib::RECON); 
+  if (reconChain != 0) {
     m_reconEvent = 0;
-    m_reconChain->SetBranchAddress("ReconEvent", &m_reconEvent);
-    m_reconChain->SetBranchStatus("*",0);  // disable all branches
+    reconChain->SetBranchAddress("ReconEvent", &m_reconEvent);
+    reconChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
-    m_reconChain->SetBranchStatus("m_acd",1);
-    m_reconChain->SetBranchStatus("m_eventId", 1); 
-    m_reconChain->SetBranchStatus("m_runId", 1);
+    reconChain->SetBranchStatus("m_acd",1);
+    reconChain->SetBranchStatus("m_eventId", 1); 
+    reconChain->SetBranchStatus("m_runId", 1);
   }
     
   return kTRUE;
@@ -97,13 +95,12 @@ void AcdCalibLoop_Recon::fillGainHistCorrect(const AcdTkrIntersection& inter, co
   UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
 
-  AcdPedestalFitResult* pedRes_A = m_peds->find(keyA);
-  AcdPedestalFitResult* pedRes_B = m_peds->find(keyB);
+  float pedA = getPeds(keyA);
+  float pedB = getPeds(keyB);
+  if ( pedA < 0 || pedB < 0 ) return;
 
-  if ( pedRes_A == 0 && pedRes_B == 0 ) return;
-
-  Float_t redPha_A = ((Float_t)(pmt0)) - pedRes_A->mean();
-  Float_t redPha_B = ((Float_t)(pmt1)) - pedRes_B->mean();
+  Float_t redPha_A = ((Float_t)(pmt0)) - pedA;
+  Float_t redPha_B = ((Float_t)(pmt1)) - pedB;
 
   if ( m_correctPathLength ) {
     redPha_A /= pathFactor;
@@ -124,13 +121,16 @@ Bool_t AcdCalibLoop_Recon::readEvent(int ievent, Bool_t& filtered,
   
   if(m_digiEvent) m_digiEvent->Clear();
   if(m_reconEvent) m_reconEvent->Clear();
+
+  TChain* digiChain = getChain(AcdCalib::DIGI);
+  TChain* reconChain = getChain(AcdCalib::RECON);
   
-  if(m_digiChain) { 
-    m_digiChain->GetEvent(ievent);
+  if(digiChain) { 
+    digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
   }
-  if(m_reconChain) m_reconChain->GetEvent(ievent);
+  if(reconChain) reconChain->GetEvent(ievent);
   
   if(m_digiEvent && m_reconEvent) {
     int reconEventId = m_reconEvent->getEventId(); 
@@ -175,61 +175,6 @@ void AcdCalibLoop_Recon::useEvent(Bool_t& used) {
       if (!( acdId.isTile() || acdId.isRibbon()) ) continue;
       fillGainHistCorrect(*acdInter,*acdDigi);
       used = kTRUE;
-    }
-  }
-}
-
-AcdGainFitMap* AcdCalibLoop_Recon::fitGains(AcdGainFit& fitter) {
-  m_gains = new AcdGainFitMap;
-  addCalibration(GAIN,*m_gains);
-  AcdHistCalibMap* hists = getHistMap(GAIN);
-  fitter.fitAll(*m_gains,*hists);
-  return m_gains;
-}  
-
-Bool_t AcdCalibLoop_Recon::readPedestals(const char* fileName) {
-  Bool_t latchVal = readCalib(PEDESTAL,fileName);
-  AcdCalibMap* map = getCalibMap(PEDESTAL);
-  m_peds = (AcdPedestalFitMap*)(map);
-  return latchVal;
-}
-
-void AcdCalibLoop_Recon::writeXmlSources(DomElement& node) const{
-  //std::string pedFileName;
-  //if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  //os << "pedestalFile=" << pedFileName << std::endl;
-  //TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
-  //if ( files != 0 ) {
-  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-  //    TObject* obj = files->At(i);
-  //    os << "inputDigi=" << obj->GetTitle() << std::endl;
-  //  }
-  //}
-  //files = m_reconChain != 0 ? m_reconChain->GetListOfFiles() : 0;
-  //if ( files != 0 ) {
-  //  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-  //    TObject* obj = files->At(i);
-  //    os << "inputRecon=" << obj->GetTitle() << std::endl;
-  //  }
-  //}
-}
-
-void AcdCalibLoop_Recon::writeTxtSources(ostream& os) const {
-  std::string pedFileName;
-  if ( m_peds != 0 ) pedFileName +=  m_peds->fileName();
-  os << "#pedestalFile = " << pedFileName << endl;
-  TObjArray* files = m_digiChain != 0 ? m_digiChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "#inputDigiFile = " << obj->GetTitle() << endl;
-    }
-  }
-  files = m_reconChain != 0 ? m_reconChain->GetListOfFiles() : 0;
-  if ( files != 0 ) {
-    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-      TObject* obj = files->At(i);
-      os << "#inputReconFile = " << obj->GetTitle() << endl;
     }
   }
 }

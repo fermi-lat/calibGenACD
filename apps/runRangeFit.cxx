@@ -4,10 +4,11 @@
 #include "../src/AcdJobConfig.h"
 
 #include "../src/AcdCalibUtil.h"
-#include "../src/AcdRangeFitLibrary.h"
+#include "../src/AcdRangeFit.h"
 #include "../src/AcdCalibLoop_Digi.h"
 
 #include "../src/AcdPadMap.h"
+#include "../src/AcdCalibMap.h"
 
 int main(int argn, char** argc) {
 
@@ -27,23 +28,23 @@ int main(int argn, char** argc) {
   Bool_t okToContinue = jc.checkDigi();
   if ( ! okToContinue ) return 1; // no input, fail
 
-  AcdCalibLoop_Digi r(AcdCalibBase::RANGE,jc.digiChain(),jc.optval_P(),jc.config());
+  AcdCalibLoop_Digi r(AcdCalib::RANGE,jc.digiChain(),jc.optval_P(),jc.config());
   if ( jc.pedFileName() != "" ) {
-    r.readPedestals(jc.pedFileName().c_str());
+    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
   }
   
   r.go(jc.optval_n(),jc.optval_s());    
 
   AcdRangeFitLibrary rangeFitter(AcdRangeFitLibrary::Counting);
-  AcdRangeFitMap* ranges = r.fitRanges(rangeFitter);
+  AcdCalibMap* ranges = r.fit(rangeFitter,AcdCalib::RANGE,AcdCalib::H_RANGE);
 
   std::string textFile = jc.outputPrefix() + "_range.txt";
   std::string xmlFile = jc.outputPrefix() + "_range.xml";
   std::string outputHistFileLow = jc.outputPrefix() + "_range_low.root";
   std::string outputHistFileHigh = jc.outputPrefix() + "_range_high.root";
 
-  r.writeHistograms(AcdCalibBase::H_RAW, outputHistFileLow.c_str());
-  r.writeHistograms(AcdCalibBase::H_RANGE, outputHistFileHigh.c_str());
+  r.writeHistograms(AcdCalib::H_RAW, outputHistFileLow.c_str());
+  r.writeHistograms(AcdCalib::H_RANGE, outputHistFileHigh.c_str());
   ranges->writeTxtFile(textFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),rangeFitter.algorithm(),r);
   ranges->writeXmlFile(xmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),rangeFitter.algorithm(),r);
 

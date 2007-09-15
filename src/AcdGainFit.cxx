@@ -1,89 +1,284 @@
 #define AcdGainFit_cxx
 
-#include "AcdHistCalibMap.h"
 #include "AcdGainFit.h"
-#include "AcdMap.h"
+#include "AcdCalibEnum.h"
 
-#include "AcdXmlUtil.h"
-#include "DomElement.h"
+#include "AcdHistCalibMap.h"
 
-#include <iostream>
-#include <fstream>
+#include "TF1.h"
 
-ClassImp(AcdGainFitResult) ;
+ClassImp(AcdGainFitDesc) ;
 
-AcdGainFitResult::AcdGainFitResult(Float_t peak, Float_t width, STATUS status) 
-  :AcdCalibResult(status),
-   _peak(peak),_width(width){
+const std::string AcdGainFitDesc::s_calibType("ACD_Gain");
+const std::string AcdGainFitDesc::s_txtFormat("TILE PMT PEAK WIDTH STATUS");
+
+const AcdGainFitDesc& AcdGainFitDesc::ins() {
+  static const AcdGainFitDesc desc;
+  return desc;
 }
 
-AcdGainFitResult::AcdGainFitResult()
-  :AcdCalibResult(),
-   _peak(0.),_width(0.){
+AcdGainFitDesc::AcdGainFitDesc()
+  :AcdCalibDescription(AcdCalib::GAIN,s_calibType,s_txtFormat){
+  addVarName("peak");
+  addVarName("width");
 }
 
-void AcdGainFitResult::makeXmlNode(DomElement& node) const {
-  DomElement gainNode = AcdXmlUtil::makeChildNode(node,"acdGain");
-  AcdXmlUtil::addAttribute(gainNode,"peak",_peak);
-  AcdXmlUtil::addAttribute(gainNode,"width",_width);
-  AcdXmlUtil::addAttribute(gainNode,"status",getStatus());
-};
 
-void AcdGainFitResult::printTxtLine(ostream& os) const {
-  os << _peak << ' ' << _width << ' ' << getStatus();
-};
-
-Bool_t AcdGainFitResult::readTxt(istream& is) { 
-  Float_t peak, width;
-  Int_t stat;
-  is >> peak >> width >> stat;
-  setVals(peak,width,(STATUS)stat);
-  return kTRUE;
-};  
+ClassImp(AcdGainFitLibrary) ;
 
 
-ClassImp(AcdGainFitMap) ;
-
-AcdGainFitMap::AcdGainFitMap(){;}
-
-AcdGainFitMap::~AcdGainFitMap(){;}
-
-ClassImp(AcdGainFit) ;
-
-AcdGainFit::AcdGainFit() {;}
-
-AcdGainFit::~AcdGainFit() {;}
-
-Int_t AcdGainFit::fit(AcdGainFitResult& result, const TH1& /* hist */) {
-  result.setVals(0.,0.,AcdGainFitResult::NOFIT);
-  return result.getStatus();
-}
-
-void AcdGainFit::fitAll(AcdGainFitMap& results, AcdHistCalibMap& hists) {
-  TList& theHists = const_cast<TList&>(hists.histograms());
-  TListIter itr(&theHists);
-  while ( TObject* obj = itr() ) {
-    TH1* hist = static_cast<TH1*>(obj);
-    UInt_t key = hist->GetUniqueID();
-    AcdGainFitResult* theResult = new AcdGainFitResult;
-    fit(*theResult,*hist);
-    results.add(key,*theResult);
-  } 
-}
-
-Int_t AcdGainFit::fitChannel(AcdGainFitMap& result, AcdHistCalibMap& input, UInt_t key) {
-  
-  TH1* hist = input.getHist(key);
-  if ( hist == 0 ) {
-    std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
-    return 0;
+Int_t AcdGainFitLibrary::findLowestNonZeroBin(const TH1& hist) {
+  UInt_t nB = hist.GetNbinsX();
+  for ( UInt_t i(1); i <= nB; i++ ) {
+    if ( hist.GetBinContent(i) > 0.5 ) {
+      return (Int_t)i;
+    }
   }
-  AcdGainFitResult* theResult = static_cast<AcdGainFitResult*>(result.get(key));
-  if ( theResult == 0 ) {
-    theResult = new AcdGainFitResult;
-    result.add(key,*theResult);
+  return -1;   
+}
+
+Int_t AcdGainFitLibrary::findNextLocalMax(const TH1& hist, Int_t startBin) {
+  UInt_t nB = hist.GetNbinsX();
+  Float_t lastValue = hist.GetBinContent(startBin);
+  for ( UInt_t i = startBin+1; i <= nB; i++ ) {
+    Float_t curValue = hist.GetBinContent(i);
+    if ( curValue < lastValue ) {      
+      return (Int_t)i;
+    }
+    lastValue = curValue;
   }
+  return -1;
+}
+
+
+Int_t AcdGainFitLibrary::findNextLocalMin(const TH1& hist, Int_t startBin) {
+  UInt_t nB = hist.GetNbinsX();
+  Float_t lastValue = hist.GetBinContent(startBin);
+  for ( UInt_t i = startBin+1; i <= nB; i++ ) {
+    Float_t curValue = hist.GetBinContent(i);
+    if ( curValue > lastValue ) {      
+      return (Int_t)i;
+    }
+    lastValue = curValue;
+  }
+  return -1;
+}
+
+Int_t AcdGainFitLibrary::findHalfMaxHigh(const TH1& hist, Int_t maxBin) {
+  UInt_t nB = hist.GetNbinsX();
+  Float_t refVal = hist.GetBinContent(maxBin);
+  refVal /= 2;
+  for ( UInt_t i = maxBin+1; i <= nB; i++ ) {
+    Float_t curValue = hist.GetBinContent(i);
+    if ( curValue < refVal ) {
+      return (Int_t)i;
+    }
+  }
+  return -1;
+}
+
+Int_t AcdGainFitLibrary::findHalfMaxLow(const TH1& hist, Int_t maxBin) {
+  Float_t refVal = hist.GetBinContent(maxBin);
+  refVal /= 2;
+  for ( UInt_t i = maxBin-1; i > 0; i-- ) {
+    Float_t curValue = hist.GetBinContent(i);
+    if ( curValue < refVal ) {
+      return (Int_t)i;
+    }
+  }
+  return -1;
+}
+
+Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
+
+  TH1F copy((TH1F&)hist);
+  copy.Rebin(rebin);
+
+  ped = pedRemove ? findLowestNonZeroBin(copy) : 0;
+  if ( ped < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  Int_t ped_1 = pedRemove ? findNextLocalMax(copy,ped) : 0;
+  if ( ped_1 < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  min = pedRemove ? findNextLocalMin(copy,ped_1) : 0;
+  if ( min < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  peak = pedRemove ? findNextLocalMax(copy,min) : copy.GetMaximumBin();
+  if ( ! pedRemove ) {
+    min = findHalfMaxLow(copy,peak);
+    if ( min < 0 ) min = 1;
+  }
+  if ( peak < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  halfMax = findHalfMaxHigh(copy,peak);
+  halfMax = halfMax < 0 ? copy.GetNbinsX() : halfMax;
+  return 0;
+}
+
+
+Int_t AcdGainFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+  TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
-  return fit(*theResult,*hist);
+  Int_t returnCode = AcdCalibResult::NOFIT;
+  if ( hist.GetEntries() < 100 ) return returnCode;
+  switch ( _type ) {
+  case None:
+    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    break;
+  case Stats:
+    returnCode = stats(result,hist);
+    break;
+  case Fallback:
+    returnCode = fallback(result,hist);
+    break;
+  case Landau:
+    returnCode = fitLandau(result,hist);
+    break;
+  case P7:
+    returnCode = fitP7(result,hist);
+    break;
+  case P5:
+    returnCode = fitP5(result,hist);
+    break;
+  case LogNormal:
+    returnCode = fitLogNormal(result,hist);
+    break;
+  }  
+  return returnCode;
+}
+
+Int_t AcdGainFitLibrary::stats(AcdCalibResult& result, const TH1& hist) {
+
+  TH1& theHist = const_cast<TH1&>(hist);
+
+  float ave = theHist.GetMean();
+  float rms = theHist.GetRMS();
+  result.setVals(ave,rms,AcdCalibResult::USED_FALLBACK_2);
+  return AcdCalibResult::OK;
+}
+
+
+Int_t AcdGainFitLibrary::fallback(AcdCalibResult& result, const TH1& hist) {
+  Int_t ped, min, peak, halfMax;
+  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+
+  if ( status != 0 ) return AcdCalibResult::PREFIT_FAILED;
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
+  //Float_t minValue = hist.GetBinCenter(4*min);
+  Float_t peakValue = hist.GetBinCenter(4*peak);
+  Float_t endValue = hist.GetBinCenter(4*halfMax);
+
+  Float_t width = endValue - peakValue;
+
+  result.setVals(peakValue,width,AcdCalibResult::USED_FALLBACK_1);
+  return AcdCalibResult::OK;
 
 }
+
+Int_t AcdGainFitLibrary::fitLandau(AcdCalibResult& result, const TH1& hist) {
+
+  TH1& theHist = const_cast<TH1&>(hist);
+
+  float ave = theHist.GetMean();
+  float rms = theHist.GetRMS();
+  Int_t status = theHist.Fit("landau", "", "", ave-2*rms, ave+3*rms);
+
+  if ( status != 0 ) return fallback(result,hist);
+
+  double* par = (theHist.GetFunction("landau"))->GetParameters();
+  float mean = *(par+1); 
+  float sigma = *(par+2);
+  result.setVals(mean,sigma,(AcdCalibResult::STATUS)status);
+  return status;
+}
+
+
+Int_t AcdGainFitLibrary::fitP7(AcdCalibResult& result, const TH1& hist) {
+
+  Int_t ped, min, peak, halfMax;
+  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+
+  TH1& theHist = const_cast<TH1&>(hist);
+
+  if ( status != 0 ) return status;
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
+  Float_t minValue = hist.GetBinCenter(4*min);
+  Float_t endValue = hist.GetBinCenter(4*halfMax);
+
+  status = theHist.Fit("pol7","","",minValue,endValue); //applies polynomial fit
+  if ( status != 0 ) return fallback(result,hist);
+
+  TF1* fit = theHist.GetFunction("pol7"); 
+ 
+  Float_t peakValue = fit->GetMaximumX();
+  Float_t width = endValue - peakValue;
+
+  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+  return status;
+}
+
+
+Int_t AcdGainFitLibrary::fitP5(AcdCalibResult& result, const TH1& hist) {
+
+  Int_t ped, min, peak, halfMax;
+  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+
+  TH1& theHist = const_cast<TH1&>(hist);
+
+  if ( status != 0 ) return status;
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
+  Float_t minValue = hist.GetBinCenter(4*min);
+  Float_t endValue = hist.GetBinCenter(4*halfMax);
+
+  status = theHist.Fit("pol5","","",minValue,endValue); //applies polynomial fit
+  // if ( status != 0 ) return fallback(result,hist);
+  if ( status != 0 ) return status;
+
+  TF1* fit = theHist.GetFunction("pol5"); 
+ 
+  Float_t peakValue = fit->GetMaximumX();
+  Float_t width = endValue - peakValue;
+
+  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+  return status;
+}
+
+
+Int_t AcdGainFitLibrary::fitLogNormal(AcdCalibResult& result, const TH1& hist) {
+  
+  Int_t ped, min, peak, halfMax;
+  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+
+  if ( status != 0 ) return status;
+  //Float_t pedValue = hist.GetBinCenter(4*ped);
+  Float_t minValue = hist.GetBinCenter(4*min);
+  Float_t endValue = hist.GetBinCenter(4*halfMax);
+  Float_t integ = hist.Integral(4*min,4*halfMax);
+      
+  TF1 logNorm("logNorm","[0] * TMath::LogNormal(x,[1],[2],[3])",minValue,endValue);
+  logNorm.SetParameter(0,integ);
+  logNorm.SetParameter(1,0.5);
+  logNorm.SetParLimits(1,0.,10.);
+  logNorm.SetParameter(2,ped);
+  logNorm.SetParLimits(2,0.,min-1.);
+  logNorm.SetParameter(3,450.);
+  logNorm.SetParLimits(3,20.,3000.);
+  
+  TH1& nch = const_cast<TH1&>(hist);
+  status = nch.Fit(&logNorm,"","",minValue,endValue);
+
+  if ( status != 0 ) return fallback(result,hist);
+
+  Double_t peakValue = logNorm.GetMaximumX();
+  
+  Double_t sigma = logNorm.GetParameter(1);
+
+  Double_t sigma2 = sigma*sigma;
+  Double_t es2 = exp(sigma2);
+
+  Double_t m = logNorm.GetParameter(3);
+  
+  Double_t width = m * es2 * ( es2 - 1 );
+  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+
+  return status;
+
+}
+
+

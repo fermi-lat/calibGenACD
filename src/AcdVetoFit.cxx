@@ -1,89 +1,77 @@
 #define AcdVetoFit_cxx
 
-#include "AcdHistCalibMap.h"
 #include "AcdVetoFit.h"
-#include "AcdMap.h"
 
-#include "AcdXmlUtil.h"
-#include "DomElement.h"
+#include "AcdHistCalibMap.h"
+#include "TF1.h"
 
-#include <iostream>
-#include <fstream>
+ClassImp(AcdVetoFitDesc) ;
 
-ClassImp(AcdVetoFitResult) ;
+const std::string AcdVetoFitDesc::s_calibType("ACD_Veto");
+const std::string AcdVetoFitDesc::s_txtFormat("TILE PMT VETO WIDTH STATUS");
 
-AcdVetoFitResult::AcdVetoFitResult(Float_t veto, Float_t width, STATUS status) 
-  :AcdCalibResult(status),
-   _veto(veto),_width(width){
+const AcdVetoFitDesc& AcdVetoFitDesc::ins() {
+  static const AcdVetoFitDesc desc;
+  return desc;
 }
 
-AcdVetoFitResult::AcdVetoFitResult()
-  :AcdCalibResult(),
-   _veto(0.),_width(0.){
+AcdVetoFitDesc::AcdVetoFitDesc()
+  :AcdCalibDescription(AcdCalib::VETO,s_calibType,s_txtFormat){
+  addVarName("veto");
+  addVarName("width");
 }
 
-void AcdVetoFitResult::makeXmlNode(DomElement& node) const {
-  DomElement vetoNode = AcdXmlUtil::makeChildNode(node,"acdVeto");
-  AcdXmlUtil::addAttribute(vetoNode,"veto",_veto);
-  AcdXmlUtil::addAttribute(vetoNode,"width",_width);
-  AcdXmlUtil::addAttribute(vetoNode,"status",getStatus());
-};
-
-void AcdVetoFitResult::printTxtLine(ostream& os) const {
-  os << _veto << ' ' << _width << ' ' << getStatus();     
-};
-
-Bool_t AcdVetoFitResult::readTxt(istream& is) { 
-  Float_t veto, width;
-  Int_t stat;
-  is >> veto >> width >> stat;
-  setVals(veto,width,(STATUS)stat);
-  return kTRUE;
-};  
+ClassImp(AcdVetoFitLibrary) ;
 
 
-ClassImp(AcdVetoFitMap) ;
-
-AcdVetoFitMap::AcdVetoFitMap(){;}
-
-AcdVetoFitMap::~AcdVetoFitMap(){;}
-
-ClassImp(AcdVetoFit) ;
-
-AcdVetoFit::AcdVetoFit() {;}
-
-AcdVetoFit::~AcdVetoFit() {;}
-
-Int_t AcdVetoFit::fit(AcdVetoFitResult& result, const TH1& /* hist */) {
-  result.setVals(0.,0.,AcdVetoFitResult::NOFIT);
-  return result.getStatus();
-}
-
-void AcdVetoFit::fitAll(AcdVetoFitMap& results, AcdHistCalibMap& hists) {
-  TList& theHists = const_cast<TList&>(hists.histograms());
-  TListIter itr(&theHists);
-  while ( TObject* obj = itr() ) {
-    TH1* hist = static_cast<TH1*>(obj);
-    UInt_t key = hist->GetUniqueID();
-    AcdVetoFitResult* theResult = new AcdVetoFitResult;
-    fit(*theResult,*hist);
-    results.add(key,*theResult);
-  } 
-}
-
-Int_t AcdVetoFit::fitChannel(AcdVetoFitMap& result, AcdHistCalibMap& input, UInt_t key) {
-  
-  TH1* hist = input.getHist(key);
-  if ( hist == 0 ) {
-    std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
-    return 0;
+Int_t AcdVetoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
+  UInt_t nB = hist.GetNbinsX();
+  // skip the first bin...
+  for ( UInt_t i(2); i <= nB; i++ ) {
+    if ( hist.GetBinContent(i) > val ) {
+      return (Int_t)i;
+    }
   }
-  AcdVetoFitResult* theResult = static_cast<AcdVetoFitResult*>(result.get(key));
-  if ( theResult == 0 ) {
-    theResult = new AcdVetoFitResult;
-    result.add(key,*theResult);
-  }
+  return -1;   
+}
+
+Int_t AcdVetoFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+
+  TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
-  return fit(*theResult,*hist);
+  Int_t returnCode = AcdCalibResult::NOFIT;
+  switch ( _type ) {
+  case None:
+    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    break;
+  case Counting:
+    returnCode = counting(result,hist);
+    break;
+  case Erf:
+    returnCode = fitErf(result,hist);
+    break;
+  }  
+  return returnCode;
+}
+
+Int_t AcdVetoFitLibrary::counting(AcdCalibResult& result, const TH1& hist) {
+
+  //TH1& theHist = const_cast<TH1&>(hist);
+  
+  Int_t i_10 = findFirstBinAboveVal(hist,0.1);
+  Float_t f_10 = hist.GetBinCenter(i_10);
+  Int_t i_50 = findFirstBinAboveVal(hist,0.5);
+  Float_t f_50 = hist.GetBinCenter(i_50);
+  Float_t width = f_50 - f_10;
+  result.setVals(f_50,width,AcdCalibResult::OK);
+  return AcdCalibResult::OK;
+}
+
+
+Int_t AcdVetoFitLibrary::fitErf(AcdCalibResult& /* result */, const TH1& /* hist */) {
+  
+  return AcdCalibResult::NOFIT;
 
 }
+
+

@@ -2,29 +2,37 @@
 #ifndef AcdCalibMap_h
 #define AcdCalibMap_h
 
-#include "AcdCalibResult.h"
+#include "Rtypes.h"
 
+// stl includes
 #include <map>
+#include <string>
+#include <iostream>
 
+class AcdCalibDescription;
+class AcdCalibResult;
 class AcdHistCalibMap;
 class AcdCalibBase;
 class DomElement;
 
 class AcdCalibMap {
 public:
-  AcdCalibMap();
+
+  AcdCalibMap(const AcdCalibDescription& desc);
+
   virtual ~AcdCalibMap();
   
   void add(UInt_t key, AcdCalibResult& result);
   const AcdCalibResult* get(UInt_t key) const;
   AcdCalibResult* get(UInt_t key);
+  AcdCalibResult* makeNew() const;
 
   Bool_t writeTxtFile(const char* fileName,
 		      const char* instrument,
 		      const char* timestamp,
 		      const char* algorithm,
 		      const AcdCalibBase& calib);
-  void writeTxt(ostream& os) const;
+  void writeTxt(std::ostream& os) const;
 
   Bool_t writeXmlFile(const char* fileName,
 		      const char* instrument,
@@ -39,31 +47,26 @@ public:
   void writeXmlFooter(DomElement& node) const;
   void writeXmlBody(DomElement& node) const;
   
-  virtual AcdCalibResult* createHolder() const { return 0; }
-
   Bool_t readTxtFile(const char* fileName);
-  Bool_t readTxt(istream& is);
-
-  virtual const char* calibType() const {
-    return "NONE";
-  }
-
-  virtual const char* txtFormat() const {
-    return "NONE";
-  }
+  Bool_t readTxt(std::istream& is);
 
   const char* fileName() const {
     return m_fileName.c_str();
   }
 
+  inline const std::map<UInt_t,AcdCalibResult*>& theMap() const { return m_map; }
+
 protected:
 
-  inline const std::map<UInt_t,AcdCalibResult*>& theMap() const { return m_map; }
+  AcdCalibMap();
 
 private:  
 
+  const AcdCalibDescription* m_desc;
+  
   std::map<UInt_t,AcdCalibResult*> m_map;
   std::string m_fileName;
+  
 
   ClassDef(AcdCalibMap,0) ;
 };
