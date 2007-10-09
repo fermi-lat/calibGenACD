@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Tue Oct  9 11:32:02 PDT 2007
+calibGenACD/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Move data classes do CalibData to ensure that they are shared w/ Gleam and non-Gleam apps
+    *
+------------------------------------------------------------
+User: echarles  Tue Oct  9 11:32:02 PDT 2007
 calibGenACD/cmt
 
 Modified Files:
