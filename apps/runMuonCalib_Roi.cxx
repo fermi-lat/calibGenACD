@@ -30,18 +30,18 @@ int main(int argn, char** argc) {
 
 
   /// build filler & run over events
-  AcdCalibLoop_Digi r(AcdCalib::GAIN,jc.digiChain(),jc.optval_P(),jc.config());
+  AcdCalibLoop_Digi r(AcdCalibData::GAIN,jc.digiChain(),jc.optval_P(),jc.config());
 
   bool removePeds = true;
   if ( jc.pedFileName() != "" ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
     removePeds = false;
   }
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
   AcdGainFitLibrary gainFitter(AcdGainFitLibrary::P5,removePeds);
-  AcdCalibMap* gains = r.fit(gainFitter,AcdCalib::GAIN,AcdCalib::H_GAIN);
+  AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::GAIN,AcdCalib::H_GAIN);
 
   // output
   std::string gainTextFile = jc.outputPrefix() + "_gain.txt";

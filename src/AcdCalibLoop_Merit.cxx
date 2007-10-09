@@ -19,10 +19,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdCalibLoop_Merit) ;
-
 AcdCalibLoop_Merit::AcdCalibLoop_Merit(TChain& digiChain, TChain& reconChain, TChain& meritChain)
-  :AcdCalibBase(AcdCalib::MERITCALIB), 
+  :AcdCalibBase(AcdCalibData::MERITCALIB), 
    m_digiEvent(0),
    m_reconEvent(0){
 

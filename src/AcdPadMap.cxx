@@ -9,8 +9,6 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdPadMap) ;
-
 AcdPadMap::AcdPadMap(AcdMap::Config padConfig, const char* prefix)
   :m_config(padConfig),
    m_prefix(prefix)

@@ -32,7 +32,7 @@ int main(int argn, char** argc) {
   AcdCoherentNoise r(jc.digiChain(), 529, 2529, jc.optval_b(), jc.config() );
 
   if ( jc.pedFileName() != "" ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
   }
   r.go(jc.optval_n(),jc.optval_s());    
 
@@ -40,7 +40,7 @@ int main(int argn, char** argc) {
 
   // do fits  
   AcdCoherentNoiseFitLibrary fitCoherent(AcdCoherentNoiseFitLibrary::Minuit);
-  AcdCalibMap* fitMap = r.fit(fitCoherent,AcdCalib::COHERENT_NOISE,AcdCalib::H_COHERENT_NOISE);
+  AcdCalibMap* fitMap = r.fit(fitCoherent,AcdCalibData::COHERENT_NOISE,AcdCalib::H_COHERENT_NOISE);
   
   // and dump to the text file
   std::string outputTxtFile = jc.outputPrefix() + "_Profile.txt";

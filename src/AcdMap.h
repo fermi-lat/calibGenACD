@@ -70,8 +70,6 @@ protected:
 
 private:
 
-  ClassDef(AcdMap,0) ;
-
 };
 
 #endif

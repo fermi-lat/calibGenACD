@@ -1,30 +1,13 @@
 #define AcdGainFit_cxx
 
 #include "AcdGainFit.h"
+
 #include "AcdCalibEnum.h"
 
 #include "AcdHistCalibMap.h"
 
 #include "TF1.h"
 
-ClassImp(AcdGainFitDesc) ;
-
-const std::string AcdGainFitDesc::s_calibType("ACD_Gain");
-const std::string AcdGainFitDesc::s_txtFormat("TILE PMT PEAK WIDTH STATUS");
-
-const AcdGainFitDesc& AcdGainFitDesc::ins() {
-  static const AcdGainFitDesc desc;
-  return desc;
-}
-
-AcdGainFitDesc::AcdGainFitDesc()
-  :AcdCalibDescription(AcdCalib::GAIN,s_calibType,s_txtFormat){
-  addVarName("peak");
-  addVarName("width");
-}
-
-
-ClassImp(AcdGainFitLibrary) ;
 
 
 Int_t AcdGainFitLibrary::findLowestNonZeroBin(const TH1& hist) {
@@ -95,31 +78,31 @@ Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_
   copy.Rebin(rebin);
 
   ped = pedRemove ? findLowestNonZeroBin(copy) : 0;
-  if ( ped < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  if ( ped < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   Int_t ped_1 = pedRemove ? findNextLocalMax(copy,ped) : 0;
-  if ( ped_1 < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  if ( ped_1 < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   min = pedRemove ? findNextLocalMin(copy,ped_1) : 0;
-  if ( min < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  if ( min < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   peak = pedRemove ? findNextLocalMax(copy,min) : copy.GetMaximumBin();
   if ( ! pedRemove ) {
     min = findHalfMaxLow(copy,peak);
     if ( min < 0 ) min = 1;
   }
-  if ( peak < 0 ) return AcdCalibResult::PREFIT_FAILED;
+  if ( peak < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   halfMax = findHalfMaxHigh(copy,peak);
   halfMax = halfMax < 0 ? copy.GetNbinsX() : halfMax;
   return 0;
 }
 
 
-Int_t AcdGainFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdGainFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
-  Int_t returnCode = AcdCalibResult::NOFIT;
+  Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
   if ( hist.GetEntries() < 100 ) return returnCode;
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    result.setVals(0.,0.,CalibData::AcdCalibObj::NOFIT);
     break;
   case Stats:
     returnCode = stats(result,hist);
@@ -143,22 +126,22 @@ Int_t AcdGainFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& h
   return returnCode;
 }
 
-Int_t AcdGainFitLibrary::stats(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::stats(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   TH1& theHist = const_cast<TH1&>(hist);
 
   float ave = theHist.GetMean();
   float rms = theHist.GetRMS();
-  result.setVals(ave,rms,AcdCalibResult::USED_FALLBACK_2);
-  return AcdCalibResult::OK;
+  result.setVals(ave,rms,CalibData::AcdCalibObj::USED_FALLBACK_2);
+  return CalibData::AcdCalibObj::OK;
 }
 
 
-Int_t AcdGainFitLibrary::fallback(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fallback(CalibData::AcdCalibObj& result, const TH1& hist) {
   Int_t ped, min, peak, halfMax;
   Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
 
-  if ( status != 0 ) return AcdCalibResult::PREFIT_FAILED;
+  if ( status != 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   //Float_t pedValue = hist.GetBinCenter(4*ped);
   //Float_t minValue = hist.GetBinCenter(4*min);
   Float_t peakValue = hist.GetBinCenter(4*peak);
@@ -166,12 +149,12 @@ Int_t AcdGainFitLibrary::fallback(AcdCalibResult& result, const TH1& hist) {
 
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,AcdCalibResult::USED_FALLBACK_1);
-  return AcdCalibResult::OK;
+  result.setVals(peakValue,width,CalibData::AcdCalibObj::USED_FALLBACK_1);
+  return CalibData::AcdCalibObj::OK;
 
 }
 
-Int_t AcdGainFitLibrary::fitLandau(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fitLandau(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   TH1& theHist = const_cast<TH1&>(hist);
 
@@ -184,12 +167,12 @@ Int_t AcdGainFitLibrary::fitLandau(AcdCalibResult& result, const TH1& hist) {
   double* par = (theHist.GetFunction("landau"))->GetParameters();
   float mean = *(par+1); 
   float sigma = *(par+2);
-  result.setVals(mean,sigma,(AcdCalibResult::STATUS)status);
+  result.setVals(mean,sigma,(CalibData::AcdCalibObj::STATUS)status);
   return status;
 }
 
 
-Int_t AcdGainFitLibrary::fitP7(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fitP7(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   Int_t ped, min, peak, halfMax;
   Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
@@ -209,12 +192,12 @@ Int_t AcdGainFitLibrary::fitP7(AcdCalibResult& result, const TH1& hist) {
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+  result.setVals(peakValue,width,(CalibData::AcdCalibObj::STATUS)status);
   return status;
 }
 
 
-Int_t AcdGainFitLibrary::fitP5(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fitP5(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   Int_t ped, min, peak, halfMax;
   Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
@@ -235,12 +218,12 @@ Int_t AcdGainFitLibrary::fitP5(AcdCalibResult& result, const TH1& hist) {
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;
 
-  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+  result.setVals(peakValue,width,(CalibData::AcdCalibObj::STATUS)status);
   return status;
 }
 
 
-Int_t AcdGainFitLibrary::fitLogNormal(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fitLogNormal(CalibData::AcdCalibObj& result, const TH1& hist) {
   
   Int_t ped, min, peak, halfMax;
   Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
@@ -275,7 +258,7 @@ Int_t AcdGainFitLibrary::fitLogNormal(AcdCalibResult& result, const TH1& hist) {
   Double_t m = logNorm.GetParameter(3);
   
   Double_t width = m * es2 * ( es2 - 1 );
-  result.setVals(peakValue,width,(AcdCalibResult::STATUS)status);
+  result.setVals(peakValue,width,(CalibData::AcdCalibObj::STATUS)status);
 
   return status;
 

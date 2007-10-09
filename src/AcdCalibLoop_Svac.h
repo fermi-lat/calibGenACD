@@ -51,9 +51,7 @@ private:
 
   // 
   AcdHistCalibMap* m_gainHists;
-    
-  ClassDef(AcdCalibLoop_Svac,0) ;
-    
+        
 };
 
 #endif

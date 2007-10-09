@@ -21,10 +21,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdStripChart) ;
-
 AcdStripChart::AcdStripChart(TChain* digiChain, UInt_t nBins, const char*  timeStampFile)
-  :AcdCalibBase(AcdCalib::TIME_PROF),
+  :AcdCalibBase(AcdCalibData::TIME_PROF),
    m_nBins(nBins),
    m_nEvtPerBin(0),
    m_digiEvent(0),

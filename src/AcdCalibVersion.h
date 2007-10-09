@@ -21,8 +21,6 @@ public:
 
 private:
 
-  ClassDef(AcdCalibVersion,0) ;
-
 };
 
 #endif

@@ -22,11 +22,9 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ClassImp(AcdCoherentNoise) ;
-
 AcdCoherentNoise::AcdCoherentNoise(TChain* digiChain, UInt_t loDT, UInt_t hiDT, UInt_t nBins, 
 				   AcdMap::Config config)
-  :AcdCalibBase(AcdCalib::COHERENT_NOISE,config),
+  :AcdCalibBase(AcdCalibData::COHERENT_NOISE,config),
    m_loDT(loDT),
    m_hiDT(hiDT),
    m_nBins(nBins),

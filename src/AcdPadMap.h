@@ -64,8 +64,6 @@ private:
 
   /// Map from histogram to Pad
   std::map<UInt_t,TVirtualPad*> m_map;
-
-  ClassDef(AcdPadMap,0) ;
     
 };
 

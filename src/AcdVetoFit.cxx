@@ -5,23 +5,6 @@
 #include "AcdHistCalibMap.h"
 #include "TF1.h"
 
-ClassImp(AcdVetoFitDesc) ;
-
-const std::string AcdVetoFitDesc::s_calibType("ACD_Veto");
-const std::string AcdVetoFitDesc::s_txtFormat("TILE PMT VETO WIDTH STATUS");
-
-const AcdVetoFitDesc& AcdVetoFitDesc::ins() {
-  static const AcdVetoFitDesc desc;
-  return desc;
-}
-
-AcdVetoFitDesc::AcdVetoFitDesc()
-  :AcdCalibDescription(AcdCalib::VETO,s_calibType,s_txtFormat){
-  addVarName("veto");
-  addVarName("width");
-}
-
-ClassImp(AcdVetoFitLibrary) ;
 
 
 Int_t AcdVetoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
@@ -35,14 +18,14 @@ Int_t AcdVetoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   return -1;   
 }
 
-Int_t AcdVetoFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdVetoFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
 
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
-  Int_t returnCode = AcdCalibResult::NOFIT;
+  Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    result.setVals(0.,0.,CalibData::AcdCalibObj::NOFIT);
     break;
   case Counting:
     returnCode = counting(result,hist);
@@ -54,7 +37,7 @@ Int_t AcdVetoFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& h
   return returnCode;
 }
 
-Int_t AcdVetoFitLibrary::counting(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdVetoFitLibrary::counting(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   //TH1& theHist = const_cast<TH1&>(hist);
   
@@ -63,14 +46,14 @@ Int_t AcdVetoFitLibrary::counting(AcdCalibResult& result, const TH1& hist) {
   Int_t i_50 = findFirstBinAboveVal(hist,0.5);
   Float_t f_50 = hist.GetBinCenter(i_50);
   Float_t width = f_50 - f_10;
-  result.setVals(f_50,width,AcdCalibResult::OK);
-  return AcdCalibResult::OK;
+  result.setVals(f_50,width,CalibData::AcdCalibObj::OK);
+  return CalibData::AcdCalibObj::OK;
 }
 
 
-Int_t AcdVetoFitLibrary::fitErf(AcdCalibResult& /* result */, const TH1& /* hist */) {
+Int_t AcdVetoFitLibrary::fitErf(CalibData::AcdCalibObj& /* result */, const TH1& /* hist */) {
   
-  return AcdCalibResult::NOFIT;
+  return CalibData::AcdCalibObj::NOFIT;
 
 }
 

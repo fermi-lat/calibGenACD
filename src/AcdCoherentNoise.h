@@ -85,8 +85,6 @@ private:
   // stashed values
   mutable std::map<UInt_t, AcdBinDataMap> m_vals;
 
-  ClassDef(AcdCoherentNoise,0) ;
-    
 };
 
 #endif

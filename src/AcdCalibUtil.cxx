@@ -7,8 +7,8 @@
 
 #include "AcdHistCalibMap.h"
 #include "AcdCalibMap.h"
-#include "AcdCalibResult.h"
 
+#include "CalibData/Acd/AcdCalibObj.h"
 
 #include "TString.h"
 #include "TCanvas.h"
@@ -18,9 +18,6 @@
 #include "TF1.h"
 #include <cmath>
 
-
-
-ClassImp(AcdCalibUtil) ;
 
 AcdCalibUtil::AcdCalibUtil(){;}
 
@@ -37,7 +34,7 @@ void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* s
   }
 }
 
-void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCalibResult* res) {
+void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res) {
   vp.cd();
   hAll.Draw();
   hVeto.SetLineColor(4);
@@ -51,7 +48,7 @@ void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCalib
   }   
 }
 
-void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, AcdCalibResult* res) {
+void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, CalibData::AcdCalibObj* res) {
   vp.cd();
   hAll.Draw();
   hCno.SetLineColor(4);
@@ -65,7 +62,7 @@ void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, AcdCalibRe
   }   
 }
 
-void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, AcdCalibResult* res, Bool_t onLog) {
+void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res, Bool_t onLog) {
 
   // set plot limits & such
   Double_t ymin = onLog ? 1. : 0.;
@@ -116,7 +113,7 @@ AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
     TH1* hv = (TH1*)(obj);
     TH1* hr = hRaw.getHist(id);
     if ( hv == 0 || hr == 0 ) continue;
-    AcdCalibResult* res = cnos.get(id);
+    CalibData::AcdCalibObj* res = cnos.get(id);
     drawCnoPlot(*pad,*hv,*hr,res);
   }
   return padMap;
@@ -137,7 +134,7 @@ AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw
     TH1* hv = (TH1*)(obj);
     TH1* hr = hRaw.getHist(id);
     if ( hv == 0 || hr == 0 ) continue;
-    AcdCalibResult* res = vetos.get(id);
+    CalibData::AcdCalibObj* res = vetos.get(id);
     drawVetoPlot(*pad,*hv,*hr,res);
   }
   return padMap;
@@ -156,7 +153,7 @@ AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdCalibMap& gains,
     if ( pad == 0 ) continue;
     TH1* hh = (TH1*)(obj);
     if ( hh == 0) continue;
-    AcdCalibResult* res = gains.get(id);
+    CalibData::AcdCalibObj* res = gains.get(id);
     drawMipPlot(*pad,*hh,res,onLog);
   }
   return padMap;

@@ -17,20 +17,6 @@ namespace AcdCalib {
 		H_TIME_VETO=13,
 		H_NHIST=14};
 
-  // Types of calibrations
-  enum CALTYPE{NONE=-1,
-	       PEDESTAL=0, 
-	       GAIN=1, 
-	       VETO=2,
-	       RANGE=3,
-	       CNO=4,	       
-	       COHERENT_NOISE=5,
-	       TIME_PROF=6,
-	       UNPAIRED=7, 
-	       HITMAP=8,
-	       MERITCALIB=9,
-	       NDESC=10};  
-
   // Types of input data chains
   enum CHAIN{NO_CHAIN=-1,
 	     DIGI=0,

@@ -4,8 +4,6 @@
 #include "TFile.h"
 
 
-ClassImp(AcdCalibHistHolder) ;
-
 TH1* AcdCalibHistHolder::getHist(UInt_t idx) {
   return idx < m_hists.size() ?  m_hists[idx] : 0;
 }
@@ -13,9 +11,6 @@ TH1* AcdCalibHistHolder::getHist(UInt_t idx) {
 void AcdCalibHistHolder::addHist(TH1& hist) {
   m_hists.push_back(&hist);
 }
-
-
-ClassImp(AcdHistCalibMap) ;
 
 AcdHistCalibMap::AcdHistCalibMap(TFile& file, AcdMap::Config config) 
   :m_config(config),m_bins(0),m_lo(0.),m_hi(0.){

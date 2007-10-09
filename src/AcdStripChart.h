@@ -57,8 +57,6 @@ private:
   mutable std::map<UInt_t,std::multiset<Double_t> > m_vals;
 
   mutable std::ostream* m_timeStampLog;
-
-  ClassDef(AcdStripChart,0) ;
     
 };
 

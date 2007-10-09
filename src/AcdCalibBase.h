@@ -6,6 +6,10 @@
 #include "./AcdMap.h"
 #include "./AcdCalibEnum.h"
 
+
+#include "CalibData/Acd/AcdCalibEnum.h"
+
+
 // stl includes
 #include <map>
 #include <vector>
@@ -109,8 +113,6 @@ private :
   /// number of events we used
   Int_t m_nUsed;
 
-  ClassDef(AcdCalibEventStats,1) 
-
 };
 
 
@@ -119,7 +121,7 @@ class AcdCalibBase {
 public :
 
   // Standard ctor, where user provides the names the output histogram files
-  AcdCalibBase(AcdCalib::CALTYPE t, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibBase(AcdCalibData::CALTYPE t, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibBase();
    
@@ -130,8 +132,8 @@ public :
   const AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType) const;
 
   // get the results maps
-  AcdCalibMap* getCalibMap(AcdCalib::CALTYPE cType);
-  const AcdCalibMap* getCalibMap(AcdCalib::CALTYPE cType) const;
+  AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType);
+  const AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType) const;
   
   // get a particular chain
   TChain* getChain(AcdCalib::CHAIN chain);
@@ -141,13 +143,13 @@ public :
   }
 
   // Which type of calibration are we running
-  inline AcdCalib::CALTYPE calType() const { return m_calType; }
+  inline AcdCalibData::CALTYPE calType() const { return m_calType; }
 
   // Which instrument calibration?
   inline AcdMap::Config getConfig() const { return m_config; }
 
   // read the pedestals from a file
-  Bool_t readCalib(AcdCalib::CALTYPE cType, const char* fileName);
+  Bool_t readCalib(AcdCalibData::CALTYPE cType, const char* fileName);
   
   // this writes the output histograms if newFileName is not set, 
   // they will be writing to the currently open file
@@ -165,12 +167,12 @@ public :
   virtual void writeTxtSources(std::ostream& os) const;
 
   // do a fit
-  AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalib::CALTYPE cType, AcdCalib::HISTTYPE hType);
+  AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType);
 
 protected:
 
   // a calibration
-  void addCalibration(AcdCalib::CALTYPE calibKey, AcdCalibMap& newCal);
+  void addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal);
 
   // This opens the output file and fills books the output histograms
   AcdHistCalibMap* bookHists(AcdCalib::HISTTYPE histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5, UInt_t nHist = 1);
@@ -188,13 +190,13 @@ protected:
   AcdCalibEventStats& eventStats() { return  m_eventStats; }
 
   // 
-  void writeCalibTxt(std::ostream& os, AcdCalib::CALTYPE cType) const;
+  void writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) const;
 
   //
   void writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const;
 
   // 
-  void writeCalibXml(DomElement& node, AcdCalib::CALTYPE cType) const;
+  void writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const;
 
   //
   void writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const;
@@ -217,7 +219,7 @@ private:
   AcdMap::Config m_config;
 
   // Which type of calibration are we getting the histograms for?
-  AcdCalib::CALTYPE m_calType;
+  AcdCalibData::CALTYPE m_calType;
   
   // Keep track of events 
   AcdCalibEventStats m_eventStats;
@@ -234,8 +236,6 @@ private:
   // index is given by AcdCalib::CHAIN
   std::vector<TChain*> m_chains;
 
-  ClassDef(AcdCalibBase,0) ;
-    
 };
 
 #endif

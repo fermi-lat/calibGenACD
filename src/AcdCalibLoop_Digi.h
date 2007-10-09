@@ -5,7 +5,6 @@
 #include "AcdCalibBase.h"
 
 // local includes
-#include "./AcdCalibEnum.h"
 #include "./AcdGarcGafeHits.h"
 
 // stl includes
@@ -21,7 +20,7 @@ class AcdCalibLoop_Digi : public AcdCalibBase {
 public :
   
   // Standard ctor, where user provides the input data
-  AcdCalibLoop_Digi(AcdCalib::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibLoop_Digi();  
 
@@ -71,8 +70,6 @@ private:
   AcdCalibMap* m_ranges;
 
   AcdGarcGafeHits m_garcGafeHits;  
-
-  ClassDef(AcdCalibLoop_Digi,0) ;
     
 };
 

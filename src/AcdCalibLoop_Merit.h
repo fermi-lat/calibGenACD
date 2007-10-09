@@ -68,9 +68,7 @@ private:
   Int_t m_hit;
 
   TTree* m_outputTree;
-   
-  ClassDef(AcdCalibLoop_Merit,0) ;
-    
+       
 };
 
 #endif

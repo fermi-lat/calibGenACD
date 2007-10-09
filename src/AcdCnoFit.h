@@ -3,8 +3,9 @@
 #define AcdCnoFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
 #include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdCno.h"
 
 // stl includes
 #include <string>
@@ -14,28 +15,6 @@
 
 // forward declares
 class AcdHistCalibMap;
-
-
-class AcdCnoFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdCnoFitDesc& ins();
-
-private:
-
-  static const std::string s_calibType; // "ACD_Cno";
-  static const std::string s_txtFormat; //"TILE PMT CNO WIDTH STATUS";
-
-public:
-
-  AcdCnoFitDesc();
-  virtual ~AcdCnoFitDesc(){;};
-
-private:
-  
-  ClassDef(AcdCnoFitDesc,1);
-};
 
 
 class AcdCnoFitLibrary : public AcdCalibFit {
@@ -53,14 +32,14 @@ public:
 public:
 
   AcdCnoFitLibrary(FitType type)
-    :AcdCalibFit(&AcdCnoFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdCnoFitDesc::instance()),
     _type(type){}
 
   AcdCnoFitLibrary(){}
 
   virtual ~AcdCnoFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -72,14 +51,13 @@ public:
 
 protected:
 
-  Int_t counting(AcdCalibResult& result, const TH1& hist);
-  Int_t fitErf(AcdCalibResult& result, const TH1& hist);
+  Int_t counting(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitErf(CalibData::AcdCalibObj& result, const TH1& hist);
 
 private:
   
   FitType _type;
 
-  ClassDef(AcdCnoFitLibrary,0) ;
 };
 
 #endif

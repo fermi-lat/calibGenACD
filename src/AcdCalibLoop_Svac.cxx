@@ -12,11 +12,8 @@
 #include <cassert>
 #include <cmath>
 
-
-ClassImp(AcdCalibLoop_Svac) ;
-
 AcdCalibLoop_Svac::AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(AcdCalib::GAIN,config),
+  :AcdCalibBase(AcdCalibData::GAIN,config),
    m_correctPathLength(correctPathLength),
    m_gainHists(0){
 

@@ -99,8 +99,6 @@ private:
   TChain* m_reconChain;
   TChain* m_svacChain;
   TChain* m_meritChain;
-
-  ClassDef(AcdJobConfig,0) ;
     
 };
 
