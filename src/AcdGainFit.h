@@ -3,8 +3,10 @@
 #define AcdGainFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
 #include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdGain.h"
+
 
 // stl includes
 #include <string>
@@ -14,30 +16,6 @@
 
 // forward declares
 class AcdHistCalibMap;
-
-
-class AcdGainFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdGainFitDesc& ins();
-
-private:
-
-  static const std::string s_calibType;
-  static const std::string s_txtFormat;
-
-public:
-
-  AcdGainFitDesc();
-  virtual ~AcdGainFitDesc(){;};
-
-private:
-  
-  ClassDef(AcdGainFitDesc,1);
-};
-
-
 
 
 class AcdGainFitLibrary : public AcdCalibFit {
@@ -66,14 +44,14 @@ public:
 public:
 
   AcdGainFitLibrary(FitType type, Bool_t pedRemove = kTRUE)
-    :AcdCalibFit(&AcdGainFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdGainFitDesc::instance()),
      _type(type),_pedRemove(pedRemove){}
 
   AcdGainFitLibrary(){}
 
   virtual ~AcdGainFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -88,19 +66,18 @@ public:
 
 protected:
 
-  Int_t stats(AcdCalibResult& result, const TH1& hist);
-  Int_t fallback(AcdCalibResult& result, const TH1& hist);
-  Int_t fitLandau(AcdCalibResult& result, const TH1& hist);
-  Int_t fitP7(AcdCalibResult& result, const TH1& hist);
-  Int_t fitP5(AcdCalibResult& result, const TH1& hist);
-  Int_t fitLogNormal(AcdCalibResult& result, const TH1& hist);
+  Int_t stats(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fallback(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitLandau(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitP7(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitP5(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitLogNormal(CalibData::AcdCalibObj& result, const TH1& hist);
 
 private:
   
   FitType _type;
   Bool_t _pedRemove;
 
-  ClassDef(AcdGainFitLibrary,0) ;
 };
 
 

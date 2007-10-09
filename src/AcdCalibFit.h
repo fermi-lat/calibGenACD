@@ -7,22 +7,24 @@
 // forward declares
 class AcdHistCalibMap;
 class AcdCalibHistHolder;
-class AcdCalibResult;
 class AcdCalibMap;
-class AcdCalibDescription;
 class TH1;
 
+namespace CalibData {
+  class AcdCalibDescription;
+  class AcdCalibObj;
+}
 
 class AcdCalibFit {
 
 public:
 
-  AcdCalibFit(const AcdCalibDescription* desc);
+  AcdCalibFit(const CalibData::AcdCalibDescription* desc);
   AcdCalibFit();
 
   virtual ~AcdCalibFit() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   virtual UInt_t fitChannel(AcdCalibMap& result, AcdHistCalibMap& input, UInt_t key);
 
@@ -33,13 +35,12 @@ public:
     return def;
   }
 
-  const AcdCalibDescription* desc() const { return _desc; }
+  const CalibData::AcdCalibDescription* desc() const { return _desc; }
 
 private:
   
-  const AcdCalibDescription* _desc;
+  const CalibData::AcdCalibDescription* _desc;
   
-  ClassDef(AcdCalibFit,0) ;
 };
 
 

@@ -31,10 +31,10 @@ int main(int argn, char** argc) {
   // build filler & run over events  
   AcdCalibLoop_Merit r(*jc.digiChain(),*jc.reconChain(),*jc.meritChain());
   if ( jc.pedFileName() != "" ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
   }
   if ( jc.gainFileName() != "" ) {
-    r.readCalib(AcdCalib::GAIN,jc.gainFileName().c_str());
+    r.readCalib(AcdCalibData::GAIN,jc.gainFileName().c_str());
   }
 
   r.go(jc.optval_n(),jc.optval_s());    

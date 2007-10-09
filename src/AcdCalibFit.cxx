@@ -7,16 +7,15 @@
 #include "DomElement.h"
 
 #include "AcdHistCalibMap.h"
-#include "AcdCalibResult.h"
 #include "AcdCalibMap.h"
+
+#include "CalibData/Acd/AcdCalibObj.h"
 
 #include <iostream>
 #include <fstream>
 
 
-ClassImp(AcdCalibFit) ;
-
-AcdCalibFit::AcdCalibFit(const AcdCalibDescription* desc)
+AcdCalibFit::AcdCalibFit(const CalibData::AcdCalibDescription* desc)
   :_desc(desc){
 }
 
@@ -24,8 +23,8 @@ AcdCalibFit::AcdCalibFit()
   :_desc(0){
 }
 
-Int_t AcdCalibFit::fit(AcdCalibResult& result, const AcdCalibHistHolder& /* holder */) {
-  result.setStatus(AcdCalibResult::NOFIT);
+Int_t AcdCalibFit::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& /* holder */) {
+  result.setStatus(CalibData::AcdCalibObj::NOFIT);
   return result.getStatus();
 }
 
@@ -35,7 +34,7 @@ void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists) {
 	itr != hists.theMap().end(); itr++ ) {
     UInt_t key = itr->first;
     const AcdCalibHistHolder& holder = itr->second;
-    AcdCalibResult* theResult = results.makeNew();
+    CalibData::AcdCalibObj* theResult = results.makeNew();
     fit(*theResult, holder);
     results.add(key,*theResult);
   }
@@ -48,7 +47,7 @@ UInt_t AcdCalibFit::fitChannel(AcdCalibMap& result, AcdHistCalibMap& input, UInt
     std::cerr << "No histogram w/ key " << key << " to fit" << std::endl;
     return 0;
   }
-  AcdCalibResult* theResult = result.get(key);
+  CalibData::AcdCalibObj* theResult = result.get(key);
   if ( theResult == 0 ) {
     theResult = result.makeNew();
     result.add(key,*theResult);

@@ -3,8 +3,9 @@
 #define AcdPedestalFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
 #include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdPed.h"
 
 // stl includes
 #include <string>
@@ -15,27 +16,6 @@
 // forward declares
 class AcdHistCalibMap;
 
-
-class AcdPedestalFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdPedestalFitDesc& ins();
-
-private:
-
-  static const std::string s_calibType;
-  static const std::string s_txtFormat;
-
-public:
-
-  AcdPedestalFitDesc();
-  virtual ~AcdPedestalFitDesc(){;};
-
-private:
-  
-  ClassDef(AcdPedestalFitDesc,1);
-};
 
 
 class AcdPedestalFitLibrary : public AcdCalibFit {
@@ -49,14 +29,14 @@ public:
 public:
 
   AcdPedestalFitLibrary(FitType type)
-    :AcdCalibFit(&AcdPedestalFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdPedestalFitDesc::instance()),
     _type(type){}
 
   AcdPedestalFitLibrary(){}
 
   virtual ~AcdPedestalFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -68,14 +48,13 @@ public:
 
 protected:
 
-  UInt_t fitMean(AcdCalibResult& result, const AcdCalibHistHolder& holder);
-  UInt_t fitPeak(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  UInt_t fitMean(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  UInt_t fitPeak(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
 private:
   
   FitType _type;
 
-  ClassDef(AcdPedestalFitLibrary,0) ;
 };
 
 

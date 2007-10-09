@@ -28,9 +28,9 @@ int main(int argn, char** argc) {
   Bool_t okToContinue = jc.checkDigi();
   if ( ! okToContinue ) return 1; // no input, fail
 
-  AcdCalibLoop_Digi r(AcdCalib::VETO,jc.digiChain(),jc.optval_P(),jc.config());
+  AcdCalibLoop_Digi r(AcdCalibData::VETO,jc.digiChain(),jc.optval_P(),jc.config());
   if ( jc.pedFileName() != "" ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
   }
   
   r.go(jc.optval_n(),jc.optval_s());    
@@ -38,7 +38,7 @@ int main(int argn, char** argc) {
   r.makeRatioPlots();
 
   AcdVetoFitLibrary vetoFitter(AcdVetoFitLibrary::Counting);
-  AcdCalibMap* vetos = r.fit(vetoFitter,AcdCalib::VETO,AcdCalib::H_FRAC);
+  AcdCalibMap* vetos = r.fit(vetoFitter,AcdCalibData::VETO,AcdCalib::H_FRAC);
 
   std::string textFile = jc.outputPrefix() + "_veto.txt";
   std::string xmlFile = jc.outputPrefix() + "_veto.xml";

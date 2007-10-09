@@ -10,8 +10,6 @@
 #include <algorithm>
 #include <iterator>
 
-ClassImp(AcdCalibLoop_Bench) ;
-
 Bool_t AcdCalibLoop_Bench::applyCorrelationCut(UInt_t whichCut, const std::set<UInt_t>& hits){
 
   // These sets are supposed to emulate the cuts in readACDNtuple
@@ -155,7 +153,7 @@ void AcdCalibLoop_Bench::useEvent(Bool_t& used) {
 	  Short_t isHit = hitPtr[iLocal];
 	  if ( isHit > 0 ) { continue; }	      
 	  
-	  if ( calType() == AcdCalib::PEDESTAL ) {
+	  if ( calType() == AcdCalibData::PEDESTAL ) {
 	    fillHist(*m_pedHists,iTile, iPmt, adcCounts);	   
 	  }
 	}
@@ -163,7 +161,7 @@ void AcdCalibLoop_Bench::useEvent(Bool_t& used) {
     }
   }
   
-  if ( calType() == AcdCalib::GAIN ) {
+  if ( calType() == AcdCalibData::GAIN ) {
     used = fillGainHists(hitTiles,hitMap);
   }
 

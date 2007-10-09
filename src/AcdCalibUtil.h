@@ -10,11 +10,13 @@
 // forward declares
 class AcdHistCalibMap;
 class AcdCalibMap;
-class AcdCalibResult;
 class AcdPadMap;
 class TVirtualPad;
 class TH1;
 
+namespace CalibData {
+  class AcdCalibObj;
+}
 
 class AcdCalibUtil {
 
@@ -30,13 +32,13 @@ public :
   static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".ps");
 
   // draw a single mip plot.
-  static void drawMipPlot(TVirtualPad& vp, TH1& hist, AcdCalibResult* res, Bool_t onLog);
+  static void drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res, Bool_t onLog);
 
   // draw a single veto plot
-  static void drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCalibResult* res);
+  static void drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res);
 
   // draw a single veto plot
-  static void drawCnoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, AcdCalibResult* res);
+  static void drawCnoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res);
 
   // draw veto plots onto canvases
   static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
@@ -64,8 +66,6 @@ public :
   static Float_t width(UInt_t id);
 
 private:
-
-  ClassDef(AcdCalibUtil,0) ;
     
 };
 

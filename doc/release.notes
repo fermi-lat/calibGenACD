@@ -1,3 +1,6 @@
+v3 EAC 071009
+Move data classes do CalibData to ensure that they are shared w/ Gleam and non-Gleam apps
+
 v2 EAC 070914
 Vastly simplify code, pull re-used code down into base classes
 

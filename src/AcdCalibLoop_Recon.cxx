@@ -13,11 +13,8 @@
 #include <cassert>
 #include <cmath>
 
-
-ClassImp(AcdCalibLoop_Recon) ;
-
 AcdCalibLoop_Recon::AcdCalibLoop_Recon(TChain* digiChain, TChain *reconChain, Bool_t correctPathLength, AcdMap::Config config)
-  :AcdCalibBase(AcdCalib::GAIN,config),
+  :AcdCalibBase(AcdCalibData::GAIN,config),
    m_correctPathLength(correctPathLength),
    m_digiEvent(0),
    m_reconEvent(0),

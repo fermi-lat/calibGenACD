@@ -2,31 +2,14 @@
 #ifndef AcdVetoFit_h
 #define AcdVetoFit_h
 
-#include "AcdCalibResult.h"
+#include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdVeto.h"
+
 #include <string>
 
-#include "AcdCalibFit.h"
 #include "TH1.h"
 class AcdHistCalibMap;
-
-class AcdVetoFitDesc : public AcdCalibDescription {
-
-public:
-  static const AcdVetoFitDesc& ins();
-
-private:
-
- static const std::string s_calibType; // "ACD_Veto";
-  static const std::string s_txtFormat; //"TILE PMT VETO WIDTH STATUS";
-
-public:
-  AcdVetoFitDesc();
-  virtual ~AcdVetoFitDesc(){;};
-
-private:
-  
-  ClassDef(AcdVetoFitDesc,1);
-};
 
 
 
@@ -45,14 +28,14 @@ public:
 public:
 
   AcdVetoFitLibrary(FitType type)
-    :AcdCalibFit(&AcdVetoFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdVetoFitDesc::instance()),
     _type(type){}
 
   AcdVetoFitLibrary(){}
 
   virtual ~AcdVetoFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -64,14 +47,13 @@ public:
 
 protected:
 
-  Int_t counting(AcdCalibResult& result, const TH1& hist);
-  Int_t fitErf(AcdCalibResult& result, const TH1& hist);
+  Int_t counting(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitErf(CalibData::AcdCalibObj& result, const TH1& hist);
 
 private:
   
   FitType _type;
 
-  ClassDef(AcdVetoFitLibrary,0) ;
 };
 
 #endif

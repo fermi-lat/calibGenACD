@@ -3,8 +3,10 @@
 #define AcdStripFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
+#include "CalibData/Acd/AcdCalibObj.h"
+#include "CalibData/CalibModel.h"
 #include "AcdCalibFit.h"
+#include "AcdCalibEnum.h"
 
 // stl includes
 #include <string>
@@ -15,26 +17,42 @@
 // forward declares
 class AcdHistCalibMap;
 
-
-class AcdStripFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdStripFitDesc& ins();
-
-private:
+namespace CalibData {
   
-  static const std::string s_calibType; // "ACD_Strip";
-  static const std::string s_txtFormat; // "TILE PMT MEAN RMS MIN MAX STATUS";
+  class AcdStripFitDesc : public AcdCalibDescription {    
+  public:    
+    static const AcdStripFitDesc& instance() {
+      static const AcdStripFitDesc desc;
+      return desc;
+    };        
+  public:
+    virtual ~AcdStripFitDesc(){;};    
+  private:    
+    AcdStripFitDesc()
+      :AcdCalibDescription(AcdCalibData::TIME_PROF,"ACD_Cno"){
+      addVarName("mean");
+      addVarName("rms");
+      addVarName("min");
+      addVarName("max");      
+    }
+  };
 
-public:
+  class AcdStripResult : public AcdCalibObj {
+  public:
+    static const CLID& calibCLID() {
+      static const CLID clidNode = 0;
+      return clidNode;
+    }
+  public:
+    AcdStripResult(const AcdCalibDescription& desc, const std::vector<float>& vals, STATUS status=NOFIT) :
+      AcdCalibObj(status,vals,desc){
+      assert( desc.calibType() == AcdCalibData::TIME_PROF );
+      setVals(vals,status);
+    }
+    virtual ~AcdStripResult() {}
 
-  AcdStripFitDesc();
-  virtual ~AcdStripFitDesc(){;};
+  };
 
-private:
- 
-  ClassDef(AcdStripFitDesc,1);
 };
 
 
@@ -48,7 +66,7 @@ public:
 public:
 
   AcdStripFitLibrary(FitType type, AcdCalib::STRIPTYPE sType, unsigned nBin, float min, float max, float ref = 0., float scale = 1.)
-    :AcdCalibFit(&AcdStripFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdStripFitDesc::instance()),
     _type(type),
     _method(sType),
     _nBin(nBin),
@@ -61,7 +79,7 @@ public:
 
   virtual ~AcdStripFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   Bool_t test(AcdCalibMap& results, Float_t lo, Float_t hi, const char* msg, const char* testName) const;
 
@@ -85,7 +103,6 @@ private:
   Float_t _ref;
   Float_t _scale;  
   
-  ClassDef(AcdStripFitLibrary,0) ;
 };
 
 

@@ -26,7 +26,6 @@ public:
   void addHist(TH1& hist);  
 private:
   std::vector<TH1*> m_hists;     // NOT owned
-  ClassDef(AcdCalibHistHolder,0)
 };
 
 
@@ -76,8 +75,6 @@ private:
   TList                  m_list;
   std::map<UInt_t,AcdCalibHistHolder>  m_map;
   
-  ClassDef(AcdHistCalibMap,0) ;
-
 };
 
 #endif

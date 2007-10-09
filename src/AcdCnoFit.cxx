@@ -5,26 +5,6 @@
 
 #include "TF1.h"
 
-ClassImp(AcdCnoFitDesc) ;
-
-const std::string AcdCnoFitDesc::s_calibType("ACD_Cno");
-const std::string AcdCnoFitDesc::s_txtFormat("TILE PMT CNO WIDTH STATUS");
-
-const AcdCnoFitDesc& AcdCnoFitDesc::ins() {
-  static const AcdCnoFitDesc desc;
-  return desc;
-}
-
-AcdCnoFitDesc::AcdCnoFitDesc()
-  :AcdCalibDescription(AcdCalib::CNO,s_calibType,s_txtFormat){
-  addVarName("cno");
-  addVarName("width");
-}
-
-
-
-ClassImp(AcdCnoFitLibrary) ;
-
 
 Int_t AcdCnoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   UInt_t nB = hist.GetNbinsX();
@@ -37,14 +17,14 @@ Int_t AcdCnoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   return -1;   
 }
 
-Int_t AcdCnoFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdCnoFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
 
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
-  Int_t returnCode = AcdCalibResult::NOFIT;
+  Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
   switch ( _type ) {
   case None:
-    result.setVals(0.,0.,AcdCalibResult::NOFIT);
+    result.setVals(0.,0.,CalibData::AcdCalibObj::NOFIT);
     break;
   case Counting:
     returnCode = counting(result,hist);
@@ -56,7 +36,7 @@ Int_t AcdCnoFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& ho
   return returnCode;
 }
 
-Int_t AcdCnoFitLibrary::counting(AcdCalibResult& result, const TH1& hist) {
+Int_t AcdCnoFitLibrary::counting(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   //TH1& theHist = const_cast<TH1&>(hist);
   
@@ -65,14 +45,14 @@ Int_t AcdCnoFitLibrary::counting(AcdCalibResult& result, const TH1& hist) {
   Int_t i_50 = findFirstBinAboveVal(hist,0.5);
   Float_t f_50 = hist.GetBinCenter(i_50);
   Float_t width = f_50 - f_10;
-  result.setVals(f_50,width,AcdCalibResult::OK);
-  return AcdCalibResult::OK;
+  result.setVals(f_50,width,CalibData::AcdCalibObj::OK);
+  return CalibData::AcdCalibObj::OK;
 }
 
 
-Int_t AcdCnoFitLibrary::fitErf(AcdCalibResult& /* result */, const TH1& /* hist */) {
+Int_t AcdCnoFitLibrary::fitErf(CalibData::AcdCalibObj& /* result */, const TH1& /* hist */) {
   
-  return AcdCalibResult::NOFIT;
+  return CalibData::AcdCalibObj::NOFIT;
 
 }
 

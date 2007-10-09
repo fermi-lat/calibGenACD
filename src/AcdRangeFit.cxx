@@ -7,32 +7,14 @@
 
 #include "TF1.h"
 
-ClassImp(AcdRangeFitDesc) ;
-
-const std::string AcdRangeFitDesc::s_calibType("ACD_Range");
-const std::string AcdRangeFitDesc::s_txtFormat("TILE PMT LOW_MAX HIGH_MIN STATUS");
-
-const AcdRangeFitDesc& AcdRangeFitDesc::ins() {
-  static const AcdRangeFitDesc desc;
-  return desc;
-}
-
-AcdRangeFitDesc::AcdRangeFitDesc()
-  :AcdCalibDescription(AcdCalib::RANGE,s_calibType,s_txtFormat){
-  addVarName("low_max");
-  addVarName("high_min");
-}
 
 
-ClassImp(AcdRangeFitLibrary) ;
-
-
-Int_t AcdRangeFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
 
   TH1& lowhist = const_cast<TH1&>(*(holder.getHist(0)));
   TH1& highhist = const_cast<TH1&>(*(holder.getHist(1)));
  
-  Int_t returnCode = AcdCalibResult::NOFIT;
+  Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
   if ( _type == None ) {
     return returnCode;
   }
@@ -51,8 +33,8 @@ Int_t AcdRangeFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& 
      break;
     }
   }
-  returnCode = AcdCalibResult::OK;
-  result.setVals(lowRange,hiRange,AcdCalibResult::OK);
+  returnCode = CalibData::AcdCalibObj::OK;
+  result.setVals(lowRange,hiRange,CalibData::AcdCalibObj::OK);
   return returnCode;
 }
 

@@ -34,7 +34,7 @@ int main(int argn, char** argc) {
 
   bool removePeds(true);
   if ( jc.pedFileName() != "" && jc.reconChain() != 0 ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
     removePeds = false;
   }
   r.go(jc.optval_n(),jc.optval_s());    
@@ -55,19 +55,19 @@ int main(int argn, char** argc) {
   std::cout << std::endl;
 
   AcdStripFitLibrary fitPha(AcdStripFitLibrary::Minuit,AcdCalib::MEAN_ABSOLUTE,100,-50.,50.);  
-  AcdCalibMap* phaStripMap = r.fit(fitPha,AcdCalib::TIME_PROF,AcdCalib::H_TIME_PHA);
+  AcdCalibMap* phaStripMap = r.fit(fitPha,AcdCalibData::TIME_PROF,AcdCalib::H_TIME_PHA);
   phaStripMap->writeTxtFile(outputPhaTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitPha.algorithm(),r);
   r.writeHistograms(AcdCalib::H_TIME_PHA, outputPhaHistFile.c_str());
   Bool_t ok = fitPha.test(*phaStripMap,-30.,30.,"FAIL!  ","pha time analysis");
 
   AcdStripFitLibrary fitHit(AcdStripFitLibrary::Minuit,AcdCalib::MEAN_RELATIVE,100,0.,20.);
-  AcdCalibMap* hitStripMap = r.fit(fitHit,AcdCalib::TIME_PROF,AcdCalib::H_TIME_HIT);
+  AcdCalibMap* hitStripMap = r.fit(fitHit,AcdCalibData::TIME_PROF,AcdCalib::H_TIME_HIT);
   hitStripMap->writeTxtFile(outputHitTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitHit.algorithm(),r);
   r.writeHistograms(AcdCalib::H_TIME_HIT, outputHitHistFile.c_str());
   ok = fitHit.test(*hitStripMap,-1.,3.,"FAIL!  ","hit rate time analysis");
 
   AcdStripFitLibrary fitVeto(AcdStripFitLibrary::Minuit,AcdCalib::MEAN_RELATIVE,100,0.,20.);
-  AcdCalibMap* vetoStripMap = r.fit(fitVeto,AcdCalib::TIME_PROF,AcdCalib::H_TIME_VETO);
+  AcdCalibMap* vetoStripMap = r.fit(fitVeto,AcdCalibData::TIME_PROF,AcdCalib::H_TIME_VETO);
   vetoStripMap->writeTxtFile(outputVetoTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitVeto.algorithm(),r);
   r.writeHistograms(AcdCalib::H_TIME_VETO, outputVetoHistFile.c_str());
   ok = fitVeto.test(*vetoStripMap,-1.,3.,"FAIL!  ","veto rate time analysis");

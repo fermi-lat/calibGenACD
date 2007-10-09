@@ -9,8 +9,11 @@
 #include <string>
 #include <iostream>
 
-class AcdCalibDescription;
-class AcdCalibResult;
+namespace CalibData {
+  class AcdCalibDescription;
+  class AcdCalibObj;
+}
+
 class AcdHistCalibMap;
 class AcdCalibBase;
 class DomElement;
@@ -18,14 +21,14 @@ class DomElement;
 class AcdCalibMap {
 public:
 
-  AcdCalibMap(const AcdCalibDescription& desc);
+  AcdCalibMap(const CalibData::AcdCalibDescription& desc);
 
   virtual ~AcdCalibMap();
   
-  void add(UInt_t key, AcdCalibResult& result);
-  const AcdCalibResult* get(UInt_t key) const;
-  AcdCalibResult* get(UInt_t key);
-  AcdCalibResult* makeNew() const;
+  void add(UInt_t key, CalibData::AcdCalibObj& result);
+  const CalibData::AcdCalibObj* get(UInt_t key) const;
+  CalibData::AcdCalibObj* get(UInt_t key);
+  CalibData::AcdCalibObj* makeNew() const;
 
   Bool_t writeTxtFile(const char* fileName,
 		      const char* instrument,
@@ -54,7 +57,7 @@ public:
     return m_fileName.c_str();
   }
 
-  inline const std::map<UInt_t,AcdCalibResult*>& theMap() const { return m_map; }
+  inline const std::map<UInt_t,CalibData::AcdCalibObj*>& theMap() const { return m_map; }
 
 protected:
 
@@ -62,13 +65,11 @@ protected:
 
 private:  
 
-  const AcdCalibDescription* m_desc;
+  const CalibData::AcdCalibDescription* m_desc;
   
-  std::map<UInt_t,AcdCalibResult*> m_map;
-  std::string m_fileName;
-  
+  std::map<UInt_t,CalibData::AcdCalibObj*> m_map;
+  std::string m_fileName;  
 
-  ClassDef(AcdCalibMap,0) ;
 };
 
 #endif

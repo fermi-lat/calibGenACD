@@ -26,12 +26,12 @@ int main(int argn, char** argc) {
   if ( ! okToContinue ) return 1; // no input, fail
 
   // build filler & run over events
-  AcdCalibLoop_Digi r(AcdCalib::PEDESTAL,jc.digiChain(),jc.optval_P(),jc.config());
+  AcdCalibLoop_Digi r(AcdCalibData::PEDESTAL,jc.digiChain(),jc.optval_P(),jc.config());
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
   AcdPedestalFitLibrary pedFitter(AcdPedestalFitLibrary::MeanValue);
-  AcdCalibMap* peds = r.fit(pedFitter,AcdCalib::PEDESTAL,AcdCalib::H_RAW);
+  AcdCalibMap* peds = r.fit(pedFitter,AcdCalibData::PEDESTAL,AcdCalib::H_RAW);
 
   // output
   std::string pedTextFile = jc.outputPrefix() + "_ped.txt";

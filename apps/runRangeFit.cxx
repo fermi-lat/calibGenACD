@@ -28,15 +28,15 @@ int main(int argn, char** argc) {
   Bool_t okToContinue = jc.checkDigi();
   if ( ! okToContinue ) return 1; // no input, fail
 
-  AcdCalibLoop_Digi r(AcdCalib::RANGE,jc.digiChain(),jc.optval_P(),jc.config());
+  AcdCalibLoop_Digi r(AcdCalibData::RANGE,jc.digiChain(),jc.optval_P(),jc.config());
   if ( jc.pedFileName() != "" ) {
-    r.readCalib(AcdCalib::PEDESTAL,jc.pedFileName().c_str());
+    r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str());
   }
   
   r.go(jc.optval_n(),jc.optval_s());    
 
   AcdRangeFitLibrary rangeFitter(AcdRangeFitLibrary::Counting);
-  AcdCalibMap* ranges = r.fit(rangeFitter,AcdCalib::RANGE,AcdCalib::H_RANGE);
+  AcdCalibMap* ranges = r.fit(rangeFitter,AcdCalibData::RANGE,AcdCalib::H_RANGE);
 
   std::string textFile = jc.outputPrefix() + "_range.txt";
   std::string xmlFile = jc.outputPrefix() + "_range.xml";

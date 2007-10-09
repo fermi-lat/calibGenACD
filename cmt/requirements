@@ -1,10 +1,11 @@
 package calibGenACD
-version v2
+version v3
 
 author Eric Charles <echarles@slac.stanford.edu>
 
 branches src xml output
 
+use CalibData v*
 use commonRootData v*
 use digiRootData v*
 use reconRootData v*
@@ -13,54 +14,25 @@ use XMLEXT       v5r2*   IExternal
 use facilities v*
 use ROOT v* IExternal
 use GlastPolicy v*
-use RootcintPolicy v* GlastPolicy
 
-# See RootPolicy for discussion of this pattern
-apply_pattern root_package headers="\
- ../src/AcdCalibEnum.h\
- ../src/AcdCalibVersion.h\
- ../src/AcdCalibResult.h\
- ../src/AcdCalibMap.h\
- ../src/AcdMap.h\
- ../src/AcdPadMap.h\
- ../src/AcdGarcGafeHits.h\
- ../src/AcdCalibFit.h\
- ../src/AcdHistCalibMap.h\
- ../src/AcdCalibUtil.h\
- ../src/AcdCoherentNoiseFit.h\
- ../src/AcdGainFit.h\
- ../src/AcdPedestalFit.h\
- ../src/AcdCnoFit.h\
- ../src/AcdStripFit.h\
- ../src/AcdVetoFit.h\
- ../src/AcdRangeFit.h\
- ../src/AcdJobConfig.h\
- ../src/AcdCalibBase.h\
- ../src/AcdCalibLoop_Bench.h\
- ../src/AcdCalibLoop_Digi.h\
- ../src/AcdCalibLoop_Merit.h\
- ../src/AcdCalibLoop_Recon.h\
- ../src/AcdCalibLoop_Svac.h\
- ../src/AcdCoherentNoise.h\
- ../src/AcdStripChart.h"\
- includes="-I$(COMMONROOTDATAROOT) -I$(DIGIROOTDATAROOT) -I$(RECONROOTDATAROOT)"
 
-#the following prepend makes the includes folder available locally: avoid the package_include
-macro_prepend includes "-I $(CALIBGENACDROOT) " WIN32 "/I $(CALIBGENACDROOT) "
 
-macro calibgencal_headers   "" WIN32 
+apply_pattern shared_library
+apply_pattern package_headers
 
+library calibGenACD *.cxx ${calibGenACD_headers} 
+
+#=============================================================
 private
-
-# force external variables to be found on windows
-apply_pattern use_facilities_symbols
-
-macro source "../src/*.cxx" WIN32 "../src/*.h ../src/*.cxx"
 
 macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf" \
               WIN32 " ${ROOT_PATH}\lib\libGpad.lib ${ROOT_PATH}\lib\libGraf.lib ${ROOT_PATH}\lib\libHist.lib ${ROOT_PATH}\lib\libMinuit.lib "
 
-macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
+
+macro_prepend calibgenacd_linkopts " -lcalibGenACD
+
+#macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
+
 
 application runMuonCalib_Roi ../apps/runMuonCalib_Roi.cxx
 application runMuonCalib_Tkr ../apps/runMuonCalib_Tkr.cxx

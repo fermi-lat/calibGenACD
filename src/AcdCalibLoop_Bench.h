@@ -89,7 +89,7 @@ private:
 
 public:
 
-  AcdCalibLoop_Bench(AcdCalib::CALTYPE t, TChain *tree=0, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Bench(AcdCalibData::CALTYPE t, TChain *tree=0, AcdMap::Config config = AcdMap::LAT);
   virtual ~AcdCalibLoop_Bench();
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
@@ -121,15 +121,13 @@ private:
   AcdHistCalibMap* m_pedHists;
   AcdHistCalibMap* m_gainHists;
   
-  ClassDef(AcdCalibLoop_Bench,0) ;
-
 };
 
 #endif
 
 #ifdef AcdCalibLoop_Bench_cxx
 
-AcdCalibLoop_Bench::AcdCalibLoop_Bench(AcdCalib::CALTYPE t, TChain *tree, AcdMap::Config config)
+AcdCalibLoop_Bench::AcdCalibLoop_Bench(AcdCalibData::CALTYPE t, TChain *tree, AcdMap::Config config)
   :AcdCalibBase(t,config)
 {
 

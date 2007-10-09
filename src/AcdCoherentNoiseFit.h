@@ -2,8 +2,10 @@
 #define AcdCoherentNoiseFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
 #include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdCoherentNoise.h"
+
 
 // stl includes
 #include <string>
@@ -13,28 +15,6 @@
 
 // forward declares
 class AcdHistCalibMap;
-
-
-
-class AcdCoherentNoiseFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdCoherentNoiseFitDesc& ins();
-
-private:
-  
-  static const std::string s_calibType; // "ACD_CoherentNoise";
-  static const std::string s_txtFormat; // "TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS";
-
-public:
-  AcdCoherentNoiseFitDesc();
-  virtual ~AcdCoherentNoiseFitDesc(){;};
-
-private:
-
-  ClassDef(AcdCoherentNoiseFitDesc,1);
-};
 
 
 
@@ -48,14 +28,14 @@ public:
 public:
 
   AcdCoherentNoiseFitLibrary(FitType type)
-    :AcdCalibFit(&AcdCoherentNoiseFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdCoherentNoiseFitDesc::instance()),
     _type(type){}
 
   AcdCoherentNoiseFitLibrary(){}
 
   virtual ~AcdCoherentNoiseFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -71,7 +51,6 @@ private:
   
   FitType _type;
 
-  ClassDef(AcdCoherentNoiseFitLibrary,0) ;
 };
 
 

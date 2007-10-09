@@ -11,7 +11,7 @@
 #include "AcdXmlUtil.h"
 #include "DomElement.h"
 #include "AcdHistCalibMap.h"
-#include "AcdCalibResult.h"
+#include "CalibData/Acd/AcdCalibObj.h"
 
 // stl includes
 #include <iostream>
@@ -19,24 +19,22 @@
 #include <cassert>
 
 
-ClassImp(AcdCalibMap) ;
-
-AcdCalibMap::AcdCalibMap(const AcdCalibDescription& desc)
+AcdCalibMap::AcdCalibMap(const CalibData::AcdCalibDescription& desc)
   :m_desc(&desc){;}
 
 AcdCalibMap::AcdCalibMap()
   :m_desc(0){;}
 
 AcdCalibMap::~AcdCalibMap() {
-  for ( std::map<UInt_t,AcdCalibResult*>::iterator itr = m_map.begin();
+  for ( std::map<UInt_t,CalibData::AcdCalibObj*>::iterator itr = m_map.begin();
 	itr != m_map.end(); itr++ ) {
     delete itr->second;
   }
   m_map.clear();
 }
 
-void AcdCalibMap::add(UInt_t key, AcdCalibResult& result) {
-  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);
+void AcdCalibMap::add(UInt_t key, CalibData::AcdCalibObj& result) {
+  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);
   if ( itr != m_map.end() ) {
     // warn
     ;
@@ -44,18 +42,19 @@ void AcdCalibMap::add(UInt_t key, AcdCalibResult& result) {
   m_map[key] = &result;
 }
 
-const AcdCalibResult* AcdCalibMap::get(UInt_t key) const {
-  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);
+const CalibData::AcdCalibObj* AcdCalibMap::get(UInt_t key) const {
+  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);
   return itr == m_map.end()  ? 0 : itr->second;
 }
 
-AcdCalibResult* AcdCalibMap::get(UInt_t key) {
-  std::map<UInt_t,AcdCalibResult*>::iterator itr = m_map.find(key);
+CalibData::AcdCalibObj* AcdCalibMap::get(UInt_t key) {
+  std::map<UInt_t,CalibData::AcdCalibObj*>::iterator itr = m_map.find(key);
   return itr == m_map.end()  ? 0 : itr->second;
 }
 
-AcdCalibResult* AcdCalibMap::makeNew() const {
-  return new AcdCalibResult(AcdCalibResult::NOFIT,*m_desc);
+CalibData::AcdCalibObj* AcdCalibMap::makeNew() const {
+  static const std::vector<float> nullVect;
+  return new CalibData::AcdCalibObj(CalibData::AcdCalibObj::NOFIT,nullVect,*m_desc);
 }
 
 Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
@@ -80,7 +79,7 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
   // this line is needed as a tag
   os << "#START" << endl;
   // skip this line
-  os << m_desc->txtFormat() << endl;
+  //os << m_desc->txtFormat() << endl;
     
   writeTxt(os);
   os.close();
@@ -96,11 +95,11 @@ void AcdCalibMap::writeTxt(ostream& os) const {
 
 	  UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);   
+	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);   
 	  if ( itr == m_map.end() ) continue;
 
 	  os << id << ' ' << iPmt << ' ';
-	  itr->second->printTxtLine(os);
+	  itr->second->printTxtLine(os,*m_desc);
 	  os << std::endl;
 	}
       }
@@ -134,7 +133,7 @@ void AcdCalibMap::writeXmlHeader(DomElement& node,
   //os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
   DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");
   AcdXmlUtil::addAttribute(genNode,"instrument",instrument);
-  AcdXmlUtil::addAttribute(genNode,"calibType",m_desc->calibType().c_str());
+  AcdXmlUtil::addAttribute(genNode,"calibType",m_desc->calibTypeName().c_str());
   AcdXmlUtil::addAttribute(genNode,"algorithm",algorithm);
   AcdXmlUtil::addAttribute(genNode,"DTDVersion",AcdCalibVersion::dtdVersion());
   AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());  
@@ -165,9 +164,10 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
 	  AcdXmlUtil::addAttribute(pmtNode,"iPmt",(int)iPmt);
 	  
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	  std::map<UInt_t,AcdCalibResult*>::const_iterator itr = m_map.find(key);   
+	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);   
 	  if ( itr == m_map.end() ) continue;	  
-	  itr->second->makeXmlNode(pmtNode);
+	  // FIXME
+	  //itr->second->makeXmlNode(pmtNode);
 	}
       }
     }
@@ -210,10 +210,10 @@ Bool_t AcdCalibMap::readTxt(istream& is) {
     if ( !is.good() ) return kFALSE;
     UInt_t key = AcdMap::makeKey(iPmt,id);
 
-    AcdCalibResult* result = makeNew();
+    CalibData::AcdCalibObj* result = makeNew();
     assert( result != 0 );
 
-    result->readTxt(is);
+    result->readTxt(is,*m_desc);
     if ( !is.good() ) return kFALSE;
     
     m_map[key] = result;

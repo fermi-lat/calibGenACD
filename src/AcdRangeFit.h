@@ -3,8 +3,9 @@
 #define AcdRangeFit_h
 
 // Base classes
-#include "AcdCalibResult.h"
 #include "AcdCalibFit.h"
+
+#include "CalibData/Acd/AcdRange.h"
 
 // stl includes
 #include <string>
@@ -15,27 +16,6 @@
 // forward declares
 class AcdHistCalibMap;
 
-
-class AcdRangeFitDesc : public AcdCalibDescription {
-
-public:
-
-  static const AcdRangeFitDesc& ins();
-
-private:
-
-  static const std::string s_calibType; // "ACD_Range";
-  static const std::string s_txtFormat; // "TILE PMT LOW_MAX HIGH_MIN STATUS"
-
-public:
-
-  AcdRangeFitDesc();
-  virtual ~AcdRangeFitDesc(){;};
- 
-private:
-  
-  ClassDef(AcdRangeFitDesc,1);
-};
 
 
 class AcdRangeFitLibrary : public  AcdCalibFit{
@@ -48,14 +28,14 @@ public:
 public:
 
   AcdRangeFitLibrary(FitType type)
-    :AcdCalibFit(&AcdRangeFitDesc::ins()),
+    :AcdCalibFit(&CalibData::AcdRangeFitDesc::instance()),
     _type(type){}
 
   AcdRangeFitLibrary(){}
 
   virtual ~AcdRangeFitLibrary() {;}
   
-  virtual Int_t fit(AcdCalibResult& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -71,7 +51,6 @@ private:
   
   FitType _type;
 
-  ClassDef(AcdRangeFitLibrary,0) ;
 };
 
 

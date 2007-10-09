@@ -15,8 +15,6 @@
 
 #include "TChain.h"
 
-ClassImp(AcdJobConfig) ;
-
 AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
   :m_theApp(appName),
    m_description(desc),

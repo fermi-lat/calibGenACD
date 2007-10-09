@@ -7,30 +7,8 @@
 
 #include <TF1.h>
 
-ClassImp(AcdCoherentNoiseFitDesc) ;
 
-const std::string AcdCoherentNoiseFitDesc::s_calibType("ACD_CoherentNoise");
-const std::string AcdCoherentNoiseFitDesc::s_txtFormat("TILE PMT MIN MIN_TIME MAX MAX_TIME FIT_PARAMETERS STATUS");
-
-const AcdCoherentNoiseFitDesc& AcdCoherentNoiseFitDesc::ins() {
-  static const AcdCoherentNoiseFitDesc desc;
-  return desc;
-}
-
-AcdCoherentNoiseFitDesc::AcdCoherentNoiseFitDesc()
-  :AcdCalibDescription(AcdCalib::COHERENT_NOISE,s_calibType,s_txtFormat){
-  addVarName("min");
-  addVarName("min_time");
-  addVarName("max");
-  addVarName("man_time");
-}
-
-
-
-ClassImp(AcdCoherentNoiseFitLibrary) ;
-
-
-Int_t AcdCoherentNoiseFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdCoherentNoiseFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
 
   TH1& in = *(holder.getHist(0));
 
@@ -78,7 +56,7 @@ Int_t AcdCoherentNoiseFitLibrary::fit(AcdCalibResult& result, const AcdCalibHist
   //sprintf(fitPars,"%3.1f %4.1f %5.4f %4.3f",amp,decay,freq,phase);
   
   //result.setVals(min,minTime,max,maxTime,fitPars,(AcdCoherentNoiseFitResult::STATUS)status);
-  result.setVals(min,minTime,max,maxTime,(AcdCalibResult::STATUS)status);
+  result.setVals(min,minTime,max,maxTime,(CalibData::AcdCalibObj::STATUS)status);
   return result.getStatus();
 }
 

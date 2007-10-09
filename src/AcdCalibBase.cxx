@@ -27,9 +27,6 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-
-ClassImp(AcdCalibEventStats) ;
-
 AcdCalibEventStats::AcdCalibEventStats(){
   resetCounters();
 }
@@ -54,13 +51,11 @@ void AcdCalibEventStats::logEvent(int ievent, Bool_t passedCut, Bool_t filtered,
 }
 
 
-ClassImp(AcdCalibBase) ;
-
-AcdCalibBase::AcdCalibBase(AcdCalib::CALTYPE t, AcdMap::Config config)
+AcdCalibBase::AcdCalibBase(AcdCalibData::CALTYPE t, AcdMap::Config config)
   :m_config(config),
    m_calType(t),
    m_histMaps(AcdCalib::H_NHIST,0),
-   m_fitMaps(AcdCalib::NDESC,0),
+   m_fitMaps(AcdCalibData::NDESC,0),
    m_chains(AcdCalib::NCHAIN,0){  
 }
 
@@ -179,7 +174,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   return map;
 } 
 
-void AcdCalibBase::addCalibration(AcdCalib::CALTYPE calibKey, AcdCalibMap& newCal) {  
+void AcdCalibBase::addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal) {  
   AcdCalibMap* old = getCalibMap(calibKey);
   if ( old != 0 ) {
     std::cout << "Warning: replacing calibration" << std::endl;
@@ -194,17 +189,17 @@ Bool_t AcdCalibBase::writeHistograms(AcdCalib::HISTTYPE histType, const char* ne
   return map->writeHistograms(newFileName);
 }
 
-Bool_t AcdCalibBase::readCalib(AcdCalib::CALTYPE calKey, const char* fileName) {
+Bool_t AcdCalibBase::readCalib(AcdCalibData::CALTYPE calKey, const char* fileName) {
   AcdCalibMap* map = getCalibMap(calKey);
   if ( map != 0 ) {
     std::cout << "Warning: replacing old calibration" << std::endl;
     delete map;
   }
-  const AcdCalibDescription* desc = AcdCalibDescription::getDesc(calKey);
+  const CalibData::AcdCalibDescription* desc = CalibData::AcdCalibDescription::getDesc(calKey);
   if ( desc == 0 ) {
     switch (calKey) {
-    case AcdCalib::PEDESTAL:  desc = &AcdPedestalFitDesc::ins(); break;
-    case AcdCalib::GAIN:      desc = &AcdGainFitDesc::ins(); break;
+    case AcdCalibData::PEDESTAL:  desc = &CalibData::AcdPedestalFitDesc::instance(); break;
+    case AcdCalibData::GAIN:      desc = &CalibData::AcdGainFitDesc::instance(); break;
     default: 
       ;
     }
@@ -247,7 +242,7 @@ void AcdCalibBase::writeTxtHeader(std::ostream& os) const {
 
 /// for writing output files
 void AcdCalibBase::writeXmlSources( DomElement& node) const {
-  writeCalibXml(node,AcdCalib::PEDESTAL);
+  writeCalibXml(node,AcdCalibData::PEDESTAL);
   writeChainXml(node,AcdCalib::DIGI);
   writeChainXml(node,AcdCalib::RECON);
   writeChainXml(node,AcdCalib::MERIT);
@@ -256,7 +251,7 @@ void AcdCalibBase::writeXmlSources( DomElement& node) const {
 }
 
 void AcdCalibBase::writeTxtSources(std::ostream& os) const {
-  writeCalibTxt(os,AcdCalib::PEDESTAL);
+  writeCalibTxt(os,AcdCalibData::PEDESTAL);
   writeChainTxt(os,AcdCalib::DIGI);
   writeChainTxt(os,AcdCalib::RECON);
   writeChainTxt(os,AcdCalib::MERIT);
@@ -274,10 +269,10 @@ const AcdHistCalibMap* AcdCalibBase::getHistMap(AcdCalib::HISTTYPE hType) const 
 }
 
 // get the results maps
-AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalib::CALTYPE cType) {
+AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalibData::CALTYPE cType) {
   return cType < 0 ? 0 : m_fitMaps[cType];
 }
-const AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalib::CALTYPE cType) const {
+const AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalibData::CALTYPE cType) const {
   return cType < 0 ? 0 : m_fitMaps[cType];
 }
 
@@ -290,7 +285,7 @@ const TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) const {
 }
 
 
-AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalib::CALTYPE cType, AcdCalib::HISTTYPE hType) { 
+AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType) { 
   AcdCalibMap* result = new AcdCalibMap(*(fitter.desc()));
   addCalibration(cType,*result);
   AcdHistCalibMap* hists = getHistMap(hType);
@@ -300,21 +295,21 @@ AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalib::CALTYPE cType, Acd
 
 // get the pedestal for a channel
 float AcdCalibBase::getPeds(UInt_t key) const {
-  const AcdCalibMap* peds = m_fitMaps[AcdCalib::PEDESTAL];
+  const AcdCalibMap* peds = m_fitMaps[AcdCalibData::PEDESTAL];
   if ( peds == 0 ) return -1;
-  const AcdCalibResult * pedRes = peds->get(key);
+  const CalibData::AcdCalibObj * pedRes = peds->get(key);
   if ( pedRes == 0 ) return -2;
   return (*pedRes)[0];
 }
 
 // 
-void AcdCalibBase::writeCalibTxt(std::ostream& os, AcdCalib::CALTYPE cType) const {
+void AcdCalibBase::writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) const {
 
   std::string tag;
   switch (cType) {
-  case AcdCalib::PEDESTAL: tag += "#pedestalFile = "; break;
-  case AcdCalib::GAIN:     tag += "#gainFile = ";     break;
-  case AcdCalib::RANGE:    tag += "#rangeFile = ";    break;
+  case AcdCalibData::PEDESTAL: tag += "#pedestalFile = "; break;
+  case AcdCalibData::GAIN:     tag += "#gainFile = ";     break;
+  case AcdCalibData::RANGE:    tag += "#rangeFile = ";    break;
   default:
     return;
   }
@@ -346,12 +341,12 @@ void AcdCalibBase::writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const 
 }
 
 // 
-void AcdCalibBase::writeCalibXml(DomElement& node, AcdCalib::CALTYPE cType) const {
+void AcdCalibBase::writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const {
   std::string tag;
   switch (cType) {
-  case AcdCalib::PEDESTAL: tag += "pedestal"; break;
-  case AcdCalib::GAIN:     tag += "gain";     break;
-  case AcdCalib::RANGE:    tag += "range";    break;
+  case AcdCalibData::PEDESTAL: tag += "pedestal"; break;
+  case AcdCalibData::GAIN:     tag += "gain";     break;
+  case AcdCalibData::RANGE:    tag += "range";    break;
   default:
     return;
   }

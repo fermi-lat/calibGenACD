@@ -18,8 +18,6 @@ void AcdGarcGafeHits::convertToTilePmt(unsigned  cable, unsigned  channel, unsig
   AcdMap::convertToTilePmt(cable,channel,tile,pmt);
 }
 
-ClassImp(AcdGarcGafeHits) ;
-
 AcdGarcGafeHits::AcdGarcGafeHits(){
   reset();
 }

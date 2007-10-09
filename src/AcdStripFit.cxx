@@ -6,25 +6,6 @@
 #include "AcdCalibUtil.h"
 #include "AcdCalibMap.h"
 
-ClassImp(AcdStripFitDesc) ;
-
-const std::string AcdStripFitDesc::s_calibType("ACD_Strip");
-const std::string AcdStripFitDesc::s_txtFormat("TILE PMT MEAN RMS MIN MAX STATUS");
-
-const AcdStripFitDesc& AcdStripFitDesc::ins() {
-  static const AcdStripFitDesc desc;
-  return desc;
-}
-
-AcdStripFitDesc::AcdStripFitDesc()
-  :AcdCalibDescription(AcdCalib::TIME_PROF,s_calibType,s_txtFormat){
-  addVarName("mean");
-  addVarName("rms");
-  addVarName("min");
-  addVarName("max");
-}
-
-ClassImp(AcdStripFitLibrary) ;
 
 Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, const char* msg, const char* testName) const {
 
@@ -33,10 +14,10 @@ Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, co
   std::cout << "Results of " << testName << '.' << std::endl
 	    << "---------------------------------------------" << std::endl;
   
-  for ( std::map<UInt_t,AcdCalibResult*>::const_iterator itr = results.theMap().begin();
+  for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = results.theMap().begin();
 	itr != results.theMap().end(); itr++ ) {    
   
-    const AcdCalibResult* theFit = itr->second;
+    const CalibData::AcdCalibObj* theFit = itr->second;
     if ( (*theFit)[2] < lo ) {
       std::cout << msg << "  Channel " << AcdMap::getId(itr->first) << ':' << AcdMap::getPmt(itr->first)
 		<< " is below min level.  " << (*theFit)[2]  << " < " << lo << std::endl;
@@ -59,7 +40,7 @@ Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, co
 }
 
 
-Int_t AcdStripFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& holder) {
+Int_t AcdStripFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
 
   TH1& in = *(holder.getHist(0));
   TH1* out(0);
@@ -113,7 +94,7 @@ Int_t AcdStripFitLibrary::fit(AcdCalibResult& result, const AcdCalibHistHolder& 
     if ( maxErr > 1e-9 ) { max /= maxErr; }
     break;
   }
-  result.setVals(mean,rms,min,max,AcdCalibResult::OK);
+  result.setVals(mean,rms,min,max,CalibData::AcdCalibObj::OK);
   return result.getStatus();
 }
 

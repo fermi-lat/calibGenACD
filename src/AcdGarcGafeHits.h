@@ -78,7 +78,6 @@ private:
   UShort_t _nVeto[12];
   UShort_t _cno;
   
-  ClassDef(AcdGarcGafeHits,0) ;
 };
 
 #endif
