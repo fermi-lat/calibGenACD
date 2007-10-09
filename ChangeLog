@@ -1,5 +1,32 @@
 ------------------------------------------------------------
 User: echarles  Tue Oct  9 11:32:02 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibEnum.h AcdCalibFit.cxx 
+	AcdCalibFit.h AcdCalibLoop_Bench.cxx AcdCalibLoop_Bench.h 
+	AcdCalibLoop_Digi.cxx AcdCalibLoop_Digi.h 
+	AcdCalibLoop_Merit.cxx AcdCalibLoop_Merit.h 
+	AcdCalibLoop_Recon.cxx AcdCalibLoop_Recon.h 
+	AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h AcdCalibMap.cxx 
+	AcdCalibMap.h AcdCalibUtil.cxx AcdCalibUtil.h 
+	AcdCalibVersion.cxx AcdCalibVersion.h AcdCnoFit.cxx 
+	AcdCnoFit.h AcdCoherentNoise.cxx AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.cxx AcdCoherentNoiseFit.h AcdGainFit.cxx 
+	AcdGainFit.h AcdGarcGafeHits.cxx AcdGarcGafeHits.h 
+	AcdHistCalibMap.cxx AcdHistCalibMap.h AcdJobConfig.cxx 
+	AcdJobConfig.h AcdMap.cxx AcdMap.h AcdPadMap.cxx AcdPadMap.h 
+	AcdPedestalFit.cxx AcdPedestalFit.h AcdRangeFit.cxx 
+	AcdRangeFit.h AcdStripChart.cxx AcdStripChart.h 
+	AcdStripFit.cxx AcdStripFit.h AcdVetoFit.cxx AcdVetoFit.h 
+Removed Files:
+      Tag: v2
+	AcdCalibResult.cxx AcdCalibResult.h 
+Log Message:
+Move data classes do CalibData to ensure that they are shared w/ Gleam and non-Gleam apps
+    *
+------------------------------------------------------------
+User: echarles  Tue Oct  9 11:32:02 PDT 2007
 calibGenACD/doc
 
 Modified Files:
