@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Tue Oct  9 11:32:01 PDT 2007
+calibGenACD/apps
+
+Modified Files:
+	runCnoCalib.cxx runCoherentNoise.cxx runMeritCalib.cxx 
+	runMuonCalib_Roi.cxx runMuonCalib_Svac.cxx 
+	runMuonCalib_Tkr.cxx runPedestal.cxx runRangeFit.cxx 
+	runStripChart.cxx runVetoCalib.cxx 
+Log Message:
+Move data classes do CalibData to ensure that they are shared w/ Gleam and non-Gleam apps
+    *
+------------------------------------------------------------
 TAG
 Tag name: v2, operation: add
 Package: calibGenACD
