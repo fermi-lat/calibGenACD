@@ -1,4 +1,8 @@
-v1r8p1 HMK v070826
+
+v1r8p2 HMK 071015
+Patch to include TMath in move to ROOT v5.16.00
+
+v1r8p1 HMK 070826
 Couple of Windows patches
 
 v1r8 EAC 070612
