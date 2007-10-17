@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: heather  Wed Oct 17 10:03:45 PDT 2007
+calibGenACD/src
+
+Modified Files:
+      Tag: GlastReleasev13r0
+	AcdGainFitLibrary.cxx 
+Log Message:
+patch for rhel4
+    *
+------------------------------------------------------------
+User: heather  Wed Oct 17 10:03:45 PDT 2007
 calibGenACD/doc
 
 Modified Files:
