@@ -1,6 +1,7 @@
 #define AcdGainFitLibrary_cxx
 #include "AcdGainFitLibrary.h"
 #include "AcdHistCalibMap.h"
+#include <cmath>
 
 #include "TF1.h"
 
