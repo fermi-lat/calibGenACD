@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: heather  Wed Oct 17 10:03:45 PDT 2007
+calibGenACD/cmt
+
+Modified Files:
+      Tag: GlastReleasev13r0
+	requirements 
+Log Message:
+patch for rhel4
+    *
+------------------------------------------------------------
 TAG
 Tag name: v1r8p2, operation: add
 Package: calibGenACD
