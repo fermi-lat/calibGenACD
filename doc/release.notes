@@ -1,3 +1,6 @@
+v3r1 EAC 071022
+Fix up a couple loose ends from v3
+
 v3 EAC 071009
 Move data classes do CalibData to ensure that they are shared w/ Gleam and non-Gleam apps
 
