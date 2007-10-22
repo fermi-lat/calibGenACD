@@ -204,7 +204,7 @@ class AcdOfflineVetoFitter:
         """
         canvas = self.fitGarc(timestamp,garc,draw,fout)
         if draw:
-            canvasFileName = "%s.ps"%(canvas.GetName())
+            canvasFileName = "%s.gif"%(canvas.GetName())
             canvas.SaveAs(canvasFileName)
         return
 

@@ -63,7 +63,7 @@ def linear_fit(n, x, y):
 class AcdROOT_LineFit:
     """ Interface to ROOT and plotting
     """    
-    def __init__(self,name,bins=120,low=0,hi=2400,min=30.,max=70.):
+    def __init__(self,name,bins=120,low=0,hi=1500,min=45.,max=65.):
         """ c'tor
 
         @param name of the histogram
