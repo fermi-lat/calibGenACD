@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Mon Oct 22 10:48:47 PDT 2007
+calibGenACD/src
+
+Removed Files:
+	AcdCalibResult.cxx AcdCalibResult.h 
+Log Message:
+Fix up a couple loose ends from v3
+    *
+------------------------------------------------------------
 User: echarles  Mon Oct 22 10:48:46 PDT 2007
 calibGenACD/python
 
