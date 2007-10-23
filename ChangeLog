@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: heather  Mon Oct 22 19:28:41 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdGainFit.cxx 
+Log Message:
+another TMath patch
+    *
+------------------------------------------------------------
+User: heather  Mon Oct 22 19:28:41 PDT 2007
 calibGenACD/doc
 
 Modified Files:
