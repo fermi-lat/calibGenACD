@@ -22,7 +22,7 @@ class  AcdCalibHistHolder {
 public:
   AcdCalibHistHolder(){;}  
   virtual ~AcdCalibHistHolder(){;}
-  TH1* getHist(UInt_t idx);
+  TH1* getHist(UInt_t idx) const;
   void addHist(TH1& hist);  
 private:
   std::vector<TH1*> m_hists;     // NOT owned

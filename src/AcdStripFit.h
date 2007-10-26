@@ -79,7 +79,7 @@ public:
 
   virtual ~AcdStripFitLibrary() {;}
   
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder);
 
   Bool_t test(AcdCalibMap& results, Float_t lo, Float_t hi, const char* msg, const char* testName) const;
 

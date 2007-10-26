@@ -4,7 +4,7 @@
 #include "TFile.h"
 
 
-TH1* AcdCalibHistHolder::getHist(UInt_t idx) {
+TH1* AcdCalibHistHolder::getHist(UInt_t idx) const {
   return idx < m_hists.size() ?  m_hists[idx] : 0;
 }
 
