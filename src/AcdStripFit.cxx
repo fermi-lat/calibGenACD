@@ -40,7 +40,7 @@ Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, co
 }
 
 
-Int_t AcdStripFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdStripFitLibrary::fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder) {
 
   TH1& in = *(holder.getHist(0));
   TH1* out(0);
