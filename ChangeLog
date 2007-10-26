@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: heather  Fri Oct 26 11:03:10 PDT 2007
+calibGenACD/src
+
+Modified Files:
+	AcdHistCalibMap.cxx AcdHistCalibMap.h AcdStripFit.cxx 
+	AcdStripFit.h 
+Log Message:
+fix up win build
+    *
+------------------------------------------------------------
 TAG
 Tag name: v3r1p2, operation: add
 Package: calibGenACD
