@@ -1,5 +1,5 @@
 package calibGenACD
-version v3r1p2
+version v3r1p3
 
 author Eric Charles <echarles@slac.stanford.edu>
 
@@ -28,6 +28,8 @@ private
 macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf" \
               WIN32 " ${ROOT_PATH}\lib\libGpad.lib ${ROOT_PATH}\lib\libGraf.lib ${ROOT_PATH}\lib\libHist.lib ${ROOT_PATH}\lib\libMinuit.lib "
 
+
+apply_pattern use_facilities_symbols
 
 macro_prepend calibgenacd_linkopts " -lcalibGenACD
 
