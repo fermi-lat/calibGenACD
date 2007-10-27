@@ -1,3 +1,9 @@
+v3r1p4 HMK 071027
+Forgot to tag requirements
+
+v3r1p3 HMK 071026
+Patch for const correctness for windows build
+
 v3r1p2 HMK 071022
 Another TMath patch
 
