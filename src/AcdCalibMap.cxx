@@ -18,6 +18,11 @@
 #include <fstream>
 #include <cassert>
 
+#include "xmlBase/Dom.h"
+#include "xmlBase/XmlParser.h"
+#include "xercesc/dom/DOMElement.hpp"
+#include "xercesc/dom/DOMDocument.hpp"
+#include "xercesc/dom/DOMImplementation.hpp"
 
 AcdCalibMap::AcdCalibMap(const CalibData::AcdCalibDescription& desc)
   :m_desc(&desc){;}
@@ -173,6 +178,70 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
     }
   }
 }
+
+
+Bool_t AcdCalibMap::readXmlFile(const char* fileName) {
+  using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+
+  xmlBase::XmlParser parser;
+  static const std::string tileName("tile");
+  DOMDocument* doc = parser.parse(fileName);
+  if ( doc == 0 ) return kFALSE;
+  std::vector<DOMElement*> tiles;
+  DOMElement* top = doc->getDocumentElement();					       
+  xmlBase::Dom::getDescendantsByTagName(top,tileName,tiles);
+  for ( std::vector<DOMElement*>::iterator itr = tiles.begin(); itr!= tiles.end(); itr++ ) {
+    if ( ! readXmlTile(*(*itr) ) ) return kFALSE;
+  }
+  return kTRUE;
+}
+
+Bool_t AcdCalibMap::readXmlTile(DOMElement& node) {
+
+  Int_t id = xmlBase::Dom::getIntAttribute(&node,"tileId");
+  if ( id >= 1000 ) return kTRUE;
+  std::vector<DOMElement*> pmts;
+  static const std::string pmtName("pmt");
+  xmlBase::Dom::getDescendantsByTagName(&node,pmtName,pmts);
+  DOMElement* pmtA = pmts[0];
+  DOMElement* pmtB = pmts[1];
+  UInt_t keyA = AcdMap::makeKey(0,id);
+  UInt_t keyB = AcdMap::makeKey(1,id);
+
+  if ( ! readXmlCalib(*pmtA,keyA) ) return kFALSE;
+  if ( ! readXmlCalib(*pmtB,keyB) ) return kFALSE;    
+  return kTRUE;
+    
+}
+
+Bool_t AcdCalibMap::readXmlCalib(DOMElement& node, UInt_t key) {
+
+  // Element we're interested in is child of <pmt>
+  DOMElement* calibElt = xmlBase::Dom::getFirstChildElement(&node);
+  
+  // Could check here to make sure it really is an <acdPed>
+  int status;
+  std::vector<float> vals;
+  try {    
+    status = xmlBase::Dom::getIntAttribute(calibElt, "status");
+    for ( int i(0); i < m_desc->nVar(); i++ ) {
+      float varVal = xmlBase::Dom::getDoubleAttribute(calibElt, m_desc->getVarName(i).c_str());
+      vals.push_back(varVal);
+    }
+  }
+  catch (xmlBase::DomException ex) {
+    std::cerr << "From CalibSvc::XmlAcdCnv::processPmt" << std::endl;
+    std::cerr << ex.getMsg() << std::endl;
+    throw ex;
+  }
+
+  CalibData::AcdCalibObj* result = makeNew();
+  assert( result != 0 );
+  result->setVals(vals,(CalibData::AcdCalibObj::STATUS)status);
+  m_map[key] = result;
+  return kTRUE;
+}
+
 
 
 Bool_t AcdCalibMap::readTxtFile(const char* fileName) {

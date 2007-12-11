@@ -9,6 +9,10 @@
 #include <string>
 #include <iostream>
 
+#include <xercesc/util/XercesDefs.hpp>
+#include "xercesc/dom/DOMElement.hpp"
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+
 namespace CalibData {
   class AcdCalibDescription;
   class AcdCalibObj;
@@ -50,6 +54,10 @@ public:
   void writeXmlFooter(DomElement& node) const;
   void writeXmlBody(DomElement& node) const;
   
+  Bool_t readXmlFile(const char* fileName);
+  Bool_t readXmlTile(DOMElement& node);
+  Bool_t readXmlCalib(DOMElement& node, UInt_t key);
+
   Bool_t readTxtFile(const char* fileName);
   Bool_t readTxt(std::istream& is);
 
