@@ -208,6 +208,11 @@ Bool_t AcdCalibBase::readCalib(AcdCalibData::CALTYPE calKey, const char* fileNam
 
   if ( map == 0 ) return kFALSE;
   addCalibration(calKey,*map);
+
+  std::string fName(fileName); 
+  if ( fName.find(".xml") != fName.npos ) {
+    return map->readXmlFile(fileName);
+  }
   return map->readTxtFile(fileName);
 }
 
