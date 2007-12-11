@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Tue Dec 11 10:52:52 PST 2007
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibMap.cxx AcdCalibMap.h 
+Log Message:
+Read in pedestals from xml
+    *
+------------------------------------------------------------
+User: echarles  Tue Dec 11 10:52:52 PST 2007
 calibGenACD/doc
 
 Modified Files:
