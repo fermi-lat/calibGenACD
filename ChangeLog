@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Dec 11 10:52:52 PST 2007
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Read in pedestals from xml
+    *
+------------------------------------------------------------
 TAG
 Tag name: v3r1p4, operation: add
 Package: calibGenACD
