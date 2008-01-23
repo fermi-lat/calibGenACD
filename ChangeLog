@@ -1,4 +1,21 @@
 ------------------------------------------------------------
+User: echarles  Wed Jan 23 15:43:54 PST 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.h AcdCalibEnum.h AcdCalibFit.h 
+	AcdCalibLoop_Bench.h AcdCalibLoop_Digi.h AcdCalibLoop_Merit.h 
+	AcdCalibLoop_Recon.h AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h 
+	AcdCalibMap.h AcdCalibUtil.cxx AcdCalibUtil.h 
+	AcdCalibVersion.h AcdCnoFit.h AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.h AcdGainFit.h AcdGarcGafeHits.h 
+	AcdHistCalibMap.h AcdJobConfig.h AcdMap.h AcdPadMap.h 
+	AcdPedestalFit.h AcdRangeFit.h AcdStripChart.h AcdStripFit.h 
+	AcdVetoFit.h AcdXmlUtil.h DomElement.h mainpage.h 
+Log Message:
+update comments for acd review
+    *
+------------------------------------------------------------
 TAG
 Tag name: v3r2, operation: add
 Package: calibGenACD
