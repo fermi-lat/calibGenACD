@@ -3,6 +3,12 @@
 
 class DomElement;
 
+/** 
+ *
+ * @brief A few function to help manage xml
+ *
+ */
+
 namespace AcdXmlUtil {
 
   DomElement makeDocument(const char* topNode);

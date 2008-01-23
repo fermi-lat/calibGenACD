@@ -9,6 +9,18 @@
 #include <iostream>
 #include <string>
 
+/** 
+ * @class AcdMap
+ *
+ * @brief Various tools to associate map tile into a unique key and back
+ *
+ *  
+ * All mapping is done using a decimal key:
+ *    1000 * pmt + 100*face + 10*row + col
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdMap {
 

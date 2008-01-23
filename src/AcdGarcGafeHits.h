@@ -11,11 +11,20 @@ class AcdHit;
 class AcdRecon;
 class AcdId;
 
+/** 
+ * @class AcdGarcGafeHits
+ *
+ * @brief Tool to sort and count hits by GARC and GAFE
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdGarcGafeHits {
 
 public:
 
+  /// Go from GARC, GAFE to tile and PMT
   static void convertToTilePmt(unsigned  cable, unsigned  channel, unsigned& tile, unsigned& pmt);
 
 public:
@@ -24,58 +33,80 @@ public:
   virtual ~AcdGarcGafeHits();
 
   
-  // setters
+  /// reset the counter
   void reset();
 
+  /// count up all the digis
   void setDigis(const TObjArray& digs);
+  /// count one digi
   void setDigi(const AcdDigi& digi);
 
+  /// count up all the hits
   void setHits(const AcdRecon& recon);
+  /// count hit
   void setHit(const AcdHit& hit);
 
+  /// set the CNO mask
   inline void setCNO(const UShort_t& cno) {
     _cno = cno;
   }
 
-  // Access
+  /// return the CNO status, number of hits and vetos in one GARC
   void garcStatus(UInt_t garc, Bool_t& cno, UInt_t& nHits, UInt_t& nVeto) const;
+  /// scan through hits in a GARC
   Bool_t nextGarcHit(UInt_t garc, Int_t& gafe);
+  /// scan through vetos in a GARC
   Bool_t nextGarcVeto(UInt_t garc, Int_t& gafe);
 
+  /// look for GARC with CNO and exactly 1 hit  
   Int_t findCno_oneHit(UInt_t garc);
+  /// look for GARC with CNO and exactly 1 veto  
   Int_t findCno_oneVeto(UInt_t garc);
   
-
+  
+  /// return the signal size by in mips by garc:gafe
   inline Float_t inMips(UInt_t garc, UInt_t gafe) const {
     return _inMips[garc][gafe];
   }
+  /// return the signal size by in PHA by garc:gafe
   inline UShort_t inPha(UInt_t garc, UInt_t gafe) const {
     return _inPha[garc][gafe];
   }
+  /// return the flags by garc:gafe
   inline UShort_t flags(UInt_t garc, UInt_t gafe) const {
     return _flags[garc][gafe];
   }
+  /// return the number of hits in a garc
   inline UShort_t nHits(UInt_t garc) const {
     return _nHits[garc];
   }
+  /// return the number of vetos in a garc
   inline UShort_t nVeto(UInt_t garc) const {
     return _nVeto[garc];
   }
+  /// return the CNO mask
   inline UShort_t cno() const {
     return _cno;
   }
 
 protected:
 
+  /// Lookup the garc, gafe given and AcdId and PMT
   void lookup(const AcdId& id, UInt_t pmt, UInt_t& garc, UInt_t& gafe);
 
 private:  
 
+  /// Signal sizes in mips
   Float_t  _inMips[12][18];
+  /// Signal sizes in PHA
   UShort_t _inPha[12][18];
+  /// Discrimiator and range flags
   UShort_t _flags[12][18];  
+  /// number of hits in a garc
   UShort_t _nHits[12];
+  /// number of vetos in a garc
   UShort_t _nVeto[12];
+  /// the CNO mask
   UShort_t _cno;
   
 };

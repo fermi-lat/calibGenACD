@@ -15,6 +15,15 @@ class DigiEvent;
 class ReconEvent;
 class TTree;
 
+/** 
+ * @class AcdCalibLoop_Merit
+ *
+ * @brief Deprecated!!
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
 class AcdCalibLoop_Merit : public AcdCalibBase {
 
 public :

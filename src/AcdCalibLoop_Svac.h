@@ -7,40 +7,52 @@
 // stl includes
 #include <iostream>
 
+/** 
+ * @class AcdCalibLoop_Svac
+ *
+ * @brief AcdCalibration class that loop on Digis
+ *
+ * This is used for the following calibrations:
+ *   - Gains with pathlength correction
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdCalibLoop_Svac : public AcdCalibBase {
 
 public :
-  
-  // Standard ctor, where user provides the names of the input root files
-  // and optionally the name of the output ROOT histogram file
+
+  /// Standard ctor, where user provides the input data
   AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibLoop_Svac();  
   
 protected:
 
+  /// setup input data
   Bool_t attachChains();
 
-  // get reconstruction direction 
+  /// get reconstructed track direction 
   void getFitDir();
     
-  // 
+  /// fill a histogram, possibly using the pathlength correction
   void fillGainHistCorrect(unsigned id, float pathLength);
 
-  // read in 1 event
+  /// read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
 			   int& runId, int& evtId);    
 
+  /// Try to use an event for calibration
   virtual void useEvent(Bool_t& used);
 
 
 private:
 
-  // Local options
+  /// flag for using the pathlength correction
   Bool_t      m_correctPathLength;
 
-  //  Variables that we need
+  //  Variables that we need from svac tuple
   Int_t  m_AcdPha[604][2];
   Int_t  m_AcdRange[604][2];
 

@@ -9,6 +9,16 @@ XERCES_CPP_NAMESPACE_END
 
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
+/** 
+ * @class DomElement
+ *
+ * @brief wrapper for DOMElement, Needed to protect CINT (i think)
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
+
 class DomElement {
   
 public:

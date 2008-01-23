@@ -29,7 +29,14 @@
 #include <map>
 #include <string>
 
-
+/** 
+ * @class AcdCalibLoop_Bench
+ *
+ * @brief Deprecated!!
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdCalibLoop_Bench : public AcdCalibBase {
 

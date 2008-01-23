@@ -14,8 +14,18 @@
 class AcdDigi;
 class DigiEvent;
 
+/** 
+ * @class AcdBinDataMap
+ *
+ * @brief a class to keep CINT from chocking 
+ * 
+ * CINT died on std::map<UInt_t, std::vector< std::multiset<Double_t> > > 
+ * So this takes care of that.
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
-// this is just for stupid CINT
 class AcdBinDataMap {
 public:
   AcdBinDataMap(Int_t val=10)
@@ -41,12 +51,22 @@ private:
 
 
 
+/** 
+ * @class AcdCoherentNoise
+ *
+ * @brief AcdCalibration to fit coherent readout noise
+ *
+ * FIXME more here
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
 class AcdCoherentNoise : public AcdCalibBase {
 
 public :
   
-  // Standard ctor, where user provides the names of the input root files
-  // and optionally the name of the output ROOT histogram file
+  /// Standard ctor, where user provides the input data
   AcdCoherentNoise(TChain* digiChain, UInt_t loDT = 529, UInt_t hiDT = 2529, UInt_t nBins = 100, 
 		   AcdMap::Config config = AcdMap::LAT);
   
@@ -56,15 +76,17 @@ public :
   
 protected:
 
+  /// setup input data
   Bool_t attachChains();
 
-  // 
+  /// Add data to histogram 
   void accumulate(Int_t deltaT, const AcdDigi& digi);
 
-  // read in 1 event
+  /// read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
 			   int& runId, int& evtId);    
 
+  /// Try to use an event for calibration
   virtual void useEvent(Bool_t& used);
 
 private:
@@ -79,10 +101,10 @@ private:
   /// pointer to a ReconEvent
   DigiEvent* m_digiEvent;
 
-  // The strip charts
+  /// The strip charts
   AcdHistCalibMap* m_histMap;
 
-  // stashed values
+  /// stashed values
   mutable std::map<UInt_t, AcdBinDataMap> m_vals;
 
 };

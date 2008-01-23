@@ -3,6 +3,18 @@
 
 #include "Rtypes.h"
 
+/** 
+ * @class AcdCalibVersion
+ *
+ * @brief Keeps track of version of ACD calibration
+ *
+ * FIXME
+ * Not really sure how this works. 
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
 class AcdCalibVersion {
 
 public:

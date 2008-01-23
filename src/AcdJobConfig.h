@@ -14,6 +14,46 @@
 // forward declares
 class TChain;
 
+/** 
+ * @class AcdJobConfig
+ *
+ * @brief Tool to manage Job options for all calibGenACD applications
+ *
+ * Usage:
+ *   application  -c <configFile>
+ * 
+ *   <configFile>      : name of xml file with job configuration
+ *
+ * 
+ *   application [options] [input] -o <output>
+ *
+ *     INPUT
+ *        -r <reconFiles>   : comma seperated list of recon ROOT files
+ *        -d <digiFiles>    : comma seperated list of digi ROOT files
+ *        -S <svacFiles>    : comma seperated list of svac ROOT files
+ *        -m <meritFiles>   : comma seperated list of merit ROOT files
+ *     NOTE:  Different calibrations jobs take diffenent types of input files
+ *
+ *        -o <output>       : prefix (path or filename) to add to output files"
+ *     
+ *     OPTIONS for all jobs
+ *        -h                : print this message
+ *        -n <nEvents>      : run over <nEvents>
+ *        -s <startEvent>   : start with event <startEvent>
+ *        -I (LAT | CU06)   : specify instument being calibrated [LAT]
+ *
+ *     OPTIONS for specific jobs (will be ignored by other jobs)
+ *        -P                : use only periodic triggers
+ *        -L                : correct for pathlength in tile
+ *        -b <bins>         : number of time bins in strip chart [300]
+ *        -p <pedFile>      : use pedestals from this file
+ *        -g <gainFile>     : use gains from this file
+ *        -R <rangeFile>    : use range data from this file
+ *
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdJobConfig {
 
