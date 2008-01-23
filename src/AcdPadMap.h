@@ -18,17 +18,27 @@
 // forward declares
 class TVirtualPad;
 
+/** 
+ * @class AcdPadMap
+ *
+ * @brief A simple tool to assoicate tile ids with TPads 
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
 
 class AcdPadMap : public TObject {
 
 public :
   
-  // Standard c'tor
+  /// Standard c'tor
   AcdPadMap(AcdMap::Config, const char* prefix);
   
-  // Default c'tor
+  /// Default c'tor
   AcdPadMap();
 
+  /// Trivial d'tor
   virtual ~AcdPadMap();  
 
   /// return the canvas list

@@ -1,9 +1,16 @@
 #ifndef AcdCalibEnum_h
 #define AcdCalibEnum_h 
 
+/**
+ * @brief Data for ACD calibrations
+ *
+ * @author Eric Charles
+ * $Header$
+ **/
+
 namespace AcdCalib {
 
-  // Types of histograms to be fit
+  /// Types of histograms to be fit
   enum HISTTYPE{H_NONE=-1,
 		H_RAW=0,
 		H_GAIN=1,
@@ -17,7 +24,7 @@ namespace AcdCalib {
 		H_TIME_VETO=13,
 		H_NHIST=14};
 
-  // Types of input data chains
+  /// Types of input data chains
   enum CHAIN{NO_CHAIN=-1,
 	     DIGI=0,
 	     RECON=1,
@@ -26,7 +33,7 @@ namespace AcdCalib {
 	     BENCH=4,
 	     NCHAIN=5};
 
-  // Types of strip chart normalization
+  /// Types of strip chart normalization
   enum STRIPTYPE{ PLAIN,
 		  MEAN_ABSOLUTE,
 		  MEAN_RELATIVE,

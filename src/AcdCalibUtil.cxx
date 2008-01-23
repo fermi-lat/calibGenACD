@@ -290,7 +290,7 @@ Float_t AcdCalibUtil::width(UInt_t id) {
   UInt_t row = (id % 100 ) / 10;
   //UInt_t col = (id % 10 );
 
-  // stupid temp hack
+  // FIXME stupid temp hack
   if ( id == 34 ) return 12.;
 
   switch ( face ) {

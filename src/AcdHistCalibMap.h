@@ -17,6 +17,14 @@
 // forward declares
 class TFile;
 
+/** 
+ * @class AcdCalibHistHolder
+ *
+ * @brief Group a bunch of histograms
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class  AcdCalibHistHolder {
 public:
@@ -28,20 +36,35 @@ private:
   std::vector<TH1*> m_hists;     // NOT owned
 };
 
+/** 
+ * @class AcdHistCalibMap
+ *
+ * @brief Map between channel ID and groups of histograms 
+ *
+ * All mapping is done using a decimal key:
+ *    1000 * pmt + 100*face + 10*row + col
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 
 class AcdHistCalibMap {
 
 public:
 
+  /// Build by attaching a map to a TFile, 
   AcdHistCalibMap(TFile& file, AcdMap::Config config = AcdMap::LAT);
 
+  /// Build with histogram details
   AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, AcdMap::Config config = AcdMap::LAT, UInt_t n=1);
   
   virtual ~AcdHistCalibMap();
   
+  /// Get a histogram by key and index
   TH1* getHist(UInt_t key, UInt_t idx=0);
 
+  /// Get a histogram holder by key
   AcdCalibHistHolder* getHolder(UInt_t key);
 
   const std::map<UInt_t,AcdCalibHistHolder>& theMap() const {
@@ -56,12 +79,14 @@ public:
     m_list.Print();
   }
 
+  /// Write histograms to a file
   Bool_t writeHistograms(const char* newFileName );
 
   AcdMap::Config config() const { return m_config; }
 
 protected:
 
+  /// Make one histogram for each channel
   void bookHists(const char* prefix, UInt_t n=1);
 
 private:

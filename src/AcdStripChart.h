@@ -12,28 +12,39 @@
 class AcdDigi;
 class DigiEvent;
 
+/** 
+ * @class AcdStripChart
+ *
+ * @brief AcdCalibration to fill time series strip charts
+ *
+ * FIXME more here
+ *
+ * @author Eric Charles
+ * $Header$
+ */
 
 class AcdStripChart : public AcdCalibBase {
 
 public :
-  
-  // Standard ctor, where user provides the names of the input root files
-  // and optionally the name of the output ROOT histogram file
+
+  /// Standard ctor, where user provides the input data
   AcdStripChart(TChain* digiChain, UInt_t nBins, const char* timeStampFile = "timestamps.txt");
   
   virtual ~AcdStripChart();  
 
 protected:
 
+  /// setup input data
   Bool_t attachChains();
 
-  // 
+  ///
   void accumulate(int ievent, const AcdDigi& digi);
 
-  // read in 1 event
+  /// read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
 			   int& runId, int& evtId);    
 
+  /// Try to use an event for calibration
   virtual void useEvent(Bool_t& used);
 
 

@@ -23,6 +23,16 @@ class AcdCalibFit;
 class TChain;
 
 
+/** 
+ * @class AcdCalibEventStats
+ *
+ * @brief Holder to keep track of events we have processed
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
+
 class AcdCalibEventStats {
 public :
 
@@ -57,7 +67,7 @@ public :
   // print stuff every 1k events, keep track of the current event
   void logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId,int evtId); 
 
-  // reset all the counters 
+  /// reset all the counters 
   void resetCounters() {
     m_evtId_first = 0;
     m_evtId_last = 0;
@@ -90,11 +100,11 @@ public :
 
 private :
 
-  /// the current run and event
+  // the current run and event
   Int_t m_evtId;
   Int_t m_runId;
 
-  /// store some information about what we ran over
+  // store some information about what we ran over
   Int_t m_evtId_first;
   Int_t m_evtId_last;
   Int_t m_runId_first;
@@ -116,43 +126,58 @@ private :
 };
 
 
+/** 
+ * @class AcdCalibBase
+ *
+ * @brief AcdCalibration base class
+ *
+ * Mangage input data, calibration types and event looping.
+ *
+ * Basic strategy is to loop on events, filling histograms, 
+ * then at the end of the event loop, do some fitting.
+ *
+ * @author Eric Charles
+ * $Header$
+ */
+
+
 class AcdCalibBase {
 
 public :
 
-  // Standard ctor, where user provides the names the output histogram files
+  /// Standard ctor, where user provides the names the output histogram files
   AcdCalibBase(AcdCalibData::CALTYPE t, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibBase();
    
   // access functions
 
-  // get the maps of the histograms to be fit
+  /// get the maps of the histograms to be fit
   AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType);
   const AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType) const;
 
-  // get the results maps
+  /// get the results maps
   AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType);
   const AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType) const;
   
-  // get a particular chain
+  /// get a particular chain
   TChain* getChain(AcdCalib::CHAIN chain);
   const TChain* getChain(AcdCalib::CHAIN chain) const;
   void setChain(AcdCalib::CHAIN chain, TChain* tchain) {
     m_chains[chain] = tchain;
   }
 
-  // Which type of calibration are we running
+  /// Which type of calibration are we running
   inline AcdCalibData::CALTYPE calType() const { return m_calType; }
 
-  // Which instrument calibration?
+  /// Which instrument calibration?
   inline AcdMap::Config getConfig() const { return m_config; }
 
-  // read the pedestals from a file
+  /// read an input calibration (usually pedestals) from a file
   Bool_t readCalib(AcdCalibData::CALTYPE cType, const char* fileName);
   
-  // this writes the output histograms if newFileName is not set, 
-  // they will be writing to the currently open file
+  /// this writes the output histograms
+  /// if newFileName is not set they will be written to the currently open file
   Bool_t writeHistograms(AcdCalib::HISTTYPE histType, const char* newFileName = 0);
 
   /// run the event loop
@@ -166,50 +191,51 @@ public :
   virtual void writeXmlSources(DomElement& node) const;
   virtual void writeTxtSources(std::ostream& os) const;
 
-  // do a fit
+  /// do the fitting
   AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType);
 
 protected:
 
-  // a calibration
+  /// add a calibration
   void addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal);
 
-  // This opens the output file and fills books the output histograms
+  /// This opens the output file and fills books the output histograms
   AcdHistCalibMap* bookHists(AcdCalib::HISTTYPE histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5, UInt_t nHist = 1);
   
-  // the histogram for id:pmtId with a value
+  /// fill the histogram for id:pmtId with a value
   void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val, UInt_t idx = 0);
   
-  // set a bin in a histogram 
+  /// set a bin in a histogram 
   void fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err, UInt_t idx=0);
 
-  // get the pedestal for a channel
+  /// get the pedestal for a channel
   float getPeds(UInt_t key) const;
-
+  
   const AcdCalibEventStats& eventStats() const { return  m_eventStats; }
   AcdCalibEventStats& eventStats() { return  m_eventStats; }
 
-  // 
+  /// Write the calibration data to a stream
   void writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) const;
 
-  //
+  /// Write the input chain data to a stream
   void writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const;
 
-  // 
+  /// Write the calibration data to a DOM node
   void writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const;
 
-  //
+  /// Write the input chain  data to a DOM node
   void writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const;
 
-  // return the total number of events in the chains
+  /// return the total number of events in the chains
   int getTotalEvents() const;
 
-  // read in 1 event
+  /// read in 1 event
   virtual Bool_t readEvent(int /*ievent*/, Bool_t& /*filtered*/, 
 			   int& /*runId*/, int& /*evtId*/) {
     return kFALSE;
   }
-
+  
+  /// Try to use an event for an calibration
   virtual void useEvent(Bool_t& /*used*/) {;}
 
 private:
@@ -217,23 +243,23 @@ private:
 
   /// which type of instrument
   AcdMap::Config m_config;
-
-  // Which type of calibration are we getting the histograms for?
+  
+  /// Which type of calibration are we getting the histograms for?
   AcdCalibData::CALTYPE m_calType;
   
-  // Keep track of events 
+  /// Keep track of events 
   AcdCalibEventStats m_eventStats;
 
-  // These are the histograms, mapped by hist type
-  // index is given by AcdCalib::HISTTYPE
+  /// These are the histograms, mapped by hist type
+  /// index is given by AcdCalib::HISTTYPE
   std::vector<AcdHistCalibMap*> m_histMaps;
 
-  // These are the results of the fits, mapped by the calib type
-  // index is given by AcdCalib::CALTYPE
+  /// These are the results of the fits, mapped by the calib type
+  /// index is given by AcdCalib::CALTYPE
   std::vector<AcdCalibMap*> m_fitMaps;
 
-  // These are the various chains used by the analysis
-  // index is given by AcdCalib::CHAIN
+  /// These are the various chains used by the analysis
+  /// index is given by AcdCalib::CHAIN
   std::vector<TChain*> m_chains;
 
 };
