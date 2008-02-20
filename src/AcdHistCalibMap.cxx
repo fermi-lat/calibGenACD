@@ -36,15 +36,14 @@ void AcdHistCalibMap::bookHists(const char* prefix, UInt_t n) {
 	UInt_t nRow = AcdMap::getNRow(iFace);
 	for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
 	  UInt_t nCol = AcdMap::getNCol(iFace,iRow);
-	  for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
+	  for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {	    
 	    UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	    for ( UInt_t idx(0); idx < n; idx++ ) {
-
+	    for ( UInt_t idx(0); idx < n; idx++ ) {	      
 	      std::string suffix;
 	      AcdMap::makeSuffix(suffix,iPmt,iFace,iRow,iCol,idx);
 	      std::string histName(prefix); histName += suffix;
 	      TH1F* theHist = new TH1F(histName.c_str(),histName.c_str(),m_bins,m_lo,m_hi);
-	      theHist->SetUniqueID(key);
+	      theHist->SetUniqueID(key + (10000*idx));
 	      m_map[key].addHist(*theHist);
 	      m_list.Add(theHist);
 	    }

@@ -33,13 +33,14 @@ public:
 
   enum Config{ LAT,
 	       GARC_GAFE,
+	       RIBBONS,
 	       BEAM };  
 
   static UInt_t makeId(UInt_t face, UInt_t row, UInt_t col) {
     return 100*face + 10*row + col;
   }
-  static UInt_t makeKey(UInt_t pmt, UInt_t face, UInt_t row, UInt_t col) {
-    return 1000 * pmt + makeId(face,row,col);
+  static UInt_t makeKey(UInt_t pmt, UInt_t face, UInt_t row, UInt_t col, UInt_t iHist=0) {
+    return (10000* iHist) + (1000 * pmt) + makeId(face,row,col);
   }
   static UInt_t makeKey(UInt_t pmt, UInt_t id) {
     return 1000 * pmt + id;
@@ -48,7 +49,7 @@ public:
     return key % 1000;
   }
   static UInt_t getPmt(UInt_t key) {
-    return key / 1000;
+    return (key % 10000 ) / 1000;
   }
   static UInt_t getFace(UInt_t key) {
     return (key % 1000) / 100;

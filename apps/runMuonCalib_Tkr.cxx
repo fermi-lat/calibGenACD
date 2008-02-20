@@ -40,7 +40,7 @@ int main(int argn, char** argc) {
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
-  AcdGainFitLibrary gainFitter(AcdGainFitLibrary::P5,removePeds);
+  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::P5,removePeds);
   AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::GAIN,AcdCalib::H_GAIN);
 
   // output

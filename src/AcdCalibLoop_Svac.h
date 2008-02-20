@@ -24,7 +24,7 @@ class AcdCalibLoop_Svac : public AcdCalibBase {
 public :
 
   /// Standard ctor, where user provides the input data
-  AcdCalibLoop_Svac(TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, Bool_t correctPathLength = kTRUE, AcdMap::Config config = AcdMap::LAT);
   
   virtual ~AcdCalibLoop_Svac();  
   
@@ -37,7 +37,7 @@ protected:
   void getFitDir();
     
   /// fill a histogram, possibly using the pathlength correction
-  void fillGainHistCorrect(unsigned id, float pathLength);
+  void fillGainHistCorrect(unsigned id, float pathLength, unsigned iISect);
 
   /// read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
@@ -55,11 +55,16 @@ private:
   //  Variables that we need from svac tuple
   Int_t  m_AcdPha[604][2];
   Int_t  m_AcdRange[604][2];
+  Int_t  m_AcdRibbonCount;
 
   Int_t m_AcdNumTkrIntSec;
   Int_t m_AcdTkrIntSecTileId[20];
   Int_t m_AcdTkrIntSecTkrIndex[20];
   Float_t m_AcdTkrIntSecPathLengthInTile[20];    
+
+  Float_t m_AcdTkrIntSecGlobalX[20];    
+  Float_t m_AcdTkrIntSecGlobalY[20];    
+  Float_t m_AcdTkrIntSecGlobalZ[20];    
 
   // 
   AcdHistCalibMap* m_gainHists;

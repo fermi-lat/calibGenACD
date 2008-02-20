@@ -160,6 +160,27 @@ AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdCalibMap& gains,
   return padMap;
 }
 
+AcdPadMap* AcdCalibUtil::drawRibbons(AcdHistCalibMap& h, AcdCalibMap& gains, 
+				  Bool_t onLog, const char* prefix) {
+
+  AcdPadMap* padMap = new AcdPadMap(AcdMap::RIBBONS,prefix);
+  TList& hList = (TList&)h.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hh = (TH1*)(obj);
+    if ( hh == 0) continue;
+    //CalibData::AcdCalibObj* res = gains.get(id);
+    CalibData::AcdCalibObj* res(0);
+    drawMipPlot(*pad,*hh,res,onLog);
+  }
+  return padMap;
+}
+
 AcdPadMap* AcdCalibUtil::drawStripCharts(AcdHistCalibMap& h, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
