@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Tue Feb 19 16:11:26 PST 2008
+calibGenACD/apps
+
+Modified Files:
+	runMuonCalib_Roi.cxx runMuonCalib_Svac.cxx 
+	runMuonCalib_Tkr.cxx 
+Added Files:
+	runRibbonCalib.cxx 
+Log Message:
+added functionality to create AcdRibbon calibrations
+    *
+------------------------------------------------------------
 User: echarles  Wed Jan 23 15:43:54 PST 2008
 calibGenACD/src
 
