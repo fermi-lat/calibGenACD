@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Tue Feb 19 16:11:27 PST 2008
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+added functionality to create AcdRibbon calibrations
+    *
+------------------------------------------------------------
 User: echarles  Tue Feb 19 16:11:26 PST 2008
 calibGenACD/apps
 
