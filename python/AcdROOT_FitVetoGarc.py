@@ -91,6 +91,7 @@ class AcdOfflineVetoFitter:
                         return False
                     floatVal = float(vetoVal) + (float(vernVal)/32.)
                     theSettings[arc,afe] = floatVal
+                    #print (arc,afe,floatVal)
                     pass
                 pass
             pass
@@ -140,6 +141,7 @@ class AcdOfflineVetoFitter:
                         pmtName = 'B'
                     (garc,gafe) = self.__theTileMap.tileDict[tileName][pmtName]
                     theSetPoints[garc,gafe] = vetoVal
+                    print (garc,gafe,vetoVal)
                     pass
                 pass
             pass

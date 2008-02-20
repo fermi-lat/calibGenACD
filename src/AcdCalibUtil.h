@@ -56,11 +56,15 @@ public :
 
   /// draw veto plots onto canvases
   static AcdPadMap* drawCnos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
-			     AcdCalibMap& vetos, const char* prefix = "");
+			     AcdCalibMap& vetos, const char* prefix = "");  
 
   /// draw mip peaks onto canvases
   static AcdPadMap* drawMips(AcdHistCalibMap& h, AcdCalibMap& gains, 
 			     Bool_t onLog = kTRUE, const char* prefix = "");
+
+  /// draw mip peaks for ribbons onto canvases
+  static AcdPadMap* drawRibbons(AcdHistCalibMap& h, AcdCalibMap& ribbons, 
+				Bool_t onLog = kTRUE, const char* prefix = "");  
 
   /// draw strip charts onto canvases
   static AcdPadMap* drawStripCharts(AcdHistCalibMap& h, const char* prefix = "");

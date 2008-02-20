@@ -171,8 +171,14 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
 	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);   
 	  if ( itr == m_map.end() ) continue;	  
-	  // FIXME
-	  //itr->second->makeXmlNode(pmtNode);
+
+	  DomElement calibNode = AcdXmlUtil::makeChildNode(pmtNode,m_desc->calibTypeName().c_str());
+	  for ( Int_t iVar(0); iVar < m_desc->nVar(); iVar++ ) {
+	    const std::string& vName = m_desc->getVarName(iVar);
+	    Float_t varVal = itr->second->operator[](iVar);
+	    AcdXmlUtil::addAttribute(calibNode,vName.c_str(),varVal);
+	  }
+	  AcdXmlUtil::addAttribute(calibNode,"status",(int)itr->second->getStatus());
 	}
       }
     }
@@ -208,8 +214,14 @@ Bool_t AcdCalibMap::readXmlTile(DOMElement& node) {
   UInt_t keyA = AcdMap::makeKey(0,id);
   UInt_t keyB = AcdMap::makeKey(1,id);
 
-  if ( ! readXmlCalib(*pmtA,keyA) ) return kFALSE;
-  if ( ! readXmlCalib(*pmtB,keyB) ) return kFALSE;    
+  if ( ! readXmlCalib(*pmtA,keyA) ) {
+    std::cerr << "Failed to read " << keyA << std::endl;
+    return kFALSE;
+  }
+  if ( ! readXmlCalib(*pmtB,keyB) ) {
+    std::cerr << "Failed to read " << keyB << std::endl;
+    return kFALSE;    
+  }
   return kTRUE;
     
 }

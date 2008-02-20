@@ -58,6 +58,8 @@ protected:
 
   void fillForGarcGafe();
 
+  void fillForRibbons();
+
   void fillForBeam();
 
 private:

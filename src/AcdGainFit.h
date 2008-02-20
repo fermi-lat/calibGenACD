@@ -77,8 +77,8 @@ public:
 public:
 
   /// Standard c'tor, specify fit type
-  AcdGainFitLibrary(FitType type, Bool_t pedRemove = kTRUE)
-    :AcdCalibFit(&CalibData::AcdGainFitDesc::instance()),
+  AcdGainFitLibrary(CalibData::AcdCalibDescription* desc, FitType type, Bool_t pedRemove = kTRUE)
+    :AcdCalibFit(desc),
      _type(type),_pedRemove(pedRemove){}
 
   AcdGainFitLibrary(){}

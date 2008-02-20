@@ -36,6 +36,9 @@ void AcdPadMap::fill() {
   case AcdMap::GARC_GAFE:
     fillForGarcGafe();
     break;
+  case AcdMap::RIBBONS:
+    fillForRibbons();
+    break;    
   case AcdMap::BEAM:
     fillForBeam();
     break;
@@ -140,8 +143,59 @@ void AcdPadMap::fillForLat() {
 }
 
 void AcdPadMap::fillForGarcGafe() {
-  return;
+  for ( UInt_t iGarc(0); iGarc < 12; iGarc++ ) {
+    char tmp[10];
+    sprintf(tmp,"garc_%i",iGarc);
+    TString name(m_prefix+tmp);
+    TCanvas* c = new TCanvas(name,name);
+    UInt_t idx(0);
+    for  ( UInt_t iGafe(0); iGafe < 12; iGafe++ ) {
+      idx++;
+      TVirtualPad* v = c->cd(idx);
+      m_map[idx] = v; 
+    }
+    m_canvasList.Add(c);
+  }
 }
+
+
+void AcdPadMap::fillForRibbons() {
+
+ 
+  for ( UInt_t iRow = 5; iRow < 7; iRow++ ) {
+    for ( UInt_t iCol = 0; iCol < 4; iCol++ ) {
+      
+      UInt_t idA = 100*iRow + iCol;
+      UInt_t idB = 1000 + idA;
+
+      // ribbons
+      char tmp[10];
+      sprintf(tmp,"rib_%i",idA);
+      TString nameA(m_prefix+tmp); nameA += "_A";      
+      TString nameB(m_prefix+tmp); nameB += "_B";
+
+      TCanvas* ribA = new TCanvas(nameA,nameA);
+      TCanvas* ribB = new TCanvas(nameB,nameB);      
+      
+      ribA->Divide(4,2);
+      ribB->Divide(4,2);  
+      
+      UInt_t idx = 0;
+      for ( UInt_t iHist(0); iHist < 7; iHist++ ) {
+	idx++;     
+	UInt_t keyA = (10000*iHist) + idA;
+	UInt_t keyB = (10000*iHist) + idB;
+	TVirtualPad* pA = ribA->cd(idx);
+	TVirtualPad* pB = ribB->cd(idx);	
+	m_map[keyA] = pA;
+	m_map[keyB] = pB;	
+      }
+      m_canvasList.Add(ribA);
+      m_canvasList.Add(ribB);      
+    }
+  }
+}
+
 
 void AcdPadMap::fillForBeam() {
 

@@ -159,6 +159,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   case AcdCalib::H_VETO: name += "VETO"; break;
   case AcdCalib::H_UNPAIRED: name += "UNPAIRED"; break;
   case AcdCalib::H_FRAC: name += "FRAC"; break;
+  case AcdCalib::H_RIBBONS: name += "RIBBONS"; break;
   case AcdCalib::H_RANGE: name += "RANGE"; break;
   case AcdCalib::H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
   case AcdCalib::H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
