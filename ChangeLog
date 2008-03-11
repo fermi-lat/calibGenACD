@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: heather  Tue Mar 11 09:18:01 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdGainFit.h 
+Log Message:
+add const to AcdGainFitLibrary ctor
+    *
+------------------------------------------------------------
 User: heather  Tue Mar 11 09:17:28 PDT 2008
 calibGenACD/doc
 
