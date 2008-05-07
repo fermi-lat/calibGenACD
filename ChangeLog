@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Wed May  7 16:56:32 PDT 2008
+calibGenACD/src
+
+Added Files:
+	AcdHighRange.cxx AcdHighRange.h AcdHighRangeFit.cxx 
+	AcdHighRangeFit.h 
+Log Message:
+added AcdHighRange calibration
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-03-03-01, operation: add
 Package: calibGenACD
