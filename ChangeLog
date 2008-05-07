@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed May  7 16:57:12 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCoherentNoise.cxx AcdCoherentNoiseFit.cxx 
+Log Message:
+fixed up AcdCoherentNoise to fill fit parameters
+    *
+------------------------------------------------------------
 User: echarles  Wed May  7 16:56:32 PDT 2008
 calibGenACD/apps
 
