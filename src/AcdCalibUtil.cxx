@@ -194,9 +194,23 @@ AcdPadMap* AcdCalibUtil::drawStripCharts(AcdHistCalibMap& h, const char* prefix)
     if ( pad == 0 ) continue;
     TH1* hh = (TH1*)(obj);
     if ( hh == 0 ) continue;
-    hh->SetMinimum(-50.);
-    hh->SetMaximum(50.);
+    TF1* fit = hh->GetFunction("ring");
+    if ( fit != 0 ) {
+      fit->SetLineWidth(1);
+      fit->SetLineColor(4);
+      hh->SetMinimum(-50.);
+      hh->SetMaximum(50.);
+    }    
+    fit = hh->GetFunction("calib");
+    if ( fit != 0 ) {
+      fit->SetLineWidth(1);
+      fit->SetLineColor(4);
+    }
+    
     pad->cd();
+    hh->SetLineWidth(1);
+    hh->SetLineColor(1);
+    hh->SetMarkerColor(1);
     hh->Draw();
   }
   return padMap;
