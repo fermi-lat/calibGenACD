@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed May  7 16:58:40 PDT 2008
+calibGenACD/apps
+
+Modified Files:
+	runCoherentNoise.cxx 
+Log Message:
+changed names of output files to use 'coherent' instead of 'profile' in runCoherentNoise.exe
+    *
+------------------------------------------------------------
 User: echarles  Wed May  7 16:57:53 PDT 2008
 calibGenACD/src
 
