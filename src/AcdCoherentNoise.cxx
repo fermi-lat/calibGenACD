@@ -33,7 +33,8 @@ AcdCoherentNoise::AcdCoherentNoise(TChain* digiChain, UInt_t loDT, UInt_t hiDT, 
    m_histMap(0) {
 
   setChain(AcdCalib::DIGI,digiChain);
-  m_histMap = bookHists(AcdCalib::H_COHERENT_NOISE,nBins,(Float_t)loDT,(Float_t)hiDT);
+  Float_t hiEdge = hiDT - loDT;
+  m_histMap = bookHists(AcdCalib::H_COHERENT_NOISE,nBins,0,hiEdge);
   
   Bool_t ok = attachChains();
   if ( ! ok ) {

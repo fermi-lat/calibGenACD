@@ -47,16 +47,18 @@ Int_t AcdCoherentNoiseFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdC
   Int_t status = nch.Fit(&ring,"","");
   
 
-  //Float_t amp = ring.GetParameter(0);
-  //Float_t decay = ring.GetParameter(1);
-  //Float_t freq = ring.GetParameter(2);
-  //Float_t phase = ring.GetParameter(3);
+  Float_t amp = ring.GetParameter(0);
+  Float_t decay = ring.GetParameter(1);
+  Float_t freq = ring.GetParameter(2);
+  Float_t phase = ring.GetParameter(3);
+  result.setVals(amp,decay,freq,phase,(CalibData::AcdCalibObj::STATUS)status);
 
   //char fitPars[100];
   //sprintf(fitPars,"%3.1f %4.1f %5.4f %4.3f",amp,decay,freq,phase);
   
   //result.setVals(min,minTime,max,maxTime,fitPars,(AcdCoherentNoiseFitResult::STATUS)status);
-  result.setVals(min,minTime,max,maxTime,(CalibData::AcdCalibObj::STATUS)status);
+  //result.setVals(min,minTime,max,maxTime,(CalibData::AcdCalibObj::STATUS)status);
+  
   return result.getStatus();
 }
 
