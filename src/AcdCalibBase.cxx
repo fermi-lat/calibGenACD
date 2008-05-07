@@ -165,6 +165,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   case AcdCalib::H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
   case AcdCalib::H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
   case AcdCalib::H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
+  case AcdCalib::H_HIGH_RANGE: name += "HIGH_RANGE"; break;    
   case AcdCalib::H_NONE:
   default:
     return 0;

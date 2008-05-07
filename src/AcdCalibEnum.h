@@ -20,6 +20,7 @@ namespace AcdCalib {
 		H_TIME_PHA=6,	
 		H_UNPAIRED=7,		
 		H_RIBBONS=8,
+		H_HIGH_RANGE=9,
 		H_FRAC=10,
 		H_TIME_HIT=12,
 		H_TIME_VETO=13,
