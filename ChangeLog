@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed May  7 16:57:53 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibEnum.h AcdCalibBase.cxx 
+Log Message:
+added H_HIGH_RANGE enum to histogram types
+    *
+------------------------------------------------------------
 User: echarles  Wed May  7 16:57:12 PDT 2008
 calibGenACD/src
 
