@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: echarles  Wed May  7 16:56:32 PDT 2008
+calibGenACD/apps
+
+Added Files:
+	runHighRange.cxx 
+Log Message:
+added AcdHighRange calibration
+    *
+------------------------------------------------------------
+User: echarles  Wed May  7 16:56:32 PDT 2008
 calibGenACD/src
 
 Added Files:
