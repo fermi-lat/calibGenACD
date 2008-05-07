@@ -43,17 +43,19 @@ int main(int argn, char** argc) {
   AcdCalibMap* fitMap = r.fit(fitCoherent,AcdCalibData::COHERENT_NOISE,AcdCalib::H_COHERENT_NOISE);
   
   // and dump to the text file
-  std::string outputTxtFile = jc.outputPrefix() + "_Profile.txt";
+  std::string outputTxtFile = jc.outputPrefix() + "_Coherent.txt";
+  std::string outputXmlFile = jc.outputPrefix() + "_Coherent.xml";
   fitMap->writeTxtFile(outputTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
+  fitMap->writeXmlFile(outputXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
 
   // strip chart output
 
   // to root file
-  std::string outputHistFile = jc.outputPrefix() + "_Profile.root";
+  std::string outputHistFile = jc.outputPrefix() + "_Coherent.root";
   r.writeHistograms(AcdCalib::H_COHERENT_NOISE, outputHistFile.c_str());
 
   // to ps file
-  std::string outputPsFile = jc.outputPrefix() + "_Profile_";
+  std::string outputPsFile = jc.outputPrefix() + "_Coherent_";
   AcdPadMap* padMap(0);
   padMap = AcdCalibUtil::drawStripCharts(*(r.getHistMap(AcdCalib::H_COHERENT_NOISE)),outputPsFile.c_str());  
   AcdCalibUtil::saveCanvases(padMap->canvasList());  
