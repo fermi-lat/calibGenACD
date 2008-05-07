@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Wed May  7 16:59:49 PDT 2008
+calibGenACD/calibGenACD
+
+Removed Files:
+	LinkDef.h 
+Log Message:
+remove unused LinkDef.h file
+    *
+------------------------------------------------------------
 User: echarles  Wed May  7 16:59:03 PDT 2008
 calibGenACD/src
 
