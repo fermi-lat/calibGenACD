@@ -1,3 +1,6 @@
+v3r4p1 EAC 080508
+Small changes to allow transfering the high range pedestals from a pedestal calibration to High range calibration
+
 v3r4 EAC 080507
 Added runHighRange, fixed up runCoherentNoise
 
