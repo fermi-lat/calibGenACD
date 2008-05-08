@@ -1,5 +1,5 @@
-v3r3p1 HMK 080311
-patch for windows
+v3r4 EAC 080507
+Added runHighRange, fixed up runCoherentNoise
 
 v3r3 EAC 080219
 Added ribbon attenutation calibration
