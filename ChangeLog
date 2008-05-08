@@ -1,5 +1,106 @@
 ------------------------------------------------------------
 TAG
+Tag name: calibGenACD-03-04-01, operation: add
+Package: calibGenACD
+User: glastrm  Thu May  8 13:45:34 2008
+Files:
+  calibGenACD/.cvsignore  1.2
+  calibGenACD/ChangeLog  1.208
+  calibGenACD/apps/runVetoCalib.cxx  1.8
+  calibGenACD/apps/runStripChart.cxx  1.8
+  calibGenACD/apps/runMuonCalib_Tkr.cxx  1.9
+  calibGenACD/apps/runMuonCalib_Roi.cxx  1.10
+  calibGenACD/apps/runRibbonCalib.cxx  1.1
+  calibGenACD/apps/runMuonCalib_Svac.cxx  1.7
+  calibGenACD/apps/runCnoCalib.cxx  1.2
+  calibGenACD/apps/runPedestal.cxx  1.8
+  calibGenACD/apps/runHighRange.cxx  1.1
+  calibGenACD/apps/runCoherentNoise.cxx  1.6
+  calibGenACD/apps/runRangeFit.cxx  1.3
+  calibGenACD/apps/runMeritCalib.cxx  1.6
+  calibGenACD/calibGenACD/.cvsignore  1.1
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.41
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.31
+  calibGenACD/python/AcdROOT_FitVetoGarc.py  1.3
+  calibGenACD/python/AcdFunctions_copied.py  1.1
+  calibGenACD/python/AcdCalibBase.py  1.1
+  calibGenACD/python/tntReader.py  1.1
+  calibGenACD/python/AcdROOT_LineFit.py  1.2
+  calibGenACD/python/AcdTileMapLookUp.py  1.1
+  calibGenACD/python/.cvsignore  1.1
+  calibGenACD/python/AcdXmlUtil.py  1.1
+  calibGenACD/python/calibArray.py  1.1
+  calibGenACD/src/AcdRibbonFit.cxx  1.1
+  calibGenACD/src/AcdPadMap.h  1.5
+  calibGenACD/src/AcdCalibBase.cxx  1.20
+  calibGenACD/src/AcdStripChart.cxx  1.11
+  calibGenACD/src/AcdCoherentNoise.cxx  1.7
+  calibGenACD/src/AcdPedestalFit.cxx  1.6
+  calibGenACD/src/AcdCnoFit.cxx  1.3
+  calibGenACD/src/AcdCalibUtil.cxx  1.17
+  calibGenACD/src/AcdCalibLoop_Merit.h  1.4
+  calibGenACD/src/AcdPedestalFit.h  1.8
+  calibGenACD/src/AcdPadMap.cxx  1.5
+  calibGenACD/src/AcdHighRangeFit.h  1.1
+  calibGenACD/src/AcdGarcGafeHits.cxx  1.2
+  calibGenACD/src/DomElement.cxx  1.1
+  calibGenACD/src/AcdCnoFit.h  1.4
+  calibGenACD/src/AcdHistCalibMap.cxx  1.10
+  calibGenACD/src/AcdCalibLoop_Svac.h  1.5
+  calibGenACD/src/DomElement.h  1.2
+  calibGenACD/src/AcdMap.h  1.8
+  calibGenACD/src/AcdCalibLoop_Bench.cxx  1.3
+  calibGenACD/src/AcdHighRange.h  1.1
+  calibGenACD/src/AcdStripFit.cxx  1.5
+  calibGenACD/src/AcdXmlUtil.h  1.2
+  calibGenACD/src/AcdStripFit.h  1.7
+  calibGenACD/src/AcdHighRange.cxx  1.2
+  calibGenACD/src/AcdCalibLoop_Svac.cxx  1.5
+  calibGenACD/src/AcdCalibVersion.cxx  1.2
+  calibGenACD/src/AcdCalibLoop_Recon.cxx  1.3
+  calibGenACD/src/AcdCalibFit.h  1.3
+  calibGenACD/src/AcdCalibLoop_Merit.cxx  1.3
+  calibGenACD/src/calibOption.xml  1.2
+  calibGenACD/src/AcdCoherentNoiseFit.h  1.6
+  calibGenACD/src/AcdCoherentNoise.h  1.5
+  calibGenACD/src/AcdVetoFit.h  1.6
+  calibGenACD/src/AcdCalibFit.cxx  1.3
+  calibGenACD/src/AcdGarcGafeHits.h  1.4
+  calibGenACD/src/AcdJobConfig.cxx  1.7
+  calibGenACD/src/AcdHistCalibMap.h  1.8
+  calibGenACD/src/AcdHighRangeFit.cxx  1.2
+  calibGenACD/src/AcdCalibLoop_Digi.cxx  1.3
+  calibGenACD/src/AcdCoherentNoiseFit.cxx  1.6
+  calibGenACD/src/AcdCalibLoop_Digi.h  1.4
+  calibGenACD/src/mainpage.h  1.2
+  calibGenACD/src/AcdCalibLoop_Recon.h  1.4
+  calibGenACD/src/AcdCalibBase.h  1.17
+  calibGenACD/src/AcdRibbonFit.h  1.1
+  calibGenACD/src/AcdXmlUtil.cxx  1.2
+  calibGenACD/src/AcdJobConfig.h  1.7
+  calibGenACD/src/AcdCalibEnum.h  1.5
+  calibGenACD/src/AcdCalibLoop_Bench.h  1.4
+  calibGenACD/src/AcdRangeFit.cxx  1.3
+  calibGenACD/src/AcdGainFit.h  1.10
+  calibGenACD/src/AcdMap.cxx  1.2
+  calibGenACD/src/AcdRangeFit.h  1.4
+  calibGenACD/src/AcdStripChart.h  1.8
+  calibGenACD/src/AcdCalibMap.h  1.10
+  calibGenACD/src/.cvsignore  1.1.1.1
+  calibGenACD/src/AcdCalibMap.cxx  1.13
+  calibGenACD/src/AcdCalibUtil.h  1.9
+  calibGenACD/src/AcdCalibVersion.h  1.6
+  calibGenACD/src/AcdGainFit.cxx  1.7
+  calibGenACD/src/AcdVetoFit.cxx  1.6
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: v3r4p1, operation: add
 Package: calibGenACD
 User: echarles  Thu May  8 13:39:23 2008
