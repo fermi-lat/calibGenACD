@@ -293,8 +293,11 @@ const TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) const {
 
 
 AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType) { 
-  AcdCalibMap* result = new AcdCalibMap(*(fitter.desc()));
-  addCalibration(cType,*result);
+  AcdCalibMap* result = getCalibMap(cType);
+  if ( result == 0 ) {
+    result = new AcdCalibMap(*(fitter.desc()));
+    addCalibration(cType,*result);
+  }
   AcdHistCalibMap* hists = getHistMap(hType);
   fitter.fitAll(*result,*hists);
   return result;

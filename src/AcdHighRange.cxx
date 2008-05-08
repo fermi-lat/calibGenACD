@@ -8,6 +8,9 @@
 #include "AcdCalibUtil.h"
 #include "AcdCalibMap.h"
 
+#include "CalibData/Acd/AcdHighRange.h"
+#include "CalibData/Acd/AcdCalibEnum.h"
+
 #include <fstream>
 
 
@@ -41,8 +44,14 @@ Bool_t AcdHighRange::attachChains() {
 
 
 Bool_t AcdHighRange::convertTxt(const char* txtFileName) {
+
   ifstream infile(txtFileName);
   if ( ! infile.good() ) return kFALSE;
+
+  AcdCalibMap* peds = getCalibMap( AcdCalibData::PEDESTAL );
+  AcdCalibMap* highRange = new AcdCalibMap( CalibData::AcdHighRangeFitDesc::instance() );
+  addCalibration(AcdCalibData::HIGH_RANGE,*highRange);
+  
 
   int id, iPmt;
   Float_t pars[5];
@@ -58,6 +67,13 @@ Bool_t AcdHighRange::convertTxt(const char* txtFileName) {
     idx++;
     UInt_t key = AcdMap::makeKey(iPmt,id);
     TH1* h = m_histMap->getHist(key);
+    if ( peds != 0 ) {
+      float pedVal = getPeds(key);
+      CalibData::AcdCalibObj* hrObj = highRange->makeNew();
+      hrObj->operator[](0) = pedVal;
+      highRange->add(key,*hrObj);
+    }
+
     if ( h == 0) {
       std::cerr << "No hist for key " << key << std::endl;
       return kFALSE;
