@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: echarles  Thu May  8 13:37:39 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibFit.cxx AcdHighRange.cxx 
+	AcdHighRangeFit.cxx 
+Log Message:
+small changes to allow transfering the high range pedestals from a pedestal calibration to High range calibration
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-03-04-00, operation: add
 Package: calibGenACD
