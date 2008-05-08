@@ -34,7 +34,10 @@ void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists) {
 	itr != hists.theMap().end(); itr++ ) {
     UInt_t key = itr->first;
     const AcdCalibHistHolder& holder = itr->second;
-    CalibData::AcdCalibObj* theResult = results.makeNew();
+    CalibData::AcdCalibObj* theResult = results.get(key);
+    if ( theResult == 0 ) {
+      theResult = results.makeNew();
+    }
     fit(*theResult, holder);
     results.add(key,*theResult);
   }
