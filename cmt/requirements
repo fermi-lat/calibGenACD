@@ -47,3 +47,4 @@ application runStripChart ../apps/runStripChart.cxx
 application runCoherentNoise ../apps/runCoherentNoise.cxx
 application runRangeCalib ../apps/runRangeFit.cxx
 application runRibbonCalib ../apps/runRibbonCalib.cxx
+application runHighRange ../apps/runHighRange.cxx
