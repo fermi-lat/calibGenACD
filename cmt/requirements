@@ -1,11 +1,12 @@
 package calibGenACD
-version v3r4p1
+version v4r0
 
 author Eric Charles <echarles@slac.stanford.edu>
 
 branches src xml output
 
 use CalibData v*
+use calibUtil v*
 use commonRootData v*
 use digiRootData v*
 use reconRootData v*
@@ -36,15 +37,12 @@ macro_prepend calibgenacd_linkopts " -lcalibGenACD
 #macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
 
 
-application runMuonCalib_Roi ../apps/runMuonCalib_Roi.cxx
-application runMuonCalib_Tkr ../apps/runMuonCalib_Tkr.cxx
-application runMuonCalib_Svac ../apps/runMuonCalib_Svac.cxx
 application runPedestal ../apps/runPedestal.cxx
+application runMipCalib ../apps/runMipCalib.cxx
+application runRangeCalib ../apps/runRangeCalib.cxx
 application runVetoCalib ../apps/runVetoCalib.cxx
 application runCnoCalib ../apps/runCnoCalib.cxx
-application runMeritCalib ../apps/runMeritCalib.cxx
-application runStripChart ../apps/runStripChart.cxx
-application runCoherentNoise ../apps/runCoherentNoise.cxx
-application runRangeCalib ../apps/runRangeFit.cxx
+application runCoherentNoiseCalib ../apps/runCoherentNoiseCalib.cxx
+application runCarbonCalib ../apps/runCarbonCalib.cxx
 application runRibbonCalib ../apps/runRibbonCalib.cxx
-application runHighRange ../apps/runHighRange.cxx
+application convertXmlToTxt ../apps/convertXmlToTxt.cxx

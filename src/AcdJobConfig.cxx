@@ -8,10 +8,13 @@
 #include "TSystem.h"
 #include "xmlBase/IFile.h"
 #include "facilities/Util.h"
+#include "facilities/Timestamp.h"
 #ifdef WIN32
 #include "facilities/XGetopt.h"
 #endif
 #include <time.h>
+#include <TROOT.h>
+#include <TPluginManager.h>
 
 #include "TChain.h"
 
@@ -24,6 +27,7 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_optval_b(300),
    m_optval_P(kFALSE),
    m_optval_L(kFALSE),
+   m_optval_C(kFALSE),
    m_digiChain(0),
    m_reconChain(0),
    m_svacChain(0),
@@ -63,6 +67,9 @@ void AcdJobConfig::usage() {
        << "\t   -d <digiFiles>    : comma seperated list of digi ROOT files" << endl
        << "\t   -S <svacFiles>    : comma seperated list of svac ROOT files" << endl
        << "\t   -m <meritFiles>   : comma seperated list of merit ROOT files" << endl 
+       << "\t   -f <histFile>     : file with histograms" << endl 
+       << "\t   -i <inputFile>    : generic input file" << endl 
+
        << "\tNOTE:  Different calibrations jobs take diffenent types of input files" << endl
        << endl
        << "\t   -o <output>       : prefix (path or filename) to add to output files" << endl
@@ -75,15 +82,20 @@ void AcdJobConfig::usage() {
        << endl
        << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
        << "\t   -P                : use only periodic triggers" << endl
+       << "\t   -C                : use CAL GCR selection" << endl
        << "\t   -L                : correct for pathlength in tile" << endl
        << "\t   -b <bins>         : number of time bins in strip chart [300]" << endl   
        << "\t   -p <pedFile>      : use pedestals from this file" << endl
+       << "\t   -H <pedHighFile>  : use high range pedestals from this file" << endl
        << "\t   -g <gainFile>     : use gains from this file" << endl
        << "\t   -R <rangeFile>    : use range data from this file" << endl
        << endl;
 }
   
 Int_t AcdJobConfig::parse(int argn, char** argc) {
+
+  // init XROOTD for kicks
+  gROOT->GetPluginManager()->AddHandler("TSystem", "^root", "TXNetSystem","Netx");
 
   using std::cout;
   using std::cerr;
@@ -97,33 +109,37 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
+  char* optString = "hi:o:d:r:S:f:m:p:g:R:H:PCLc:I:n:s:b:";
+
 #ifdef WIN32
-  while ( (opt = facilities::getopt(argn, argc, "ho:d:r:S:m:p:g:PLc:I:n:s:b:")) != EOF ) {
+  while ( (opt = facilities::getopt(argn, argc, optString)) != EOF ) {
 #else
-  while ( (opt = getopt(argn, argc, "ho:d:r:S:m:p:g:PLc:I:n:s:b:")) != EOF ) {
+  while ( (opt = getopt(argn, argc, optString)) != EOF ) {
 #endif
     switch (opt) {
     case 'h':   // help      
       usage();
       return 1;
+    case 'i':   //  output
+      m_inputFileName = string(optarg);
+      break;
     case 'o':   //  output
       m_outputPrefix = string(optarg);
       break;
     case 'd':   // digi files
       m_inputDigiFileStr += string(optarg);
-      m_inputDigiFileStr += ',';
       break;
     case 'r':   // recon files
       m_inputReconFileStr += string(optarg);
-      m_inputReconFileStr += ',';
       break;
     case 'S':   // Svac files
       m_inputSvacFileStr += string(optarg);
-      m_inputSvacFileStr += ',';
       break;
     case 'm':   // Merit files
       m_inputMeritFileStr += string(optarg);
-      m_inputMeritFileStr += ',';
+      break;
+    case 'f':   // Histrogram files
+      m_inputHistFile += string(optarg);
       break;
     case 'p':   // pedestals
       m_pedFileName += string(optarg);
@@ -134,8 +150,14 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     case 'R':   // Ranges
       m_rangeFileName += string(optarg);
       break;
+    case 'H':
+      m_pedHighFileName += string(optarg);
+      break;      
     case 'P':   // periodic only
       m_optval_P = kTRUE;
+      break;
+    case 'C':   // use CAL GCR selection
+      m_optval_C = kTRUE;
       break;
     case 'L':   // pathlength correction
       m_optval_L = kTRUE;
@@ -205,17 +227,20 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     m_rangeFileName = myFile.getString("parameters", "rangeFile");
   }
 
+  // high range pedestals file
+  if (myFile.contains("parameters","pedHighFile")  && m_pedHighFileName == "" ) {
+    m_pedHighFileName = myFile.getString("parameters", "pedHighFile");
+  }
+
   // output file prefix
   if (myFile.contains("parameters","outputPrefix") && m_outputPrefix == "" ) {
     m_outputPrefix = myFile.getString("parameters", "outputPrefix");
   }
     
-  // timestamp
-  time_t theTime = time(0);
-  const char* timeString = ctime(&theTime);
-
-  m_timeStamp = string(timeString);
-  m_timeStamp.erase(m_timeStamp.size()-1);
+  // timestamp  
+  facilities::Timestamp ts;
+  m_timeStamp = ts.getString();
+  m_timeStamp += " UTC";
 
   if ( m_instrument == std::string("LAT") || 
        m_instrument == std::string("") ) {
@@ -270,11 +295,18 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     m_meritChain = makeChain("MeritTuple",m_inputMeritFileStr);
   }    
 
+  if ( m_inputHistFile != "" ) {
+    cout << "Input hist file: " << m_inputHistFile << endl;    
+  }
+
   std::cout << "output file prefix: " << m_outputPrefix << std::endl;
   std::cout << "instrument: " << m_instrument << std::endl;
   std::cout << "timestamp: " << m_timeStamp << std::endl;
   if ( m_optval_P ) {
     std::cout << "Using only periodic triggers" << std::endl;
+  }
+  if ( m_optval_C ) {
+    std::cout << "Using CAL GCR selection" << std::endl;
   }
   if ( m_optval_L ) {
     std::cout << "Using pathlength correction" << std::endl;
@@ -288,6 +320,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   if ( m_rangeFileName != "" ) {   
     std::cout << "range file: " << m_rangeFileName << std::endl;
   }
+  if ( m_pedHighFileName != "" ) {   
+    std::cout << "highRangePed file: " << m_pedHighFileName << std::endl;
+  }
 
   return 0;
 }
@@ -297,7 +332,12 @@ TChain* AcdJobConfig::makeChain(const char* name, const std::string& fileString)
 
   TChain* chain(0);
   std::vector <std::string> token;
-  facilities::Util::stringTokenize(fileString, ";, ", token);
+  if ( fileString.find(".txt") != fileString.npos ||
+       fileString.find(".lst") != fileString.npos ) {
+    if ( ! getFileList(fileString.c_str(),token) ) return 0;
+  } else {
+    facilities::Util::stringTokenize(fileString, ";, ", token);
+  }
   unsigned int nFiles = token.size();
   
   for ( unsigned int iFile(0); iFile < nFiles; iFile++ ) {
@@ -350,3 +390,21 @@ Bool_t AcdJobConfig::checkMerit() const {
   }
   return kTRUE;
 }
+
+
+ Bool_t AcdJobConfig::getFileList(const char* fileName, std::vector<std::string>& files) const {
+   std::ifstream infile(fileName);   
+   if ( ! infile.good() ) return kFALSE;
+   char formatLine[512];
+   while ( ! infile.eof() ) {
+     infile.getline(formatLine,512);
+     if ( !infile.eof() ) {
+       if ( !infile.good() ) return kFALSE;     
+     }
+     std::string aLine(&formatLine[0]);
+     if ( aLine.size() < 2 ) continue;
+     if ( aLine[0] == '#' ) continue;
+     files.push_back(aLine);
+   }
+   return kTRUE;
+ }

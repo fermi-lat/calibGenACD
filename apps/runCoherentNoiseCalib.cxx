@@ -13,7 +13,7 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runCoherentNoise.exe","This utility runs the coherent noise analysis");
+  AcdJobConfig jc("runCoherentNoiseCalib.exe","This utility runs the coherent noise analysis");
 
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {
@@ -42,24 +42,19 @@ int main(int argn, char** argc) {
   AcdCoherentNoiseFitLibrary fitCoherent(AcdCoherentNoiseFitLibrary::Minuit);
   AcdCalibMap* fitMap = r.fit(fitCoherent,AcdCalibData::COHERENT_NOISE,AcdCalib::H_COHERENT_NOISE);
   
-  // and dump to the text file
-  std::string outputTxtFile = jc.outputPrefix() + "_Coherent.txt";
-  std::string outputXmlFile = jc.outputPrefix() + "_Coherent.xml";
+  // output
+  std::string outputTxtFile = jc.outputPrefix() + "_CohNoise.txt";
+  std::string outputXmlFile = jc.outputPrefix() + "_CohNoise.xml";
+  std::string outputHistFile = jc.outputPrefix() + "_CohNoise.root";
+  std::string outputRootFile = jc.outputPrefix() + "_CohNoiseFit.root";
+  std::string outputPlotFile = jc.outputPrefix() + "_CohNoise_";
+  
+  r.writeHistograms(AcdCalib::H_COHERENT_NOISE, outputHistFile.c_str());
   fitMap->writeTxtFile(outputTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
   fitMap->writeXmlFile(outputXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),fitCoherent.algorithm(),r);
-
-  // strip chart output
-
-  // to root file
-  std::string outputHistFile = jc.outputPrefix() + "_Coherent.root";
-  r.writeHistograms(AcdCalib::H_COHERENT_NOISE, outputHistFile.c_str());
-
-  // to ps file
-  std::string outputPsFile = jc.outputPrefix() + "_Coherent_";
-  AcdPadMap* padMap(0);
-  padMap = AcdCalibUtil::drawStripCharts(*(r.getHistMap(AcdCalib::H_COHERENT_NOISE)),outputPsFile.c_str());  
-  AcdCalibUtil::saveCanvases(padMap->canvasList());  
-
+  fitMap->writeResultsToTree(outputRootFile.c_str());
+  AcdPadMap* padMap = AcdCalibUtil::drawStripCharts(*(r.getHistMap(AcdCalib::H_COHERENT_NOISE)),outputPlotFile.c_str());  
+  AcdCalibUtil::saveCanvases(padMap->canvasList(),"",".gif");  
 
   return 0;
 }

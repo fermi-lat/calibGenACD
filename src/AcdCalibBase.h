@@ -51,6 +51,8 @@ public :
   inline Int_t evtId_last() const { return m_evtId_last; }
   inline Int_t runId_first() const { return m_runId_first; }
   inline Int_t runId_last() const { return m_runId_last; }
+  inline Double_t time_first() const { return m_time_first; }
+  inline Double_t time_last() const { return m_time_last; }
 
   /// starting event number in chain order
   inline Int_t startEvent() const { return m_startEvent; }
@@ -65,7 +67,7 @@ public :
   inline Int_t nUsed() const { return m_nUsed; }
 
   // print stuff every 1k events, keep track of the current event
-  void logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId,int evtId); 
+  void logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId, int evtId, Double_t timeStamp = 0.); 
 
   /// reset all the counters 
   void resetCounters() {
@@ -73,6 +75,8 @@ public :
     m_evtId_last = 0;
     m_runId_first = 0;
     m_runId_last = 0;
+    m_time_first = 0;
+    m_time_last = 0;
     m_startEvent = 0;
     m_last = 0;
     m_nTrigger = 0;
@@ -90,12 +94,14 @@ public :
   void firstEvent() {
     m_evtId_first = m_evtId;
     m_runId_first = m_runId;
+    m_time_first = m_evtTime;
   } 
   
   /// cache the id of the last event
   void lastEvent() {
     m_evtId_last = m_evtId;
     m_runId_last = m_runId;
+    m_time_last = m_evtTime;
   } 
 
 private :
@@ -103,12 +109,15 @@ private :
   // the current run and event
   Int_t m_evtId;
   Int_t m_runId;
+  Double_t m_evtTime;
 
   // store some information about what we ran over
   Int_t m_evtId_first;
   Int_t m_evtId_last;
   Int_t m_runId_first;
   Int_t m_runId_last;
+  Double_t m_time_first;
+  Double_t m_time_last;
   Int_t m_last;
 
   /// starting event number in chain order
@@ -155,6 +164,9 @@ public :
   /// get the maps of the histograms to be fit
   AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType);
   const AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType) const;
+
+  /// Read the map of the histograms to be fit from a root file
+  AcdHistCalibMap* readHistMap(AcdCalib::HISTTYPE hType, const char* fileName);
 
   /// get the results maps
   AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType);
@@ -231,7 +243,7 @@ protected:
 
   /// read in 1 event
   virtual Bool_t readEvent(int /*ievent*/, Bool_t& /*filtered*/, 
-			   int& /*runId*/, int& /*evtId*/) {
+			   int& /*runId*/, int& /*evtId*/, Double_t& /*timestamp*/) {
     return kFALSE;
   }
   

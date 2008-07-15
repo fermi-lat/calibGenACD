@@ -8,8 +8,8 @@
 
 Int_t AcdCnoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   UInt_t nB = hist.GetNbinsX();
-  // skip the first bin...
-  for ( UInt_t i(2); i <= nB; i++ ) {
+  // skip the first seven bins...
+  for ( UInt_t i(8); i <= nB; i++ ) {
     if ( hist.GetBinContent(i) > val ) {
       return (Int_t)i;
     }
@@ -40,12 +40,12 @@ Int_t AcdCnoFitLibrary::counting(CalibData::AcdCalibObj& result, const TH1& hist
 
   //TH1& theHist = const_cast<TH1&>(hist);
   
-  Int_t i_10 = findFirstBinAboveVal(hist,0.1);
-  Float_t f_10 = hist.GetBinCenter(i_10);
-  Int_t i_50 = findFirstBinAboveVal(hist,0.5);
-  Float_t f_50 = hist.GetBinCenter(i_50);
-  Float_t width = f_50 - f_10;
-  result.setVals(f_50,width,CalibData::AcdCalibObj::OK);
+  Int_t i_25 = findFirstBinAboveVal(hist,0.25);
+  Float_t f_25 = hist.GetBinCenter(i_25);
+  Int_t i_95 = findFirstBinAboveVal(hist,0.75);
+  Float_t f_95 = hist.GetBinCenter(i_95);
+  Float_t width = f_25 - f_95;
+  result.setVals(f_95,width,CalibData::AcdCalibObj::OK);
   return CalibData::AcdCalibObj::OK;
 }
 

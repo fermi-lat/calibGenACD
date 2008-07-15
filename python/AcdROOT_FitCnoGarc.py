@@ -35,7 +35,7 @@ class AcdOfflineVetoFitter:
         self.__n = 0
         self.__offsetArray = Numeric.zeros((12,18),'f')
         self.__slopeArray = Numeric.zeros((12,18),'f')
-        self.__mips = Numeric.zeros((12,18),'f')
+        self.__carbons = Numeric.zeros((12,18),'f')
         self.__peds = Numeric.zeros((12,18),'f')
         self.__values = []
         self.__settings = []
@@ -74,24 +74,20 @@ class AcdOfflineVetoFitter:
                 for afeNode in arcNode.childNodes:
                     if afeNode.nodeType != afeNode.ELEMENT_NODE or afeNode.nodeName != "AFE":
                         continue
-                    (vetoVal,vernVal) = (None,None)
+                    hldVal = None
                     afe = int(AcdXmlUtil.getAttribute(afeNode,"ID"))
                     for regNode in afeNode.childNodes:
                         if regNode.nodeType != regNode.ELEMENT_NODE:
                             continue                        
-                        if regNode.nodeName == "veto_dac":
-                            (isOk,vetoVal) = AcdXmlUtil.returnTextNodeValueInt(regNode)
+                        if regNode.nodeName == "hld_dac":
+                            (isOk,hldVal) = AcdXmlUtil.returnTextNodeValueInt(regNode)
                             if not isOk:
-                                return False
-                        elif regNode.nodeName == "veto_vernier":
-                            (isOk,vernVal) = AcdXmlUtil.returnTextNodeValueInt(regNode)
-                            if not isOk:
-                                return False
+                                return False                     
                         else:
                             pass
-                    if vetoVal is None or vernVal is None:
+                    if hldVal is None:
                         return False
-                    floatVal = float(vetoVal) + (float(vernVal)/32.)
+                    floatVal = float(hldVal)
                     theSettings[arc,afe] = floatVal
                     pass
                 pass
@@ -131,9 +127,10 @@ class AcdOfflineVetoFitter:
                     continue
                 pmt = AcdXmlUtil.getAttribute(pmtNode,"iPmt")
                 for vetoNode in pmtNode.childNodes:
-                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdPed":
+                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdRange":
                         continue                    
-                    pedVal = float(AcdXmlUtil.getAttribute(vetoNode,"mean"))
+                    pedVal = float(AcdXmlUtil.getAttribute(vetoNode,"high_min"))
+                    pedVal -= 20;
                     pmtName = ""
                     if pmt == '0':
                         pmtName = 'A'
@@ -147,7 +144,7 @@ class AcdOfflineVetoFitter:
         theFile.close()
         return True
 
-    def readMips(self,fileName):
+    def readCarbons(self,fileName):
         """ read a single file with the veto turn on points in PHA
         """
         (theFile,doc) = AcdXmlUtil.openXmlFileByName(fileName)
@@ -178,16 +175,17 @@ class AcdOfflineVetoFitter:
                     continue
                 pmt = AcdXmlUtil.getAttribute(pmtNode,"iPmt")
                 for vetoNode in pmtNode.childNodes:
-                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdGain":
+                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdCarbon":
                         continue                    
                     peakVal = float(AcdXmlUtil.getAttribute(vetoNode,"peak"))
+                    peakVal -= 40;
                     pmtName = ""
                     if pmt == '0':
                         pmtName = 'A'
                     elif pmt == '1':
                         pmtName = 'B'
                     (garc,gafe) = self.__theTileMap.tileDict[tileName][pmtName]
-                    self.__mips[garc,gafe] = peakVal
+                    self.__carbons[garc,gafe] = peakVal 
                     pass
                 pass
             pass
@@ -228,16 +226,16 @@ class AcdOfflineVetoFitter:
                     continue
                 pmt = AcdXmlUtil.getAttribute(pmtNode,"iPmt")
                 for vetoNode in pmtNode.childNodes:
-                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdVeto":
+                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdCno":
                         continue                    
-                    vetoVal = float(AcdXmlUtil.getAttribute(vetoNode,"veto"))
+                    vetoVal = float(AcdXmlUtil.getAttribute(vetoNode,"cno"))
                     pmtName = ""
                     if pmt == '0':
                         pmtName = 'A'
                     elif pmt == '1':
                         pmtName = 'B'
                     (garc,gafe) = self.__theTileMap.tileDict[tileName][pmtName]
-                    theSetPoints[garc,gafe] = vetoVal
+                    theSetPoints[garc,gafe] = vetoVal + self.__peds[garc,gafe]
                     pass
                 pass
             pass
@@ -266,7 +264,8 @@ class AcdOfflineVetoFitter:
                 vals[nUsed] = self.__values[i][garc,gafe]
                 sets[nUsed] = self.__settings[i][garc,gafe]
                 nUsed += 1
-        fitter = AcdROOT_LineFit("GARC_%s_%s"%(garc,gafe))
+        #fitter = AcdROOT_LineFit("GARC_%s_%s"%(garc,gafe),120,0,1000,40,65)
+        fitter = AcdROOT_LineFit("GARC_%s_%s"%(garc,gafe),120,0,360,40,65)
         if fout is None:
             saveRoot = False 
         else:
@@ -281,7 +280,7 @@ class AcdOfflineVetoFitter:
 	if fout is not None:
 	    fout.cd()
         if draw:
-            canvasName = "vetoFits_%s_garc_%d"%(timestamp,garc)
+            canvasName = "cnoFits_%s_garc_%d"%(timestamp,garc)
             canvas = ROOT.TCanvas(canvasName)
             canvas.Divide(3,6)
         for gafe in range(18):
@@ -291,11 +290,46 @@ class AcdOfflineVetoFitter:
             if draw:
                 canvas.cd(gafe+1)
                 #fitter._pad.DrawCopy()
-                fitter.draw(self.__peds[garc,gafe],self.__mips[garc,gafe],[0.30,0.45,0.60])
+                fitter.draw(self.__peds[garc,gafe],self.__carbons[garc,gafe],[0.56,1.00])
             if fout is not None:
                 fitter.write()
         return canvas
-    
+
+    def findSettingForValue(self,value,garc,gafe):
+        """
+        """
+        if value < 0:
+            return 0
+        retVal = (value * self.__slopeArray[garc,gafe]) + self.__offsetArray[garc,gafe]
+        return retVal
+
+    def writeSettings(self,value,fileName):
+        """
+        """
+        doc = AcdXmlUtil.makeDoc()
+
+        topNode = AcdXmlUtil.makeChildNode(doc,"configuration")
+        ts = time.asctime()        
+        AcdXmlUtil.addComment(topNode,"created by %s on %s"%("AcdROOT_FitCnoGarc",ts))
+
+        latNode = AcdXmlUtil.makeChildNode(topNode,"GLAT")
+        for garc in range(12):
+            garcNode = AcdXmlUtil.makeChildNode(latNode,"GARC")
+            AcdXmlUtil.setAttribute(garcNode,"ID",garc)
+            for gafe in range(18):
+                gafeNode = AcdXmlUtil.makeChildNode(garcNode,"GAFE")
+                AcdXmlUtil.setAttribute(gafeNode,"ID",gafe)
+                valInPha = -1
+                if self.__carbons[garc,gafe] > 0 :
+                    valInPha = self.__peds[garc,gafe] + (value * self.__carbons[garc,gafe])
+                setting = self.findSettingForValue(valInPha,garc,gafe)
+                valNode = AcdXmlUtil.makeChildNodeAndTextNode(gafeNode,"hld_dac","%d"%setting)
+                pass
+            pass
+        AcdXmlUtil.xmlToStream(doc,fileName)
+        print "creating file",fileName
+        return
+  
 
     def saveGarc(self,timestamp,garc,draw,fout):
         """
@@ -343,10 +377,10 @@ class AcdOfflineVetoFitter:
 
         for (settings,veto) in filePairs:
             inputSettingFileNode = AcdXmlUtil.makeChildNode(inputNode,"inputFile")
-            AcdXmlUtil.setAttribute(inputSettingFileNode,"type","VetoSettings")
+            AcdXmlUtil.setAttribute(inputSettingFileNode,"type","CnoSettings")
             AcdXmlUtil.setAttribute(inputSettingFileNode,"path",settings)           
             inputVetoFileNode = AcdXmlUtil.makeChildNode(inputNode,"inputFile")            
-            AcdXmlUtil.setAttribute(inputVetoFileNode,"type","VetoCalib")
+            AcdXmlUtil.setAttribute(inputVetoFileNode,"type","CnoCalib")
             AcdXmlUtil.setAttribute(inputVetoFileNode,"path",veto)
       
       
@@ -365,12 +399,12 @@ class AcdOfflineVetoFitter:
                 elif pmt == 'B':
                     iPmt = 1
                 AcdXmlUtil.setAttribute(pmtNode,"iPmt",iPmt)
-                valNode = AcdXmlUtil.makeChildNode(pmtNode,"acdVeto")
+                valNode = AcdXmlUtil.makeChildNode(pmtNode,"acdCno")
                 (garc,gafe) = self.__theTileMap.tileDict[tile][pmt]
                 AcdXmlUtil.setAttribute(valNode,"slope","%7.6f"%self.__slopeArray[garc,gafe])
                 AcdXmlUtil.setAttribute(valNode,"offset","%7.6f"%self.__offsetArray[garc,gafe])
                 AcdXmlUtil.setAttribute(valNode,"status","0")
-        fileName = 'AcdVetoParams_%s.xml'%(timeString)
+        fileName = 'AcdCnoParams_%s.xml'%(timeString)
         AcdXmlUtil.xmlToStream(doc,fileName)
         print "creating file",fileName
         return
@@ -395,9 +429,9 @@ if __name__=='__main__':
                       dest="peds",type="string",default="",
                       help="Pedstal File", metavar="FILE")
 
-    parser.add_option("-m", "--mips",action="store",
-                      dest="mips",type="string",default="",
-                      help="Mips Peak File", metavar="FILE")
+    parser.add_option("-c", "--carbons",action="store",
+                      dest="carbons",type="string",default="",
+                      help="Carbon Peak File", metavar="FILE")
 
     
     (options, args) = parser.parse_args()
@@ -410,6 +444,12 @@ if __name__=='__main__':
     # do all the parsing 'n shit
     vetos = AcdOfflineVetoFitter()
 
+    if options.peds != "":
+        vetos.readPeds(options.peds)
+
+    if options.carbons != "":
+        vetos.readCarbons(options.carbons)    
+
     filePairs = []
     for aPair in options.input:
         files = aPair.split(':')
@@ -421,14 +461,12 @@ if __name__=='__main__':
         if not vetos.readFilePair(filePair[0],filePair[1]):
             print "Failed to read %s %s"%(filePair[0],filePair[1])
 
-    if options.peds != "":
-        vetos.readPeds(options.peds)
-
-    if options.mips != "":
-        vetos.readMips(options.mips)    
    
-    fout = ROOT.TFile("veto_fits.root","RECREATE")
+    fout = ROOT.TFile("cno_fits.root","RECREATE")
     vetos.doGarcs(timestring,options.draw,fout)
     vetos.writeXml(timestring,filePairs)
     fout.Write()
     
+    vetos.writeSettings(0.44,"ACD_Hld_AFE-Zeq4_calibGenACD.xml")
+    vetos.writeSettings(0.70,"ACD_Hld_AFE-Zeq5_calibGenACD.xml")
+    vetos.writeSettings(1.00,"ACD_Hld_AFE-Zeq6_calibGenACD.xml")

@@ -63,7 +63,7 @@ def linear_fit(n, x, y):
 class AcdROOT_LineFit:
     """ Interface to ROOT and plotting
     """    
-    def __init__(self,name,bins=120,low=0,hi=1500,min=45.,max=65.):
+    def __init__(self,name,bins=120,low=0,hi=1500,min=40.,max=65.):
         """ c'tor
 
         @param name of the histogram
@@ -75,6 +75,8 @@ class AcdROOT_LineFit:
         """
         self._name = name
         self._pad = ROOT.TH1F(self._name,self._name,bins,low,hi)
+        self._min = min;
+        self._max = max
         self._pad.SetMaximum(max)
         self._pad.SetMinimum(min)
         self._doneFit = False
@@ -127,13 +129,28 @@ class AcdROOT_LineFit:
         self._line.SetLineWidth(3)
         self._line.SetLineColor(2)
 
-    def draw(self):
+
+    def draw(self,ped,mips,sLines):
         """ Draw the histogram and fitted line and points
         """
         self._pad.DrawCopy()
         if self._doneFit:
             self._line.Draw("l same")
         self._polyMarker.Draw("same")
+        if mips > 0:
+            self._pedLine = ROOT.TLine(ped,self._min,ped,self._max).Clone()
+            self._pedLine.SetLineColor(3)
+            self._pedLine.Draw("l same")
+            
+            self._mipLine = ROOT.TLine(ped+mips,self._min,ped+mips,self._max).Clone()
+            self._mipLine.SetLineColor(4)
+            self._mipLine.Draw("l same")
+
+            for sL in sLines:                
+                self._sLine = ROOT.TLine(ped+sL*mips,self._min,ped+sL*mips,self._max).Clone()
+                self._sLine.SetLineColor(7)
+                self._sLine.Draw("l same")            
+            
 
     def drawPoints(self):
         """ Draw only the points

@@ -79,7 +79,7 @@ Int_t AcdRibbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHis
     peakVals[iNorm] /= norm;
   }
 
-  result.setVals(peakVals[0],peakVals[1],peakVals[2],
+  result.setVals(peakVals[0],peakVals[1],peakVals[2],norm,
 		 peakVals[4],peakVals[5],peakVals[6],
 		 CalibData::AcdCalibObj::OK);
 

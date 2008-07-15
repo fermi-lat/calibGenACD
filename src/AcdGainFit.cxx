@@ -73,6 +73,21 @@ Int_t AcdGainFitLibrary::findHalfMaxLow(const TH1& hist, Int_t maxBin) {
   return -1;
 }
 
+Int_t AcdGainFitLibrary::findMaxAfter(const TH1& hist, Int_t startBin) {
+  Int_t nB = hist.GetNbinsX();
+  Float_t maxVal = hist.GetBinContent(startBin);
+  Int_t maxBin(startBin);
+  for ( Int_t i = startBin; i < nB; i++ ) {
+    Float_t curValue = hist.GetBinContent(i);
+    if ( curValue > maxVal ) {
+      maxVal = curValue;
+      maxBin = i;
+    }
+  }
+  return maxBin;
+}
+
+
 Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
 
   TH1F copy((TH1F&)hist);
@@ -84,7 +99,7 @@ Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_
   if ( ped_1 < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   min = pedRemove ? findNextLocalMin(copy,ped_1) : 0;
   if ( min < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
-  peak = pedRemove ? findNextLocalMax(copy,min) : copy.GetMaximumBin();
+  peak = pedRemove ? findNextLocalMax(copy,min) : findMaxAfter(copy,2);
   if ( ! pedRemove ) {
     min = findHalfMaxLow(copy,peak);
     if ( min < 0 ) min = 1;
@@ -210,11 +225,11 @@ Int_t AcdGainFitLibrary::fitP5(CalibData::AcdCalibObj& result, const TH1& hist) 
   Float_t minValue = hist.GetBinCenter(4*min);
   Float_t endValue = hist.GetBinCenter(4*halfMax);
 
-  status = theHist.Fit("pol5","","",minValue,endValue); //applies polynomial fit
+  status = theHist.Fit("pol3","","",minValue,endValue); //applies polynomial fit
   // if ( status != 0 ) return fallback(result,hist);
   if ( status != 0 ) return status;
 
-  TF1* fit = theHist.GetFunction("pol5"); 
+  TF1* fit = theHist.GetFunction("pol3"); 
  
   Float_t peakValue = fit->GetMaximumX();
   Float_t width = endValue - peakValue;

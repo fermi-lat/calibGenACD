@@ -6,6 +6,8 @@
 #include "../src/AcdCalibLoop_Digi.h"
 #include "../src/AcdPedestalFit.h"
 #include "../src/AcdCalibMap.h"
+#include "../src/AcdPadMap.h"
+#include "../src/AcdCalibUtil.h"
 
 int main(int argn, char** argc) {
 
@@ -37,10 +39,15 @@ int main(int argn, char** argc) {
   std::string pedTextFile = jc.outputPrefix() + "_ped.txt";
   std::string pedXmlFile = jc.outputPrefix() + "_ped.xml";
   std::string outputHistFile = jc.outputPrefix() + "_ped.root";
+  std::string outputRootFile = jc.outputPrefix() + "_pedFit.root";
+  std::string outputPlotFile = jc.outputPrefix() + "_ped_";
 
   r.writeHistograms(AcdCalib::H_RAW, outputHistFile.c_str());
   peds->writeTxtFile(pedTextFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),pedFitter.algorithm(),r);
   peds->writeXmlFile(pedXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),pedFitter.algorithm(),r);
+  peds->writeResultsToTree(outputRootFile.c_str());  
+  AcdPadMap* padMap = AcdCalibUtil::drawPeds(*(r.getHistMap(AcdCalib::H_RAW)),*peds,outputPlotFile.c_str());  
+  AcdCalibUtil::saveCanvases(padMap->canvasList(),"",".gif"); 
 
   return 0;
 }

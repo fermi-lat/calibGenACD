@@ -13,7 +13,7 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runMuonCalib_Svac.exe","This utility runs the muon MIP calibration code on SVAC files");
+  AcdJobConfig jc("runMipCalib.exe","This utility runs the MIP calibration code on SVAC files");
 
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {

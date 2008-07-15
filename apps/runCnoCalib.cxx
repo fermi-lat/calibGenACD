@@ -40,22 +40,24 @@ int main(int argn, char** argc) {
   AcdCnoFitLibrary cnoFitter(AcdCnoFitLibrary::Counting);
   AcdCalibMap* cnos = r.fit(cnoFitter,AcdCalibData::CNO,AcdCalib::H_FRAC);
 
-  std::string textFile = jc.outputPrefix() + "_cno.txt";
-  std::string xmlFile = jc.outputPrefix() + "_cno.xml";
-  std::string psFile = jc.outputPrefix() + "_cno_";
+  // output
+  std::string outputTxtFile = jc.outputPrefix() + "_cno.txt";
+  std::string outputXmlFile = jc.outputPrefix() + "_cno.xml";
+  std::string outputPlotFile = jc.outputPrefix() + "_cno_";
   std::string outputHistFile = jc.outputPrefix() + "_cnoFrac.root";
   std::string outputHistFileRaw = jc.outputPrefix() + "_cno_all.root";
   std::string outputHistFileCno = jc.outputPrefix() + "_cno_cno.root";
+  std::string outputRootFile = jc.outputPrefix() + "_cnoFit.root";
 
   r.writeHistograms(AcdCalib::H_VETO, outputHistFile.c_str());
   r.writeHistograms(AcdCalib::H_RAW, outputHistFileRaw.c_str());
   r.writeHistograms(AcdCalib::H_FRAC, outputHistFileCno.c_str());
-  cnos->writeTxtFile(textFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),cnoFitter.algorithm(),r);
-  cnos->writeXmlFile(xmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),cnoFitter.algorithm(),r);
-
-  AcdPadMap* padMap(0);
-  padMap = AcdCalibUtil::drawCnos(*(r.getHistMap(AcdCalib::H_VETO)),*(r.getHistMap(AcdCalib::H_RAW)),*cnos,psFile.c_str());
-  AcdCalibUtil::saveCanvases(padMap->canvasList());  
+  cnos->writeTxtFile(outputTxtFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),cnoFitter.algorithm(),r);
+  cnos->writeXmlFile(outputXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),cnoFitter.algorithm(),r);
+  cnos->writeResultsToTree(outputRootFile.c_str());  
+  AcdPadMap* padMap = 
+    AcdCalibUtil::drawCnos(*(r.getHistMap(AcdCalib::H_VETO)),*(r.getHistMap(AcdCalib::H_RAW)),*cnos,outputPlotFile.c_str());
+  AcdCalibUtil::saveCanvases(padMap->canvasList(),"",".gif");  
 
   return 0;
 }

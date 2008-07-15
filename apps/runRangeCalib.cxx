@@ -13,7 +13,7 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runCnoCalib.exe","This utility runs the cno set point calibration code");
+  AcdJobConfig jc("runRangeCalib.exe","This utility runs the range crossover calibration code");
   
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {

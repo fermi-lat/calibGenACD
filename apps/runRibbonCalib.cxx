@@ -46,24 +46,24 @@ int main(int argn, char** argc) {
   std::string ribTextFile = jc.outputPrefix() + "_rib.txt";
   std::string ribXmlFile = jc.outputPrefix() + "_rib.xml";
   std::string outputHistFile = jc.outputPrefix() + "_rib.root";
+  std::string outputRootFile = jc.outputPrefix() + "_ribFit.root";
   std::string psFile = jc.outputPrefix() + "_rib_";
+  std::string psFile_log = psFile + "log_";
+  std::string psFile_lin = psFile + "lin_";
 
   r.writeHistograms(AcdCalib::H_RIBBONS, outputHistFile.c_str());
   ribs->writeTxtFile(ribTextFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),ribFitter.algorithm(),r);
   ribs->writeXmlFile(ribXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),ribFitter.algorithm(),r);
+  ribs->writeResultsToTree(outputRootFile.c_str());
+ 
 
-  std::string psFile_log = psFile + "log_";
-  std::string psFile_lin = psFile + "lin_";
-
-  AcdPadMap* logPads(0);
-  AcdPadMap* linPads(0);
   AcdHistCalibMap* hists = r.getHistMap(AcdCalib::H_RIBBONS);
  
-  logPads = AcdCalibUtil::drawRibbons(*hists,*ribs,kTRUE,psFile_log.c_str());    
-  AcdCalibUtil::saveCanvases(logPads->canvasList());
+  AcdPadMap* logPads = AcdCalibUtil::drawRibbons(*hists,*ribs,kTRUE,psFile_log.c_str());    
+  AcdCalibUtil::saveCanvases(logPads->canvasList(),"",".gif");
 
-  linPads = AcdCalibUtil::drawRibbons(*hists,*ribs,kFALSE,psFile_lin.c_str());
-  AcdCalibUtil::saveCanvases(linPads->canvasList());  
+  AcdPadMap* linPads = AcdCalibUtil::drawRibbons(*hists,*ribs,kFALSE,psFile_lin.c_str());
+  AcdCalibUtil::saveCanvases(linPads->canvasList(),"",".gif");  
 
   return 0;
 }

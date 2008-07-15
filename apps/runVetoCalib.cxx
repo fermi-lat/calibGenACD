@@ -44,6 +44,7 @@ int main(int argn, char** argc) {
   std::string xmlFile = jc.outputPrefix() + "_veto.xml";
   std::string psFile = jc.outputPrefix() + "_veto_";
   std::string outputHistFile = jc.outputPrefix() + "_vetoFrac.root";
+  std::string outputRootFile = jc.outputPrefix() + "_vetoFit.root";
   std::string outputHistFileRaw = jc.outputPrefix() + "_veto_all.root";
   std::string outputHistFileVeto = jc.outputPrefix() + "_veto_veto.root";
 
@@ -52,10 +53,11 @@ int main(int argn, char** argc) {
   r.writeHistograms(AcdCalib::H_FRAC, outputHistFileVeto.c_str());
   vetos->writeTxtFile(textFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),vetoFitter.algorithm(),r);
   vetos->writeXmlFile(xmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),vetoFitter.algorithm(),r);
+  vetos->writeResultsToTree(outputRootFile.c_str());
 
-  AcdPadMap* padMap(0);
-  padMap = AcdCalibUtil::drawVetos(*(r.getHistMap(AcdCalib::H_VETO)),*(r.getHistMap(AcdCalib::H_RAW)),*vetos,psFile.c_str());
-  AcdCalibUtil::saveCanvases(padMap->canvasList());  
+  AcdPadMap* padMap = 
+    AcdCalibUtil::drawVetos(*(r.getHistMap(AcdCalib::H_VETO)),*(r.getHistMap(AcdCalib::H_RAW)),*vetos,psFile.c_str());
+  AcdCalibUtil::saveCanvases(padMap->canvasList(),"",".gif");  
 
   return 0;
 }
