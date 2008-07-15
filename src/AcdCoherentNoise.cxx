@@ -59,6 +59,7 @@ Bool_t AcdCoherentNoise::attachChains() {
     digiChain->SetBranchStatus("m_acd*",1);
     digiChain->SetBranchStatus("m_eventId", 1); 
     digiChain->SetBranchStatus("m_runId", 1);
+    digiChain->SetBranchStatus("m_timeStamp", 1);
     digiChain->SetBranchStatus("m_gem", 1);
   }
   
@@ -152,7 +153,7 @@ void AcdCoherentNoise::accumulate(Int_t deltaT, const AcdDigi& digi) {
 
 
 Bool_t AcdCoherentNoise::readEvent(int ievent, Bool_t& filtered, 
-				   int& runId, int& evtId) {
+				   int& runId, int& evtId, Double_t& timestamp) {
 
   // ok, grab the event
   if(m_digiEvent) m_digiEvent->Clear();
@@ -163,6 +164,7 @@ Bool_t AcdCoherentNoise::readEvent(int ievent, Bool_t& filtered,
     digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
+    timestamp = m_digiEvent->getTimeStamp();
 
     // use only periodic & externals for later processing
     if ( m_digiEvent->getGem().getConditionSummary() != 32 &&  

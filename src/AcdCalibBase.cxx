@@ -8,6 +8,7 @@
 #include "TH1F.h"
 #include "TF1.h"
 #include "TChain.h"
+#include <TFile.h>
 
 // local headers
 #include "AcdHistCalibMap.h"
@@ -31,9 +32,10 @@ AcdCalibEventStats::AcdCalibEventStats(){
   resetCounters();
 }
 
-void AcdCalibEventStats::logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId,int evtId) {
+void AcdCalibEventStats::logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId,int evtId, Double_t timeStamp) {
   m_evtId = evtId;
   m_runId = runId;
+  m_evtTime = timeStamp;
   m_nTrigger++;
   if ( passedCut ) {
     m_nUsed++;  
@@ -91,7 +93,8 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
     
     Bool_t filtered(kFALSE);
     Int_t runId, evtId;
-    Bool_t ok = readEvent(ievent,filtered, runId, evtId);
+    Double_t timeStamp;
+    Bool_t ok = readEvent(ievent,filtered, runId, evtId,timeStamp);
 
     if ( !ok ) {
       cout << "Failed to read event " << ievent << " aborting" << endl;
@@ -103,7 +106,7 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
       useEvent(used);
     }
     
-    m_eventStats.logEvent(ievent,used,filtered,runId,evtId);
+    m_eventStats.logEvent(ievent,used,filtered,runId,evtId,timeStamp);
   }
 
   m_eventStats.lastEvent();
@@ -221,19 +224,12 @@ Bool_t AcdCalibBase::readCalib(AcdCalibData::CALTYPE calKey, const char* fileNam
 
 void AcdCalibBase::writeXmlHeader(DomElement& node) const {
   
-  DomElement sourceNode = AcdXmlUtil::makeChildNode(node,"inputSample");
-  
-  AcdXmlUtil::addAttribute(sourceNode,"startTime","0");
-  AcdXmlUtil::addAttribute(sourceNode,"stopTime","0");
-  AcdXmlUtil::addAttribute(sourceNode,"triggers","0");
-  AcdXmlUtil::addAttribute(sourceNode,"source","0");
-  AcdXmlUtil::addAttribute(sourceNode,"mode","0"); 
-  //os << "  <inputSample startTime=\"" << runId_first() << ':'  << evtId_first() 
-  //   << "\" stopTime=\"" << runId_last() << ':'  << evtId_last() 
-  //   << "\" triggers=\"" << nUsed() << '/' << nFilter() << '/' << nTrigger() 
-  //  << "\" source=\"" << 0 
-  //   << "\" mode=\"" << 0
-  //  << "\">" << endl; 
+  DomElement sourceNode = AcdXmlUtil::makeChildNode(node,"inputSample");  
+  AcdXmlUtil::addAttributeMET(sourceNode,"startTime",m_eventStats.time_first());
+  AcdXmlUtil::addAttributeMET(sourceNode,"stopTime",m_eventStats.time_last());
+  AcdXmlUtil::addAttribute(sourceNode,"triggers",m_eventStats.nUsed());
+  AcdXmlUtil::addAttribute(sourceNode,"source","Orbit");
+  AcdXmlUtil::addAttribute(sourceNode,"mode","Normal"); 
   writeXmlSources(sourceNode);
 }
 
@@ -274,6 +270,17 @@ AcdHistCalibMap* AcdCalibBase::getHistMap(AcdCalib::HISTTYPE hType) {
 const AcdHistCalibMap* AcdCalibBase::getHistMap(AcdCalib::HISTTYPE hType) const {
   return hType < 0 ? 0 : m_histMaps[hType];
 }
+
+
+/// Read the map of the histograms to be fit from a root file
+AcdHistCalibMap* AcdCalibBase::readHistMap(AcdCalib::HISTTYPE hType, const char* fileName) {
+  TFile* f = TFile::Open(fileName);
+  if ( f == 0 ) return 0;
+  AcdHistCalibMap* nMap = new AcdHistCalibMap(*f);
+  m_histMaps[hType] = nMap;
+  return nMap;
+}
+
 
 // get the results maps
 AcdCalibMap* AcdCalibBase::getCalibMap(AcdCalibData::CALTYPE cType) {
@@ -317,9 +324,10 @@ void AcdCalibBase::writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) 
 
   std::string tag;
   switch (cType) {
-  case AcdCalibData::PEDESTAL: tag += "#pedestalFile = "; break;
-  case AcdCalibData::GAIN:     tag += "#gainFile = ";     break;
-  case AcdCalibData::RANGE:    tag += "#rangeFile = ";    break;
+  case AcdCalibData::PEDESTAL:   tag += "#pedestalFile = "; break;
+  case AcdCalibData::GAIN:       tag += "#gainFile = ";     break;
+  case AcdCalibData::RANGE:      tag += "#rangeFile = ";    break;
+  case AcdCalibData::HIGH_RANGE: tag += "#pedHighFile = ";    break;
   default:
     return;
   }
@@ -354,27 +362,30 @@ void AcdCalibBase::writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const 
 void AcdCalibBase::writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const {
   std::string tag;
   switch (cType) {
-  case AcdCalibData::PEDESTAL: tag += "pedestal"; break;
-  case AcdCalibData::GAIN:     tag += "gain";     break;
-  case AcdCalibData::RANGE:    tag += "range";    break;
+  case AcdCalibData::PEDESTAL:   tag += "Pedestal";  break;
+  case AcdCalibData::GAIN:       tag += "Gain";      break;
+  case AcdCalibData::RANGE:      tag += "Range";     break;
+  case AcdCalibData::HIGH_RANGE: tag += "Pedestal";  break;
   default:
     return;
   }
   const AcdCalibMap* calib = getCalibMap(cType);
   if ( calib == 0 ) return;
-  DomElement cNode = AcdXmlUtil::makeChildNode(node,tag.c_str());
-  AcdXmlUtil::addAttribute(cNode,"fileName",calib->fileName());
+  std::string fname = calib->fileName();
+  if ( fname.length() < 2 ) return;
+  DomElement cNode = AcdXmlUtil::makeChildNode(node,"inputFile");
+  AcdXmlUtil::addAttribute(cNode,"type",tag.c_str());
+  AcdXmlUtil::addAttribute(cNode,"path",calib->fileName());
 }
 
 //
 void AcdCalibBase::writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const {
   std::string tag;
   switch (chain) {
-  case AcdCalib::DIGI:  tag += "digiFiles";  break;
-  case AcdCalib::RECON: tag += "reconFiles"; break;
-  case AcdCalib::MERIT: tag += "meritFiles"; break;
-  case AcdCalib::SVAC:  tag += "svacFiles";  break;
-  case AcdCalib::BENCH: tag += "benchFiles"; break;
+  case AcdCalib::DIGI:  tag += "Digi";  break;
+  case AcdCalib::RECON: tag += "Recon"; break;
+  case AcdCalib::MERIT: tag += "Merit"; break;
+  case AcdCalib::SVAC:  tag += "Svac";  break;
   default:
     return;
   }
@@ -382,11 +393,11 @@ void AcdCalibBase::writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const 
   if ( tchain == 0 ) return;
   TObjArray* files = tchain->GetListOfFiles();
   if ( files == 0 ) return;
-  DomElement cNode = AcdXmlUtil::makeChildNode(node,tag.c_str());
   for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
     TObject* obj = files->At(i);
-    DomElement ccNode = AcdXmlUtil::makeChildNode(cNode,"file");
-    AcdXmlUtil::addAttribute(ccNode,"fileName",obj->GetTitle());
+    DomElement cNode = AcdXmlUtil::makeChildNode(node,"inputFile");
+    AcdXmlUtil::addAttribute(cNode,"type",tag.c_str());
+    AcdXmlUtil::addAttribute(cNode,"path",obj->GetTitle());
   }
 }
 

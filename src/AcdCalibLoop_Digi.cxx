@@ -34,15 +34,15 @@ AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain,
   } else if ( t == AcdCalibData::GAIN ) {
     m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,4095.5);    
   } else if ( t == AcdCalibData::VETO ) {
-    m_rawHists = bookHists(AcdCalib::H_RAW,64,-0.5,4095.5);
-    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,4095.5);
-    m_fracHists = bookHists(AcdCalib::H_FRAC,64,-0.5,4095.5);
+    m_rawHists = bookHists(AcdCalib::H_RAW,256,-0.5,4095.5);
+    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,4095.5);
+    m_fracHists = bookHists(AcdCalib::H_FRAC,256,-0.5,4095.5);
   } else if ( t == AcdCalibData::RANGE ) {
     m_rangeHists = bookHists(AcdCalib::H_RANGE,4096,-0.5,4095.5,2);
   } else if ( t == AcdCalibData::CNO ) {    
-    m_rawHists = bookHists(AcdCalib::H_RAW,256,-0.5,255.5);
-    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,255.5);
-    m_fracHists = bookHists(AcdCalib::H_FRAC,256,-0.5,255.5);
+    m_rawHists = bookHists(AcdCalib::H_RAW,64,-0.5,255.5);
+    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,255.5);
+    m_fracHists = bookHists(AcdCalib::H_FRAC,64,-0.5,255.5);
   } else if ( t == AcdCalibData::UNPAIRED ) {
     m_unPairHists = bookHists(AcdCalib::H_RAW,512,-0.5,4095.5);
   } else if ( t == AcdCalibData::HITMAP ) {
@@ -70,7 +70,8 @@ Bool_t AcdCalibLoop_Digi::attachChains() {
     digiChain->SetBranchStatus("*",0);  // disable all branches
     // activate desired brances
     digiChain->SetBranchStatus("m_acd*",1);
-    digiChain->SetBranchStatus("m_eventId", 1); 
+    digiChain->SetBranchStatus("m_timeStamp", 1); 
+    digiChain->SetBranchStatus("m_evtId", 1);
     digiChain->SetBranchStatus("m_runId", 1);
     //if ( m_requirePeriodic ) {
     digiChain->SetBranchStatus("m_gem", 1);
@@ -80,7 +81,7 @@ Bool_t AcdCalibLoop_Digi::attachChains() {
 }
 
 Bool_t AcdCalibLoop_Digi::readEvent(int ievent, Bool_t& filtered, 
-				  int& runId, int& evtId) {
+				  int& runId, int& evtId, Double_t& timeStamp) {
   
   if(m_digiEvent) m_digiEvent->Clear();
 
@@ -90,6 +91,7 @@ Bool_t AcdCalibLoop_Digi::readEvent(int ievent, Bool_t& filtered,
     digiChain->GetEvent(ievent);
     evtId = m_digiEvent->getEventId(); 
     runId = m_digiEvent->getRunId();
+    timeStamp = m_digiEvent->getTimeStamp();
     switch ( calType () ) {
     case AcdCalibData::PEDESTAL:
       if ( m_requirePeriodic &&
@@ -123,6 +125,7 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
     return;
   } else if ( calType() == AcdCalibData::CNO ) {  
     m_garcGafeHits.reset();
+    //printf("0x%05x\n", m_digiEvent->getGem().getCnoVector() );
     m_garcGafeHits.setCNO( m_digiEvent->getGem().getCnoVector() );
   }
 
@@ -136,11 +139,6 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
     int id = acdId.getId();
 
     if ( ! AcdMap::channelExists( id ) ) continue;
-
-    if ( calType() == AcdCalibData::CNO ) {  
-      m_garcGafeHits.setDigi(*acdDigi);
-      continue;
-    }
 
     // NOT CNO calibaration
     int rng0 = acdDigi->getRange(AcdDigi::A);    
@@ -163,12 +161,29 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
       pmt1 -=  pedB;
       useA &= pmt0 > 50.;
       useB &= pmt1 > 50.;
+    } else if ( calType() == AcdCalibData::CNO ) {
+      float pedA = getPeds(keyA);
+      float pedB = getPeds(keyB);
+      if ( pedA < 0 || pedB < 0 ) return;
+      if ( rng0 == 0 ) {
+	pmt0 = 0;
+      } else {      
+	pmt0 -=  pedA;
+	pmt0 += 15;
+      }
+      if ( rng1 == 0 ) {
+	pmt1 = 0;
+      } else {      
+	pmt1 -=  pedB;
+	pmt1 += 15;
+      }
+      m_garcGafeHits.setDigi(*acdDigi,pmt0,pmt1);
     } else if ( calType() == AcdCalibData::VETO ) {
       float pedA = getPeds(keyA);
       float pedB = getPeds(keyB);
       if ( pedA < 0 || pedB < 0 ) return;
-      useA &= pmt0 > ( pedA + 30. );
-      useB &= pmt1 > ( pedB + 30. );
+      useA &= pmt0 > ( pedA + 10. );
+      useB &= pmt1 > ( pedB + 10. );
     }
 
     switch ( calType () ) {
@@ -314,20 +329,20 @@ void AcdCalibLoop_Digi::fillCnoData() {
     Bool_t cno(kFALSE); 
     UInt_t nHits(0), nVeto(0);
     m_garcGafeHits.garcStatus(iGarc,cno,nHits,nVeto);
-    if ( nHits > 1 ) continue;
+    //if ( nVeto != 1  ) continue;
     Int_t gafe(-1);
-    if ( ! m_garcGafeHits.nextGarcHit(iGarc,gafe) ) continue;
-    UInt_t uGafe = (UInt_t)gafe;
-    UShort_t inPha = m_garcGafeHits.inPha(iGarc,uGafe);
-    UShort_t flags = m_garcGafeHits.flags(iGarc,uGafe);
-    if ( (flags & 0x4) != 0x4 ) continue; // low range
-
-    UInt_t tile(0); UInt_t pmt(0);
-    AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
-    //UInt_t key = AcdMap::makeKey(pmt,tile);
-    fillHist(*m_rawHists,tile,pmt,inPha);
-    if ( cno ) {
-      fillHist(*m_vetoHists,tile,pmt,inPha);
+    while ( m_garcGafeHits.nextGarcVeto(iGarc,gafe) ) {
+      UInt_t uGafe = (UInt_t)gafe;
+      UShort_t inPha = m_garcGafeHits.inPha(iGarc,uGafe);
+      UShort_t flags = m_garcGafeHits.flags(iGarc,uGafe);
+      if ( (flags & 0x4) != 0x4 ) continue; // low range
+      UInt_t tile(0); UInt_t pmt(0);
+      AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
+      //UInt_t key = AcdMap::makeKey(pmt,tile);
+      fillHist(*m_rawHists,tile,pmt,inPha);
+      if ( cno ) {
+	fillHist(*m_vetoHists,tile,pmt,inPha);
+      }
     }
   }
 }

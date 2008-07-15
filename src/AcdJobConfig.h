@@ -10,6 +10,7 @@
 // stl includes
 #include <iostream>
 #include <string>
+#include <vector>
 
 // forward declares
 class TChain;
@@ -44,6 +45,7 @@ class TChain;
  *
  *     OPTIONS for specific jobs (will be ignored by other jobs)
  *        -P                : use only periodic triggers
+ *        -C                : use CAL GCR selection
  *        -L                : correct for pathlength in tile
  *        -b <bins>         : number of time bins in strip chart [300]
  *        -p <pedFile>      : use pedestals from this file
@@ -73,10 +75,12 @@ public :
 
   inline const std::string& jobOptionXmlFile() const { return m_jobOptionXmlFile; }
 
+  inline const std::string& inputFileName() const { return m_inputFileName; }
   inline const std::string& inputDigiFileStr() const { return m_inputDigiFileStr; }
   inline const std::string& inputReconFileStr() const { return m_inputReconFileStr; }
   inline const std::string& inputSvacFileStr() const { return m_inputSvacFileStr; }
   inline const std::string& inputMeritFileStr() const { return m_inputMeritFileStr; }
+  inline const std::string& inputHistFile() const { return m_inputHistFile; }
 
   inline const std::string& outputPrefix() const { return m_outputPrefix; }
   inline const std::string& instrument() const { return m_instrument; }
@@ -85,6 +89,7 @@ public :
   inline const std::string& pedFileName() const { return m_pedFileName; }
   inline const std::string& gainFileName() const { return m_gainFileName; }  
   inline const std::string& rangeFileName() const { return m_rangeFileName; }
+  inline const std::string& pedHighFileName() const { return m_pedHighFileName; }  
 
   inline AcdMap::Config config() const { return m_config; }
   inline int optval_n() const { return m_optval_n; }
@@ -92,6 +97,7 @@ public :
   inline int optval_b() const { return m_optval_b; }
   inline Bool_t optval_P() const { return m_optval_P; }
   inline Bool_t optval_L() const { return m_optval_L; }  
+  inline Bool_t optval_C() const { return m_optval_C; }  
 
   inline TChain* digiChain() const { return m_digiChain;}
   inline TChain* reconChain() const { return m_reconChain;}
@@ -106,6 +112,8 @@ public :
 protected:
 
   TChain* makeChain(const char* name, const std::string& fileString) const;
+
+  Bool_t getFileList(const char* fileName, std::vector<std::string>& files) const;
  
 private:
 
@@ -115,10 +123,12 @@ private:
 
   std::string m_jobOptionXmlFile;
 
+  std::string m_inputFileName;
   std::string m_inputDigiFileStr;
   std::string m_inputReconFileStr;
   std::string m_inputSvacFileStr;
   std::string m_inputMeritFileStr;
+  std::string m_inputHistFile;
 
   std::string m_outputPrefix;
   std::string m_instrument;
@@ -127,6 +137,7 @@ private:
   std::string m_pedFileName;
   std::string m_gainFileName;
   std::string m_rangeFileName;
+  std::string m_pedHighFileName;
 
   AcdMap::Config m_config;
   int m_optval_n;
@@ -134,6 +145,7 @@ private:
   int m_optval_b;
   Bool_t m_optval_P;
   Bool_t m_optval_L;
+  Bool_t m_optval_C;
 
   TChain* m_digiChain;
   TChain* m_reconChain;

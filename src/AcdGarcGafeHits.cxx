@@ -43,17 +43,16 @@ void AcdGarcGafeHits::setDigis(const TObjArray& digis){
   int nAcdDigi = digis.GetLast() + 1;
   for(int j = 0; j != nAcdDigi; j++) {      
     const AcdDigi* acdDigi = static_cast<const AcdDigi*>(digis.At(j));      
-    setDigi(*acdDigi);
+    setDigi(*acdDigi,(Float_t)acdDigi->getPulseHeight(AcdDigi::A),(Float_t)acdDigi->getPulseHeight(AcdDigi::B));
   }
 }
 
-void AcdGarcGafeHits::setDigi(const AcdDigi& digi){
+void AcdGarcGafeHits::setDigi(const AcdDigi& digi, Float_t pmtA, Float_t pmtB){
   const AcdId& acdId = digi.getId();
 
   UInt_t garc(13), gafe(19);
 
-  lookup(acdId,0,garc,gafe);
-  _inPha[garc][gafe] = digi.getPulseHeight(AcdDigi::A);
+  lookup(acdId,0,garc,gafe);  
   if ( digi.getAcceptMapBit(AcdDigi::A) ) {
     _flags[garc][gafe] |= 0x1;
     _nHits[garc] += 1;
@@ -62,8 +61,11 @@ void AcdGarcGafeHits::setDigi(const AcdDigi& digi){
     _flags[garc][gafe] |= 0x2;
     _nVeto[garc] += 1;
   }
-  if ( digi.getRange(AcdDigi::A) == AcdDigi::HIGH ) {
+  if ( digi.getRange(AcdDigi::A) == AcdDigi::HIGH ){
     _flags[garc][gafe] |= 0x4;
+  }
+  if ( pmtA > 0) {
+    _inPha[garc][gafe] = (UInt_t)pmtA;
   }
   
   lookup(acdId,1,garc,gafe);
@@ -78,6 +80,9 @@ void AcdGarcGafeHits::setDigi(const AcdDigi& digi){
   } 
   if ( digi.getRange(AcdDigi::B) == AcdDigi::HIGH ) {
     _flags[garc][gafe] |= 0x4;
+  }
+  if ( pmtB > 0 ) {
+    _inPha[garc][gafe] = (UInt_t)pmtB;
   }
 }
 
@@ -119,10 +124,13 @@ void AcdGarcGafeHits::setHit(const AcdHit& hit) {
 }
 
 
-void AcdGarcGafeHits::garcStatus(UInt_t garc, Bool_t& cno, UInt_t& nHits, UInt_t& nVeto) const {  
-  cno = _cno & ( 0x1 << garc ) != 0;  
+void AcdGarcGafeHits::garcStatus(UInt_t garc, Bool_t& cnoSet, UInt_t& nHits, UInt_t& nVeto) const {  
+  cnoSet = (_cno & ( 0x1 << garc )) != 0;  
   nHits = _nHits[garc];
   nVeto = _nVeto[garc];
+  //if ( cnoSet || ( nVeto == 1 ) ) {
+  //std::cout << garc << ' ' << cnoSet << ' ' << nHits << ' ' << nVeto << std::endl;
+  //}
 }
 
 Bool_t AcdGarcGafeHits::nextGarcHit(UInt_t garc, Int_t& gafe) {
@@ -136,7 +144,7 @@ Bool_t AcdGarcGafeHits::nextGarcHit(UInt_t garc, Int_t& gafe) {
 Bool_t AcdGarcGafeHits::nextGarcVeto(UInt_t garc, Int_t& gafe) {
   while ( gafe < 17 ) {
     gafe++;
-    if ( _flags[garc][gafe] & 0x2 ) return kTRUE;
+    if ( _flags[garc][gafe] & 0x2) return kTRUE;
   }
   return kFALSE;
 }

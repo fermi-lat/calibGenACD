@@ -18,11 +18,14 @@ Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHist
   if ( _type == None ) {
     return returnCode;
   }
+
   UInt_t nB = lowhist.GetNbinsX();
   UInt_t hiRange(0);
-  for ( UInt_t i(1); i <= nB; i++ ) {
-    if ( highhist.GetBinContent(i) > 0 ) {
+  std::cout << highhist.GetName() << std::endl;
+  for ( UInt_t i(2); i <= nB; i++ ) {
+    if ( highhist.GetBinContent(i) > 10 ) {
       hiRange = i;
+      std::cout << highhist.GetName() << ' ' << i << ' ' << hiRange << ' ' << highhist.GetBinContent(i) << std::endl;
       break;
     }
   }
@@ -34,7 +37,7 @@ Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHist
     }
   }
   returnCode = CalibData::AcdCalibObj::OK;
-  result.setVals(lowRange,hiRange,CalibData::AcdCalibObj::OK);
+  result.setVals((Float_t)lowRange,(Float_t)hiRange,CalibData::AcdCalibObj::OK);
   return returnCode;
 }
 

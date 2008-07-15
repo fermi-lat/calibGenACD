@@ -24,6 +24,23 @@ from Ft.Xml.Xvif                     import RelaxNgValidator
 # qualify tags and attributes with a namespace.
 ACD_NAMESPACE = EMPTY_NAMESPACE
 
+DTD_VERISION = 'acdCalib_v3.dtd'
+
+
+def insertDtd(stream):
+    """
+    """
+    import os
+    dtdFileName = os.path.join(os.getenv('CALIBUTILROOT'),'xml',DTD_VERISION)
+    dtdFile = open(dtdFileName)
+
+    stream.write("<!DOCTYPE acdCalib [\n")
+    aLine = dtdFile.readline()
+    while aLine != "":
+        stream.write(aLine)
+        aLine = dtdFile.readline()
+    stream.write("] >\n")
+
 def xmlToStream(doc, output=None):
     """ Write out a doc somewhere
 
@@ -35,14 +52,22 @@ def xmlToStream(doc, output=None):
     sent to it.  Default is sys.stdout
 
     """
+    rootList = doc.xpath('child::acdCalib')
+    if rootList:
+        rootNode = rootList[0]
+    else:
+        raise RuntimeError("no acdCalib node in ouput")
     if isinstance(output, basestring): # basestring to allow for unicode
         fileOut = open(output, 'w')
-        PrettyPrint(doc, fileOut)
+        insertDtd(fileOut)    
+        PrettyPrint(rootNode, fileOut)
         fileOut.close()
     elif isinstance(output, file):
-        PrettyPrint(doc, output)
+        insertDtd(output)
+        PrettyPrint(rootNode, output)
     elif output is None:
-        PrettyPrint(doc, sys.stdout)
+        insertDtd(sys.stdout)
+        PrettyPrint(rootNode, sys.stdout)
     else:
         raise RuntimeError("Don't recognise output type %s"%output)
         

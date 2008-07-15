@@ -39,7 +39,7 @@ public:
   /// count up all the digis
   void setDigis(const TObjArray& digs);
   /// count one digi
-  void setDigi(const AcdDigi& digi);
+  void setDigi(const AcdDigi& digi, Float_t pmtA, Float_t pmtB);
 
   /// count up all the hits
   void setHits(const AcdRecon& recon);
@@ -52,7 +52,7 @@ public:
   }
 
   /// return the CNO status, number of hits and vetos in one GARC
-  void garcStatus(UInt_t garc, Bool_t& cno, UInt_t& nHits, UInt_t& nVeto) const;
+  void garcStatus(UInt_t garc, Bool_t& cnoSet, UInt_t& nHits, UInt_t& nVeto) const;
   /// scan through hits in a GARC
   Bool_t nextGarcHit(UInt_t garc, Int_t& gafe);
   /// scan through vetos in a GARC

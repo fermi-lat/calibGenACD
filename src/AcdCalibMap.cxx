@@ -13,6 +13,10 @@
 #include "AcdHistCalibMap.h"
 #include "CalibData/Acd/AcdCalibObj.h"
 
+// ROOT
+#include <TTree.h>
+#include <TFile.h>
+
 // stl includes
 #include <iostream>
 #include <fstream>
@@ -131,14 +135,17 @@ Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 
 void AcdCalibMap::writeXmlHeader(DomElement& node,
 				 const char* instrument,
-				 const char* /*timestamp*/,
+				 const char* timestamp,
 				 const char* algorithm,
 				 const AcdCalibBase& calib) const {  
 
-  //os << "<!DOCTYPE acdCalib SYSTEM \"" << "acdCalib" << '_' << AcdCalibVersion::dtdVersion()  << ".dtd\" [] >" << endl;
   DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");
+  
   AcdXmlUtil::addAttribute(genNode,"instrument",instrument);
-  AcdXmlUtil::addAttribute(genNode,"calibType",m_desc->calibTypeName().c_str());
+  AcdXmlUtil::addAttribute(genNode,"timestamp",timestamp);
+  std::string calibTypeName;
+  AcdXmlUtil::getCalibTypeName(calibTypeName,m_desc->calibType());
+  AcdXmlUtil::addAttribute(genNode,"calibType",calibTypeName.c_str());
   AcdXmlUtil::addAttribute(genNode,"algorithm",algorithm);
   AcdXmlUtil::addAttribute(genNode,"DTDVersion",AcdCalibVersion::dtdVersion());
   AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());  
@@ -155,6 +162,9 @@ void AcdCalibMap::writeXmlFooter(DomElement& /* node */) const {
 
 void AcdCalibMap::writeXmlBody(DomElement& node) const {
 
+  std::string calibElemName;
+  AcdXmlUtil::getCalibElemName(calibElemName,m_desc->calibType());
+
   for(int iFace = 0; iFace != AcdMap::nFace; iFace++) {
     for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
       for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
@@ -162,17 +172,19 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
 
 	UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
 	DomElement tileNode = AcdXmlUtil::makeChildNode(node,"tile");
-	AcdXmlUtil::addAttribute(tileNode,"tileId",(int)id);
+	char tileStr[4];
+	sprintf(tileStr,"%03d",id);
+	AcdXmlUtil::addAttribute(tileNode,"tileId",tileStr);
 
 	for(int iPmt = 0; iPmt != AcdMap::nPmt; iPmt++) {
 	  DomElement pmtNode = AcdXmlUtil::makeChildNode(tileNode,"pmt");
 	  AcdXmlUtil::addAttribute(pmtNode,"iPmt",(int)iPmt);
 	  
 	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);   
+	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);  
 	  if ( itr == m_map.end() ) continue;	  
 
-	  DomElement calibNode = AcdXmlUtil::makeChildNode(pmtNode,m_desc->calibTypeName().c_str());
+	  DomElement calibNode = AcdXmlUtil::makeChildNode(pmtNode,calibElemName.c_str());
 	  for ( Int_t iVar(0); iVar < m_desc->nVar(); iVar++ ) {
 	    const std::string& vName = m_desc->getVarName(iVar);
 	    Float_t varVal = itr->second->operator[](iVar);
@@ -183,6 +195,45 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
       }
     }
   }
+}
+
+
+Bool_t AcdCalibMap::writeResultsToTree(const char* newFileName) {
+  TFile * histFile(0);
+  TTree* newTree(0);
+  UInt_t nVal = m_desc->nVar();
+  Float_t* vals = new Float_t[nVal];
+  UInt_t id;
+  UInt_t pmt;
+  Int_t status;
+  if ( newFileName != 0 ) {
+    histFile = TFile::Open(newFileName, "RECREATE");
+    if ( histFile == 0 ) return kFALSE;
+    newTree = new TTree(m_desc->calibTypeName().c_str(),"Calibration");    
+  }
+  if( histFile == 0 || newTree == 0 ) return kFALSE;
+  newTree->Branch("id",&id,"id/i");
+  newTree->Branch("pmt",&pmt,"pmt/i");
+  newTree->Branch("status",&status,"status/I");
+  for ( UInt_t i(0); i < nVal; i++ ) {
+    std::string vName = m_desc->getVarName(i);
+    std::string lName = vName + "/F";
+    newTree->Branch(vName.c_str(),&(vals[i]),lName.c_str());
+  }
+  for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.begin(); 
+	itr != m_map.end(); itr++ ) {
+    id = AcdMap::getId(itr->first);
+    pmt =  AcdMap::getPmt(itr->first);
+    status = itr->second->getStatus();
+    for ( UInt_t iV(0); iV < nVal; iV++ ) {
+      vals[iV] = itr->second->operator[](iV);
+    }
+    newTree->Fill();
+  }    
+  newTree->Write();
+  histFile->Close();
+  delete [] vals;
+  return kTRUE;
 }
 
 

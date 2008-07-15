@@ -85,6 +85,9 @@ public:
   void writeXmlFooter(DomElement& node) const;
   /// Write actual calibration data to an xml file
   void writeXmlBody(DomElement& node) const;
+
+  /// Write fit results to a TTree in a file
+  Bool_t writeResultsToTree(const char* newFileName);
   
   /// Read calibration from an xml file, return kTRUE for success
   Bool_t readXmlFile(const char* fileName);

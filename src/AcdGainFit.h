@@ -54,6 +54,8 @@ public:
   static Int_t findHalfMaxHigh(const TH1& hist, Int_t maxBin);
   /// Scan until 1/2 down from MAX
   static Int_t findHalfMaxLow(const TH1& hist, Int_t maxBin);
+  /// Find the highest bin, starting at startBin
+  static Int_t findMaxAfter(const TH1& hist, Int_t startBin);
 
   /// @brief Scan distribution to find some feautres
   /// @param ped bin at pedestal value

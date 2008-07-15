@@ -35,6 +35,38 @@ void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* s
   }
 }
 
+void AcdCalibUtil::drawPedPlot(TVirtualPad& vp,  TH1& hist, CalibData::AcdCalibObj* res) {
+  TVirtualPad* p = vp.cd();
+  p->SetLogy();  
+  hist.Draw();
+  if ( res != 0 ) {
+    float ped = (*res)[0];
+    TLine* lmean = new TLine( ped, 0., ped, hist.GetMaximum());
+    lmean->SetLineColor(2);
+    lmean->Draw();
+  }   
+}
+
+
+void AcdCalibUtil::drawRangePlot(TVirtualPad& vp, TH1& lowHist, TH1& hiHist, CalibData::AcdCalibObj* res) {
+  TVirtualPad* p = vp.cd();
+  p->SetLogy();
+  lowHist.Draw();
+  hiHist.SetLineColor(4);
+  hiHist.Draw("same");
+  if ( res != 0 ) {
+    float low_max = (*res)[0];
+    float hi_min = (*res)[1];
+    TLine* llow = new TLine( low_max, 0., low_max, lowHist.GetMaximum());
+    TLine* lhi = new TLine( hi_min, 0., hi_min, lowHist.GetMaximum());
+    llow->SetLineColor(2);
+    llow->Draw();
+    lhi->SetLineColor(2);
+    lhi->Draw();
+  }   
+}
+
+
 void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res) {
   vp.cd();
   hAll.Draw();
@@ -51,6 +83,7 @@ void AcdCalibUtil::drawVetoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibDat
 
 void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, CalibData::AcdCalibObj* res) {
   vp.cd();
+  //p->SetLogy(kTRUE);
   hAll.Draw();
   hCno.SetLineColor(4);
   hCno.Draw("same");
@@ -97,6 +130,45 @@ void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibOb
     lA->SetLineColor(2);
     lA->Draw();
   } 
+}
+
+AcdPadMap* AcdCalibUtil::drawPeds(AcdHistCalibMap& hPeds,
+				  AcdCalibMap& peds, const char* prefix) {
+  AcdPadMap* padMap = new AcdPadMap(hPeds.config(),prefix);
+  TList& hList = (TList&)hPeds.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hP = (TH1*)(obj);
+    if ( hP == 0 ) continue;
+    CalibData::AcdCalibObj* res = peds.get(id);
+    drawPedPlot(*pad,*hP,res);
+  }
+  return padMap;
+}
+
+AcdPadMap* AcdCalibUtil::drawRanges(AcdHistCalibMap& hRanges,
+				    AcdCalibMap& ranges, const char* prefix) {
+  AcdPadMap* padMap = new AcdPadMap(hRanges.config(),prefix);
+  TList& hList = (TList&)hRanges.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i+=2 ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hL = (TH1*)(obj);
+    TH1* hH = (TH1*)(hList.At(i+1));
+    if ( hL == 0 || hH == 0) continue;
+    CalibData::AcdCalibObj* res = ranges.get(id);
+    drawRangePlot(*pad,*hL,*hH,res);
+  }
+  return padMap;
 }
 
 AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
@@ -160,8 +232,8 @@ AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdCalibMap& gains,
   return padMap;
 }
 
-AcdPadMap* AcdCalibUtil::drawRibbons(AcdHistCalibMap& h, AcdCalibMap& gains, 
-				  Bool_t onLog, const char* prefix) {
+AcdPadMap* AcdCalibUtil::drawRibbons(AcdHistCalibMap& h, AcdCalibMap& /* gains */,
+				     Bool_t onLog, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(AcdMap::RIBBONS,prefix);
   TList& hList = (TList&)h.histograms();

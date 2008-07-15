@@ -41,6 +41,12 @@ public :
   /// save a list of canvases to files
   static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".ps");
 
+  /// draw a single pedestal plot.
+  static void drawPedPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res);
+
+  /// draw a single range plot.
+  static void drawRangePlot(TVirtualPad& vp, TH1& lowHist, TH1& hiHist, CalibData::AcdCalibObj* res);
+
   /// draw a single mip plot.
   static void drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res, Bool_t onLog);
 
@@ -50,13 +56,21 @@ public :
   /// draw a single veto plot
   static void drawCnoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res);
 
+  /// draw pedestal plots onto canvases
+  static AcdPadMap* drawPeds(AcdHistCalibMap& hPeds,
+			     AcdCalibMap& peds, const char* prefix = "");
+
+  /// draw pedestal plots onto canvases
+  static AcdPadMap* drawRanges(AcdHistCalibMap& hRanges,
+			       AcdCalibMap& ranges, const char* prefix = "");
+
   /// draw veto plots onto canvases
   static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
 			      AcdCalibMap& vetos, const char* prefix = "");
 
-  /// draw veto plots onto canvases
+  /// draw cno plots onto canvases
   static AcdPadMap* drawCnos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
-			     AcdCalibMap& vetos, const char* prefix = "");  
+			     AcdCalibMap& cnos, const char* prefix = "");  
 
   /// draw mip peaks onto canvases
   static AcdPadMap* drawMips(AcdHistCalibMap& h, AcdCalibMap& gains, 

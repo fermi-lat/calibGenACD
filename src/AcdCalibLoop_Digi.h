@@ -59,7 +59,7 @@ protected:
 
   /// read in 1 event
   virtual Bool_t readEvent(int ievent, Bool_t& filtered, 
-			   int& runId, int& evtId);    
+			   int& runId, int& evtId, Double_t& timeStamp);    
 
   /// Try to use an event for calibration
   virtual void useEvent(Bool_t& used);
