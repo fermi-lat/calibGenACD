@@ -1,4 +1,26 @@
 ------------------------------------------------------------
+User: echarles  Mon Jul 14 19:00:51 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibLoop_Digi.cxx 
+	AcdCalibLoop_Digi.h AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h 
+	AcdCalibMap.cxx AcdCalibMap.h AcdCalibUtil.cxx AcdCalibUtil.h 
+	AcdCalibVersion.h AcdCnoFit.cxx AcdCoherentNoise.cxx 
+	AcdCoherentNoise.h AcdCoherentNoiseFit.cxx AcdGainFit.cxx 
+	AcdGainFit.h AcdGarcGafeHits.cxx AcdGarcGafeHits.h 
+	AcdJobConfig.cxx AcdJobConfig.h AcdRangeFit.cxx 
+	AcdRibbonFit.cxx AcdXmlUtil.cxx AcdXmlUtil.h 
+Added Files:
+	AcdCarbonFit.cxx AcdCarbonFit.h 
+Removed Files:
+	AcdCalibLoop_Bench.cxx AcdCalibLoop_Bench.h 
+	AcdCalibLoop_Merit.cxx AcdCalibLoop_Merit.h 
+	AcdCalibLoop_Recon.cxx AcdCalibLoop_Recon.h 
+Log Message:
+tag v4r0: Massive changes to bring package up to version used to calibration first light data.
+    *
+------------------------------------------------------------
 User: echarles  Mon Jul 14 19:00:49 PDT 2008
 calibGenACD/python
 
