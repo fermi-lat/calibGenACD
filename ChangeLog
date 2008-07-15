@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: echarles  Mon Jul 14 19:00:48 PDT 2008
+calibGenACD/apps
+
+Modified Files:
+	runCnoCalib.cxx runMuonCalib_Svac.cxx runPedestal.cxx 
+	runRangeFit.cxx runRibbonCalib.cxx runVetoCalib.cxx 
+Added Files:
+	convertXmlToTxt.cxx runCarbonCalib.cxx 
+	runCoherentNoiseCalib.cxx runMipCalib.cxx runRangeCalib.cxx 
+Removed Files:
+	runCoherentNoise.cxx runHighRange.cxx 
+Log Message:
+tag v4r0: Massive changes to bring package up to version used to calibration first light data.
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-03-04-01, operation: add
 Package: calibGenACD
