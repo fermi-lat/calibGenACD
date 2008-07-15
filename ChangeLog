@@ -1,5 +1,20 @@
 ------------------------------------------------------------
 User: echarles  Mon Jul 14 19:00:49 PDT 2008
+calibGenACD/python
+
+Modified Files:
+	AcdROOT_FitVetoGarc.py AcdROOT_LineFit.py AcdXmlUtil.py 
+Added Files:
+	AcdHighRangeCalib.py AcdPedestalCsvToXml.py 
+	AcdROOT_FitCnoGarc.py 
+Removed Files:
+	AcdCalibBase.py AcdFunctions_copied.py calibArray.py 
+	tntReader.py 
+Log Message:
+tag v4r0: Massive changes to bring package up to version used to calibration first light data.
+    *
+------------------------------------------------------------
+User: echarles  Mon Jul 14 19:00:49 PDT 2008
 calibGenACD/doc
 
 Modified Files:
