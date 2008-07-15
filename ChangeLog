@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Mon Jul 14 19:00:49 PDT 2008
+calibGenACD/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+tag v4r0: Massive changes to bring package up to version used to calibration first light data.
+    *
+------------------------------------------------------------
 User: echarles  Mon Jul 14 19:00:48 PDT 2008
 calibGenACD/apps
 
