@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!-- job optin file for runMuonCalib_ped.exe -->
 
-<!DOCTYPE ifile SYSTEM "$(CALIBGENACDROOT)/xml/ifile.dtd" >
+<!DOCTYPE ifile SYSTEM "$(CALIBGENACDXMLPATH)/ifile.dtd" >
 
 <ifile cvs_Header="$Header$" cvs_Revision="$Revision$" >
 
