@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Mon Jul 21 08:17:35 PDT 2008
+GlastRelease-scons/calibGenACD/src
+
+Modified Files:
+	calibOption.xml 
+Log Message:
+Removed dependency on CMT env variables
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-04-00-00, operation: add
 Package: calibGenACD
