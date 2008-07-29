@@ -1,4 +1,34 @@
 ------------------------------------------------------------
+User: echarles  Mon Jul 28 19:59:07 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibEnum.h AcdCalibFit.cxx 
+	AcdCalibFit.h AcdCalibLoop_Digi.cxx AcdCalibLoop_Digi.h 
+	AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h AcdCalibMap.cxx 
+	AcdCalibMap.h AcdCalibUtil.cxx AcdCalibUtil.h AcdCarbonFit.cxx 
+	AcdCarbonFit.h AcdCnoFit.cxx AcdCnoFit.h AcdCoherentNoise.cxx 
+	AcdCoherentNoise.h AcdCoherentNoiseFit.cxx 
+	AcdCoherentNoiseFit.h AcdGainFit.cxx AcdGainFit.h 
+	AcdGarcGafeHits.cxx AcdGarcGafeHits.h AcdHighRange.cxx 
+	AcdHighRange.h AcdHighRangeFit.cxx AcdHighRangeFit.h 
+	AcdHistCalibMap.cxx AcdHistCalibMap.h AcdJobConfig.cxx 
+	AcdJobConfig.h AcdPadMap.cxx AcdPadMap.h AcdPedestalFit.cxx 
+	AcdPedestalFit.h AcdRangeFit.cxx AcdRangeFit.h 
+	AcdRibbonFit.cxx AcdRibbonFit.h AcdStripChart.cxx 
+	AcdStripFit.cxx AcdStripFit.h AcdVetoFit.cxx AcdVetoFit.h 
+	AcdXmlUtil.cxx AcdXmlUtil.h DomElement.h 
+Added Files:
+	AcdDacFit.cxx AcdDacFit.h AcdHldConfig.cxx AcdHldConfig.h 
+	AcdHtmlReport.cxx AcdHtmlReport.h AcdKey.cxx AcdKey.h 
+	AcdMetaCalib.cxx AcdMetaCalib.h AcdReportPlots.cxx 
+	AcdReportPlots.h AcdVetoConfig.cxx AcdVetoConfig.h 
+Removed Files:
+	AcdMap.cxx AcdMap.h 
+Log Message:
+massive changes to come up to date for L&EO
+    *
+------------------------------------------------------------
 User: echarles  Mon Jul 28 19:59:06 PDT 2008
 calibGenACD/python
 
