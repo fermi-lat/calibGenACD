@@ -74,7 +74,8 @@ public:
 		 Landau = 3,
 		 P7 = 4,
 		 P5 = 5,
-		 LogNormal = 6 };
+		 LogNormal = 6, 
+		 GaussP1 = 7};
 
 public:
 
@@ -88,7 +89,8 @@ public:
   virtual ~AcdGainFitLibrary() {;}
 
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+		    CalibData::AcdCalibObj* ref = 0);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -99,7 +101,7 @@ public:
 
   /// return the name of the algorithm
   virtual const char* algorithm() const {
-    static const char* names[7] = {"None","Stats","Fallback","Landau","P7","P5","LogNormal"};
+    static const char* names[8] = {"None","Stats","Fallback","Landau","P7","P5","LogNormal","GaussP1"};
     return names[_type];
   }
 
@@ -117,6 +119,8 @@ protected:
   Int_t fitP5(CalibData::AcdCalibObj& result, const TH1& hist);
   /// Fit to a lognormal distribution.  Slow, requires good seed
   Int_t fitLogNormal(CalibData::AcdCalibObj& result, const TH1& hist);
+  /// Fit to a Gaussian and a line
+  Int_t fitGaussP1(CalibData::AcdCalibObj& result, const TH1& hist, const CalibData::AcdCalibObj* seed);
 
 private:
   

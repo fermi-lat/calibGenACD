@@ -7,10 +7,12 @@
 #include "AcdCalibEnum.h"
 #include "AcdCalibBase.h"
 #include "AcdCalibVersion.h"
-#include "AcdMap.h"
+#include "AcdKey.h"
+#include "AcdCalibUtil.h"
 #include "AcdXmlUtil.h"
 #include "DomElement.h"
 #include "AcdHistCalibMap.h"
+#include "AcdHtmlReport.h"
 #include "CalibData/Acd/AcdCalibObj.h"
 
 // ROOT
@@ -29,10 +31,24 @@
 #include "xercesc/dom/DOMImplementation.hpp"
 
 AcdCalibMap::AcdCalibMap(const CalibData::AcdCalibDescription& desc)
-  :m_desc(&desc){;}
+  :m_desc(&desc),
+   m_reference(0),
+   m_hists(0),
+   m_tree(0),
+   m_startTime(0),
+   m_endTime(0),
+   m_triggers(0){
+}
 
 AcdCalibMap::AcdCalibMap()
-  :m_desc(0){;}
+  :m_desc(0),
+   m_reference(0),
+   m_hists(0),
+   m_tree(0),
+   m_startTime(0),
+   m_endTime(0),
+   m_triggers(0){
+}
 
 AcdCalibMap::~AcdCalibMap() {
   for ( std::map<UInt_t,CalibData::AcdCalibObj*>::iterator itr = m_map.begin();
@@ -66,11 +82,39 @@ CalibData::AcdCalibObj* AcdCalibMap::makeNew() const {
   return new CalibData::AcdCalibObj(CalibData::AcdCalibObj::NOFIT,nullVect,*m_desc);
 }
 
+Bool_t AcdCalibMap::writeOutputs(const std::string& outputPrefix, 
+				 const std::string& algorithm,
+				 const std::string& instrument,
+				 const std::string& timestamp ) {
+  std::string suffix;
+  AcdXmlUtil::getSuffix(suffix,m_desc->calibType() );
+  std::string txtFile = outputPrefix + suffix + ".txt";
+  std::string xmlFile = outputPrefix + suffix + ".xml";
+  std::string histFile = outputPrefix + suffix + ".root";
+  std::string sumFile = outputPrefix + suffix + "Pars.root";
+  std::string htmlFile = outputPrefix + suffix;
+  std::string plotFile = outputPrefix + suffix + "_";
+  
+  if ( m_hists != 0 ) {
+    if ( ! m_hists->writeHistograms( histFile.c_str() ) ) return kFALSE;
+  }
+  if ( ! writeTxtFile(txtFile.c_str(),instrument.c_str(),timestamp.c_str(),algorithm.c_str()) ) return kFALSE;
+  if ( ! writeXmlFile(xmlFile.c_str(),instrument.c_str(),timestamp.c_str(),algorithm.c_str()) ) return kFALSE;
+  if ( ! writeResultsToTree(sumFile.c_str()) ) return kFALSE;
+  if ( ! AcdCalibUtil::makeFitPlots(*this,plotFile.c_str()) ) return kFALSE;
+
+  AcdHtmlReport html(*this);
+  if ( ! html.writeHtmlReport(htmlFile.c_str(),timestamp.c_str()) ) return kFALSE;
+
+  return kTRUE;
+								
+}
+
+
 Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
-				 const char* algorithm,
-				 const AcdCalibBase& calib) {
+				 const char* algorithm ) {
   std::ofstream os(fileName);
   if ( !os.good() ) {
     std::cerr << "Problems opening text output file " << fileName << std::endl;
@@ -82,28 +126,38 @@ Bool_t AcdCalibMap::writeTxtFile(const char* fileName,
      << "#timestamp = " << timestamp << endl
      << "#calibType = " << m_desc->calibType() << endl
      << "#algorithm = " << algorithm << endl
+     << "#startTime = " << m_startTime << endl
+     << "#endTime   = " << m_endTime << endl
+     << "#triggers  = " << m_triggers << endl
      << "#DTDVersion = " << AcdCalibVersion::dtdVersion() << endl
      << "#fmtVersion = " << AcdCalibVersion::fmtVersion() << endl;
-  calib.writeTxtHeader(os);
+  writeTxtInputInfo(os);
   // this line is needed as a tag
   os << "#START" << endl;
   // skip this line
-  //os << m_desc->txtFormat() << endl;
-    
   writeTxt(os);
   os.close();
   return kTRUE;
 }
 
-void AcdCalibMap::writeTxt(ostream& os) const {
-  for(int iFace = 0; iFace != AcdMap::nFace; ++iFace) {
-    for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
-      for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
-	if ( ! AcdMap::channelExists(iFace,iRow,iCol) ) continue;
-	for(int iPmt = 0; iPmt != AcdMap::nPmt; ++iPmt) {
 
-	  UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
-	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
+void AcdCalibMap::writeTxtInputInfo(std::ostream& os) const {
+  for ( std::list< std::pair<std::string,std::string> >::const_iterator itr = m_inputs.begin();
+	itr != m_inputs.end(); itr++ ) {
+    os << "#input" << itr->second.c_str() << "File = " << itr->first.c_str() << std::endl;
+  }
+}
+
+
+void AcdCalibMap::writeTxt(ostream& os) const {
+  for(int iFace = 0; iFace != AcdKey::nFace; ++iFace) {
+    for(int iRow = 0; iRow != (int)AcdKey::getNRow(iFace); ++iRow) {
+      for(int iCol = 0; iCol != (int)AcdKey::getNCol(iFace,iRow); ++iCol) {	
+	if ( ! AcdKey::channelExists(iFace,iRow,iCol) ) continue;
+	for(int iPmt = 0; iPmt != AcdKey::nPmt; ++iPmt) {
+
+	  UInt_t id = AcdKey::makeId(iFace,iRow,iCol);
+	  UInt_t key = AcdKey::makeKey(iPmt,iFace,iRow,iCol);
 	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);   
 	  if ( itr == m_map.end() ) continue;
 
@@ -120,27 +174,26 @@ void AcdCalibMap::writeTxt(ostream& os) const {
 Bool_t AcdCalibMap::writeXmlFile(const char* fileName,
 				 const char* instrument,
 				 const char* timestamp,
-				 const char* algorithm,
-				 const AcdCalibBase& calib) const {
+				 const char* algorithm ) const {
   
   
 
   DomElement elem = AcdXmlUtil::makeDocument("acdCalib");
-  writeXmlHeader(elem,instrument,timestamp,algorithm,calib);
+  writeXmlHeader(elem,instrument,timestamp,algorithm);
   writeXmlBody(elem);
-  writeXmlFooter(elem);
-  
-  return AcdXmlUtil::writeIt(elem,fileName);
+  Bool_t ok = AcdXmlUtil::writeIt(elem,fileName);
+  if ( ok ) {
+    m_fileName = fileName;
+  }
+  return ok;
 }
 
 void AcdCalibMap::writeXmlHeader(DomElement& node,
 				 const char* instrument,
 				 const char* timestamp,
-				 const char* algorithm,
-				 const AcdCalibBase& calib) const {  
+				 const char* algorithm ) const {  
 
-  DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");
-  
+  DomElement genNode = AcdXmlUtil::makeChildNode(node,"generic");  
   AcdXmlUtil::addAttribute(genNode,"instrument",instrument);
   AcdXmlUtil::addAttribute(genNode,"timestamp",timestamp);
   std::string calibTypeName;
@@ -148,16 +201,26 @@ void AcdCalibMap::writeXmlHeader(DomElement& node,
   AcdXmlUtil::addAttribute(genNode,"calibType",calibTypeName.c_str());
   AcdXmlUtil::addAttribute(genNode,"algorithm",algorithm);
   AcdXmlUtil::addAttribute(genNode,"DTDVersion",AcdCalibVersion::dtdVersion());
-  AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());  
-  calib.writeXmlHeader(genNode);
-
+  AcdXmlUtil::addAttribute(genNode,"fmtVersion",AcdCalibVersion::fmtVersion());    
+  writeXmlInputInfo(genNode);
   DomElement dimNode = AcdXmlUtil::makeChildNode(node,"dimension");
   AcdXmlUtil::addAttribute(dimNode,"nTile",(int)108);
 }
 
-
-void AcdCalibMap::writeXmlFooter(DomElement& /* node */) const {
-  return;
+void AcdCalibMap::writeXmlInputInfo(DomElement& node) const {
+  DomElement sourceNode = AcdXmlUtil::makeChildNode(node,"inputSample");  
+  AcdXmlUtil::addAttributeMET(sourceNode,"startTime",m_startTime);
+  AcdXmlUtil::addAttributeMET(sourceNode,"stopTime",m_endTime);
+  AcdXmlUtil::addAttribute(sourceNode,"triggers",(Int_t)m_triggers);
+  AcdXmlUtil::addAttribute(sourceNode,"source","Orbit");
+  AcdXmlUtil::addAttribute(sourceNode,"mode","Normal"); 
+  for ( std::list< std::pair<std::string,std::string> >::const_iterator itr = m_inputs.begin();
+	itr != m_inputs.end(); itr++ ) {
+    if ( itr->first == "" ) continue;
+    DomElement fileNode = AcdXmlUtil::makeChildNode(sourceNode,"inputFile");  
+    AcdXmlUtil::addAttribute(fileNode,"path",itr->first.c_str());
+    AcdXmlUtil::addAttribute(fileNode,"type",itr->second.c_str());
+  }
 }
 
 void AcdCalibMap::writeXmlBody(DomElement& node) const {
@@ -165,22 +228,22 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
   std::string calibElemName;
   AcdXmlUtil::getCalibElemName(calibElemName,m_desc->calibType());
 
-  for(int iFace = 0; iFace != AcdMap::nFace; iFace++) {
-    for(int iRow = 0; iRow != (int)AcdMap::getNRow(iFace); ++iRow) {
-      for(int iCol = 0; iCol != (int)AcdMap::getNCol(iFace,iRow); ++iCol) {	
-	if ( ! AcdMap::channelExists(iFace,iRow,iCol) ) continue;
+  for(int iFace = 0; iFace != AcdKey::nFace; iFace++) {
+    for(int iRow = 0; iRow != (int)AcdKey::getNRow(iFace); ++iRow) {
+      for(int iCol = 0; iCol != (int)AcdKey::getNCol(iFace,iRow); ++iCol) {	
+	if ( ! AcdKey::channelExists(iFace,iRow,iCol) ) continue;
 
-	UInt_t id = AcdMap::makeId(iFace,iRow,iCol);
+	UInt_t id = AcdKey::makeId(iFace,iRow,iCol);
 	DomElement tileNode = AcdXmlUtil::makeChildNode(node,"tile");
 	char tileStr[4];
 	sprintf(tileStr,"%03d",id);
 	AcdXmlUtil::addAttribute(tileNode,"tileId",tileStr);
 
-	for(int iPmt = 0; iPmt != AcdMap::nPmt; iPmt++) {
+	for(int iPmt = 0; iPmt != AcdKey::nPmt; iPmt++) {
 	  DomElement pmtNode = AcdXmlUtil::makeChildNode(tileNode,"pmt");
 	  AcdXmlUtil::addAttribute(pmtNode,"iPmt",(int)iPmt);
 	  
-	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
+	  UInt_t key = AcdKey::makeKey(iPmt,iFace,iRow,iCol);
 	  std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.find(key);  
 	  if ( itr == m_map.end() ) continue;	  
 
@@ -198,41 +261,48 @@ void AcdCalibMap::writeXmlBody(DomElement& node) const {
 }
 
 
+
+
 Bool_t AcdCalibMap::writeResultsToTree(const char* newFileName) {
-  TFile * histFile(0);
-  TTree* newTree(0);
+  
+  TFile* histFile(0);
   UInt_t nVal = m_desc->nVar();
-  Float_t* vals = new Float_t[nVal];
-  UInt_t id;
-  UInt_t pmt;
-  Int_t status;
+
+  Float_t vals[10][216];
+
+  UInt_t id[216];
+  UInt_t pmt[216];
+  Int_t status[216];
   if ( newFileName != 0 ) {
     histFile = TFile::Open(newFileName, "RECREATE");
     if ( histFile == 0 ) return kFALSE;
-    newTree = new TTree(m_desc->calibTypeName().c_str(),"Calibration");    
+    m_tree = new TTree(m_desc->calibTypeName().c_str(),"Calibration");    
   }
-  if( histFile == 0 || newTree == 0 ) return kFALSE;
-  newTree->Branch("id",&id,"id/i");
-  newTree->Branch("pmt",&pmt,"pmt/i");
-  newTree->Branch("status",&status,"status/I");
+  if( histFile == 0 || m_tree == 0 ) return kFALSE;
+  m_tree->Branch("startTime",&m_startTime,"startTime/D");
+  m_tree->Branch("endTime",&m_endTime,"endTime/D");
+  m_tree->Branch("triggers",&m_triggers,"triggers/i");
+  m_tree->Branch("id",&id[0],"id[216]/i");
+  m_tree->Branch("pmt",&pmt[0],"pmt[216]/i");
+  m_tree->Branch("status",&status[0],"status[216]/I");
   for ( UInt_t i(0); i < nVal; i++ ) {
     std::string vName = m_desc->getVarName(i);
-    std::string lName = vName + "/F";
-    newTree->Branch(vName.c_str(),&(vals[i]),lName.c_str());
+    std::string lName = vName + "[216]/F";
+    m_tree->Branch(vName.c_str(),&(vals[i][0]),lName.c_str());
   }
+  UInt_t idx(0);
   for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.begin(); 
-	itr != m_map.end(); itr++ ) {
-    id = AcdMap::getId(itr->first);
-    pmt =  AcdMap::getPmt(itr->first);
-    status = itr->second->getStatus();
+	itr != m_map.end(); itr++, idx++ ) {
+    id[idx] = AcdKey::getId(itr->first);
+    pmt[idx] =  AcdKey::getPmt(itr->first);
+    status[idx] = itr->second->getStatus();
     for ( UInt_t iV(0); iV < nVal; iV++ ) {
-      vals[iV] = itr->second->operator[](iV);
+      vals[iV][idx] = itr->second->operator[](iV);
     }
-    newTree->Fill();
-  }    
-  newTree->Write();
+  }
+  m_tree->Fill();
+  m_tree->Write();
   histFile->Close();
-  delete [] vals;
   return kTRUE;
 }
 
@@ -241,17 +311,49 @@ Bool_t AcdCalibMap::readXmlFile(const char* fileName) {
   using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 
   xmlBase::XmlParser parser;
+  static const std::string inputName("inputSample");
   static const std::string tileName("tile");
   DOMDocument* doc = parser.parse(fileName);
-  if ( doc == 0 ) return kFALSE;
+  if ( doc == 0 ) {
+    std::cerr << "XmlParser failed to parse " << fileName << std::endl;
+    return kFALSE;
+  }
+
+  m_fileName = fileName;
+
+  std::vector<DOMElement*> input;
   std::vector<DOMElement*> tiles;
+  
   DOMElement* top = doc->getDocumentElement();					       
+  xmlBase::Dom::getDescendantsByTagName(top,inputName,input);
+  if ( input.size() != 1 ) {
+    std::cerr << "Wrong number of inputSample nodes " << input.size() << std::endl;
+    return kFALSE;
+  }
+  if ( ! readXmlHeader(*(input[0]) ) ) return kFALSE;
   xmlBase::Dom::getDescendantsByTagName(top,tileName,tiles);
   for ( std::vector<DOMElement*>::iterator itr = tiles.begin(); itr!= tiles.end(); itr++ ) {
     if ( ! readXmlTile(*(*itr) ) ) return kFALSE;
   }
+  
   return kTRUE;
 }
+
+Bool_t AcdCalibMap::readXmlHeader(DOMElement& node) {
+  m_startTime = xmlBase::Dom::getDoubleAttribute(&node,"startTime");
+  m_endTime = xmlBase::Dom::getDoubleAttribute(&node,"stopTime");
+  m_triggers = xmlBase::Dom::getIntAttribute(&node,"triggers");
+  std::vector<DOMElement*> inputs;  
+  static const std::string inputName("inputFile");
+  xmlBase::Dom::getDescendantsByTagName(&node,inputName,inputs);
+  for ( std::vector<DOMElement*>::const_iterator itr = inputs.begin(); itr != inputs.end(); itr++ ) {
+    std::string path = xmlBase::Dom::getAttribute(*itr,"path");
+    std::string type = xmlBase::Dom::getAttribute(*itr,"type");
+    addInput(path,type);
+  }
+  return kTRUE;
+}
+
 
 Bool_t AcdCalibMap::readXmlTile(DOMElement& node) {
 
@@ -262,8 +364,8 @@ Bool_t AcdCalibMap::readXmlTile(DOMElement& node) {
   xmlBase::Dom::getDescendantsByTagName(&node,pmtName,pmts);
   DOMElement* pmtA = pmts[0];
   DOMElement* pmtB = pmts[1];
-  UInt_t keyA = AcdMap::makeKey(0,id);
-  UInt_t keyB = AcdMap::makeKey(1,id);
+  UInt_t keyA = AcdKey::makeKey(0,id);
+  UInt_t keyB = AcdKey::makeKey(1,id);
 
   if ( ! readXmlCalib(*pmtA,keyA) ) {
     std::cerr << "Failed to read " << keyA << std::endl;
@@ -293,9 +395,12 @@ Bool_t AcdCalibMap::readXmlCalib(DOMElement& node, UInt_t key) {
     }
   }
   catch (xmlBase::DomException ex) {
-    std::cerr << "From CalibSvc::XmlAcdCnv::processPmt" << std::endl;
+    std::cerr << "From AcdCalibMap::readXmlCalib for " << m_fileName << " at pmt element with key: " << key << std::endl;
     std::cerr << ex.getMsg() << std::endl;
-    throw ex;
+    for ( int iO(0); iO < m_desc->nVar(); iO++ ) {
+      std::cerr << "\t" << m_desc->getVarName(iO) << std::endl;
+    }
+    return kFALSE;
   }
 
   CalibData::AcdCalibObj* result = makeNew();
@@ -340,7 +445,7 @@ Bool_t AcdCalibMap::readTxt(istream& is) {
 
     is >> id >> iPmt;
     if ( !is.good() ) return kFALSE;
-    UInt_t key = AcdMap::makeKey(iPmt,id);
+    UInt_t key = AcdKey::makeKey(iPmt,id);
 
     CalibData::AcdCalibObj* result = makeNew();
     assert( result != 0 );
@@ -350,5 +455,18 @@ Bool_t AcdCalibMap::readTxt(istream& is) {
     
     m_map[key] = result;
   }
+  return kTRUE;
+}
+
+
+Bool_t AcdCalibMap::readTree() const {
+  TString rootFileName(fileName());
+  rootFileName.ReplaceAll(".xml","Pars.root");
+  TFile* f = TFile::Open(rootFileName);
+  if ( f == 0 ) return kFALSE;
+  TObject* obj = f->Get( m_desc->calibTypeName().c_str() );
+  if ( obj == 0 ) return kFALSE;
+  m_tree = dynamic_cast<TTree*>(obj);
+  if ( m_tree == 0 ) return kFALSE;
   return kTRUE;
 }

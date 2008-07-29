@@ -26,8 +26,8 @@ library calibGenACD *.cxx ${calibGenACD_headers}
 #=============================================================
 private
 
-macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf" \
-              WIN32 " ${ROOT_PATH}\lib\libGpad.lib ${ROOT_PATH}\lib\libGraf.lib ${ROOT_PATH}\lib\libHist.lib ${ROOT_PATH}\lib\libMinuit.lib "
+macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf -lTree -lTreePlayer" \
+              WIN32 " ${ROOT_PATH}\lib\libGpad.lib ${ROOT_PATH}\lib\libGraf.lib ${ROOT_PATH}\lib\libHist.lib ${ROOT_PATH}\lib\libMinuit.lib ${ROOT_PATH}\lib\libTree.lib ${ROOT_PATH}\lib\libTreePlayer.lib "
 
 
 apply_pattern use_facilities_symbols
@@ -45,4 +45,11 @@ application runCnoCalib ../apps/runCnoCalib.cxx
 application runCoherentNoiseCalib ../apps/runCoherentNoiseCalib.cxx
 application runCarbonCalib ../apps/runCarbonCalib.cxx
 application runRibbonCalib ../apps/runRibbonCalib.cxx
-application convertXmlToTxt ../apps/convertXmlToTxt.cxx
+application runMeritCalib ../apps/runMeritCalib.cxx
+application runHighPed ../apps/runHighPed.cxx
+application runVetoFitCalib ../apps/runVetoFitCalib.cxx
+application runCnoFitCalib ../apps/runCnoFitCalib.cxx
+application runHighRangeCalib ../apps/runHighRangeCalib.cxx
+
+application calibReport ../apps/calibReport.cxx
+application makeResultTree ../apps/makeResultTree.cxx

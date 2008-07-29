@@ -35,7 +35,8 @@ Int_t AcdRibbonFitLibrary::getBin(int /* id */, Float_t localY) {
 }
 
 
-Int_t AcdRibbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdRibbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+			       CalibData::AcdCalibObj* /* ref */ ) {
 
   Float_t peakVals[7];
 

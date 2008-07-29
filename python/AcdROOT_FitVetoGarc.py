@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 #
 #                               Copyright 2007
 #                                     by
@@ -237,7 +238,7 @@ class AcdOfflineVetoFitter:
                     elif pmt == '1':
                         pmtName = 'B'
                     (garc,gafe) = self.__theTileMap.tileDict[tileName][pmtName]
-                    theSetPoints[garc,gafe] = vetoVal
+                    theSetPoints[garc,gafe] = vetoVal + self.__peds[garc,gafe]
                     pass
                 pass
             pass
@@ -410,6 +411,12 @@ if __name__=='__main__':
     # do all the parsing 'n shit
     vetos = AcdOfflineVetoFitter()
 
+    if options.peds != "":
+        vetos.readPeds(options.peds)
+
+    if options.mips != "":
+        vetos.readMips(options.mips)    
+
     filePairs = []
     for aPair in options.input:
         files = aPair.split(':')
@@ -417,15 +424,12 @@ if __name__=='__main__':
             continue
         filePairs.append(files)
 
+
     for filePair in filePairs:
+        print (filePair[0],filePair[1])
         if not vetos.readFilePair(filePair[0],filePair[1]):
             print "Failed to read %s %s"%(filePair[0],filePair[1])
 
-    if options.peds != "":
-        vetos.readPeds(options.peds)
-
-    if options.mips != "":
-        vetos.readMips(options.mips)    
    
     fout = ROOT.TFile("veto_fits.root","RECREATE")
     vetos.doGarcs(timestring,options.draw,fout)

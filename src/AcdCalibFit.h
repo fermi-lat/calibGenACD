@@ -39,7 +39,8 @@ public:
   virtual ~AcdCalibFit() {;}
   
   /// Fit a single channel, store the result and return a status code
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder, 
+		    CalibData::AcdCalibObj* ref = 0);
 
   /// Fit a single channel, store the result and return a status code
   virtual UInt_t fitChannel(AcdCalibMap& result, AcdHistCalibMap& input, UInt_t key);

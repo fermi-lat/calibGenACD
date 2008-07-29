@@ -5,7 +5,7 @@
 #include "TObject.h"
 
 // local includes
-#include "./AcdMap.h"
+#include "./AcdKey.h"
 
 // stl includes
 #include <iostream>
@@ -33,7 +33,7 @@ class AcdPadMap : public TObject {
 public :
   
   /// Standard c'tor
-  AcdPadMap(AcdMap::Config, const char* prefix);
+  AcdPadMap(AcdKey::Config, const char* prefix);
   
   /// Default c'tor
   AcdPadMap();
@@ -66,7 +66,7 @@ private:
 
 
   /// Type of padMap, see enums above
-  AcdMap::Config m_config;
+  AcdKey::Config m_config;
 
   /// prefix that goes on canvas names
   TString m_prefix;

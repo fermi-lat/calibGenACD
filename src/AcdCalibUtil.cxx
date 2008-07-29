@@ -24,6 +24,66 @@ AcdCalibUtil::AcdCalibUtil(){;}
 
 AcdCalibUtil::~AcdCalibUtil(){;}
 
+Bool_t AcdCalibUtil::makeFitPlots(AcdCalibMap& calib,
+				  const char* filePrefix,
+				  const char* suffix) {
+
+  AcdHistCalibMap* hists = const_cast<AcdHistCalibMap*>(calib.theHists());
+  AcdPadMap* padMap(0);
+  TString logStr("_log");
+  TString linStr("_lin");
+  switch ( calib.theDesc()->calibType() ) {   
+  case AcdCalibData::PEDESTAL: 
+  case AcdCalibData::PED_HIGH: 
+    padMap = drawPeds(*hists,calib,filePrefix);
+    break;
+  case AcdCalibData::GAIN: 
+  case AcdCalibData::CARBON: 
+    padMap = drawMips(*hists,calib,kTRUE,filePrefix);
+    if ( padMap == 0 ) return kFALSE;
+    saveCanvases(padMap->canvasList(),"",logStr+suffix); 
+    padMap = drawMips(*hists,calib,kFALSE,filePrefix);
+    if ( padMap == 0 ) return kFALSE;
+    saveCanvases(padMap->canvasList(),"",linStr+suffix); 
+    return kTRUE;
+  case AcdCalibData::VETO_FIT:
+    padMap = drawVetoFits(*hists,calib,filePrefix);
+    break;
+  case AcdCalibData::CNO_FIT:
+    padMap = drawVetoFits(*hists,calib,filePrefix,false);
+    break;
+  case AcdCalibData::VETO: 
+    padMap = drawVetos(*hists,calib,filePrefix);
+    break;
+  case AcdCalibData::RANGE: 
+    padMap = drawRanges(*hists,calib,filePrefix);    
+    break;
+  case AcdCalibData::CNO: 
+    padMap = drawCnos(*hists,calib,filePrefix); 
+    break;    
+  case AcdCalibData::COHERENT_NOISE: 
+    padMap = drawStripCharts(*hists,filePrefix); 
+    break;
+  case AcdCalibData::RIBBON: 
+    padMap = drawRibbons(*hists,calib,kTRUE,filePrefix);
+    if ( padMap == 0 ) return kFALSE;
+    saveCanvases(padMap->canvasList(),"",logStr+suffix); 
+    padMap = drawRibbons(*hists,calib,kFALSE,filePrefix);
+    if ( padMap == 0 ) return kFALSE;
+    saveCanvases(padMap->canvasList(),"",linStr+suffix); 
+    return kTRUE;
+  case AcdCalibData::HIGH_RANGE:
+    padMap = drawHighRangeFits(*hists,calib,filePrefix);
+    break;
+  default:
+    return kFALSE;
+  }
+    
+  saveCanvases(padMap->canvasList(),"",suffix); 
+  return kTRUE;
+
+}
+
 void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* suffix) {
   TString pr(filePrefix);
   UInt_t n = cl.GetSize();
@@ -96,6 +156,17 @@ void AcdCalibUtil::drawCnoPlot(TVirtualPad& vp, TH1& hCno, TH1& hAll, CalibData:
   }   
 }
 
+
+void AcdCalibUtil::drawRangeCheckPlot(TVirtualPad& vp, TH1& lowHist, TH1& hiHist, CalibData::AcdCalibObj* /* res */) {
+  TVirtualPad* p = vp.cd();
+  p->SetLogy(kFALSE);
+  lowHist.Draw();
+  hiHist.SetLineColor(4);
+  hiHist.Draw("same");
+}
+
+
+
 void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res, Bool_t onLog) {
 
   // set plot limits & such
@@ -130,6 +201,44 @@ void AcdCalibUtil::drawMipPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibOb
     lA->SetLineColor(2);
     lA->Draw();
   } 
+}
+
+void AcdCalibUtil::drawVetoFitPlot(TVirtualPad& vp, TH1& hVeto, CalibData::AcdCalibObj* res,
+				   const std::vector<Float_t>& nomSettings) {
+  vp.cd();
+  hVeto.SetMarkerStyle(8);
+  hVeto.SetMinimum(25.);
+  hVeto.SetMaximum(75.);  
+  TF1* fA = hVeto.GetFunction("pol1");
+  fA->SetLineColor(2);
+  hVeto.Draw("e");  
+  fA->Draw("same");
+  if ( res != 0 ) {
+    float peak = res->operator[](2);
+    for ( unsigned i(0); i < nomSettings.size(); i++ ) {
+      TLine lx(nomSettings[i]*peak,25.,nomSettings[i]*peak,75.);
+      lx.SetLineColor(7);
+      lx.DrawClone("same");
+    }
+  }
+}
+
+void AcdCalibUtil::drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, CalibData::AcdCalibObj* /* res */) {
+  vp.cd();
+  hrData.SetMarkerStyle(8);
+  Float_t ped = hrData.GetBinContent(1);
+
+  hrData.SetMinimum(ped - 50.);
+  hrData.SetMaximum(ped + 450.);
+
+  hxData.SetMarkerColor(4);
+  hxData.SetMarkerStyle(8);
+
+  TF1* fA = hrData.GetFunction("hrCalib");
+  if ( fA != 0 ) fA->SetLineColor(2);
+  hrData.Draw("e");  
+  if ( fA != 0 ) fA->Draw("same");
+  hxData.Draw("same");
 }
 
 AcdPadMap* AcdCalibUtil::drawPeds(AcdHistCalibMap& hPeds,
@@ -171,44 +280,44 @@ AcdPadMap* AcdCalibUtil::drawRanges(AcdHistCalibMap& hRanges,
   return padMap;
 }
 
-AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, AcdHistCalibMap& hRaw,
+AcdPadMap* AcdCalibUtil::drawCnos(AcdHistCalibMap& hCno, 
 				  AcdCalibMap& cnos, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(hCno.config(),prefix);
   TList& hList = (TList&)hCno.histograms();
   UInt_t n = hList.GetEntries();
-  for ( UInt_t i(0); i < n; i++ ) {
+  for ( UInt_t i(0); i < n; i+=3 ) {
     TObject* obj = hList.At(i);
     if ( obj == 0 ) continue;
     UInt_t id = obj->GetUniqueID();
     TVirtualPad* pad = padMap->getPad(id);
     if ( pad == 0 ) continue;
     TH1* hv = (TH1*)(obj);
-    TH1* hr = hRaw.getHist(id);
+    TH1* hr = (TH1*)(hList.At(i+1));
     if ( hv == 0 || hr == 0 ) continue;
     CalibData::AcdCalibObj* res = cnos.get(id);
-    drawCnoPlot(*pad,*hv,*hr,res);
+    drawCnoPlot(*pad,*hr,*hv,res);
   }
   return padMap;
 }
 
-AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+AcdPadMap* AcdCalibUtil::drawVetos(AcdHistCalibMap& hVeto, 
 				   AcdCalibMap& vetos, const char* prefix) {
 
   AcdPadMap* padMap = new AcdPadMap(hVeto.config(),prefix);
   TList& hList = (TList&)hVeto.histograms();
   UInt_t n = hList.GetEntries();
-  for ( UInt_t i(0); i < n; i++ ) {
+  for ( UInt_t i(0); i < n; i+=3 ) {
     TObject* obj = hList.At(i);
     if ( obj == 0 ) continue;
     UInt_t id = obj->GetUniqueID();
     TVirtualPad* pad = padMap->getPad(id);
     if ( pad == 0 ) continue;
     TH1* hv = (TH1*)(obj);
-    TH1* hr = hRaw.getHist(id);
+    TH1* hr = (TH1*)(hList.At(i+1));
     if ( hv == 0 || hr == 0 ) continue;
     CalibData::AcdCalibObj* res = vetos.get(id);
-    drawVetoPlot(*pad,*hv,*hr,res);
+    drawVetoPlot(*pad,*hr,*hv,res);
   }
   return padMap;
 }
@@ -235,7 +344,7 @@ AcdPadMap* AcdCalibUtil::drawMips(AcdHistCalibMap& h, AcdCalibMap& gains,
 AcdPadMap* AcdCalibUtil::drawRibbons(AcdHistCalibMap& h, AcdCalibMap& /* gains */,
 				     Bool_t onLog, const char* prefix) {
 
-  AcdPadMap* padMap = new AcdPadMap(AcdMap::RIBBONS,prefix);
+  AcdPadMap* padMap = new AcdPadMap(AcdKey::RIBBONS,prefix);
   TList& hList = (TList&)h.histograms();
   UInt_t n = hList.GetEntries();
   for ( UInt_t i(0); i < n; i++ ) {
@@ -288,6 +397,79 @@ AcdPadMap* AcdCalibUtil::drawStripCharts(AcdHistCalibMap& h, const char* prefix)
   return padMap;
 }
 
+AcdPadMap* AcdCalibUtil::drawRangeCheck(AcdHistCalibMap& hRanges, const char* prefix) {
+  AcdPadMap* padMap = new AcdPadMap(hRanges.config(),prefix);
+  TList& hList = (TList&)hRanges.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i+=2 ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hL = (TH1*)(obj);
+    TH1* hH = (TH1*)(hList.At(i+1));
+    if ( hL == 0 || hH == 0) continue;
+    drawRangeCheckPlot(*pad,*hL,*hH,0);
+  }
+  return padMap;
+}
+
+AcdPadMap* AcdCalibUtil::drawVetoFits(AcdHistCalibMap& hVeto, 
+				      AcdCalibMap& fits,
+				      const char* prefix,
+				      bool isVeto ) {
+
+  static std::vector<float> vetoSet;
+  static std::vector<float> cnoSet;
+  if ( vetoSet.size() == 0 ) {
+    vetoSet.push_back(0.30);
+    vetoSet.push_back(0.45);
+    vetoSet.push_back(0.60);
+    cnoSet.push_back(16./36.);
+    cnoSet.push_back(25./36.);
+    cnoSet.push_back(1.);    
+  }
+
+  const std::vector<float>& settings = isVeto ? vetoSet : cnoSet;
+    
+  AcdPadMap* padMap = new AcdPadMap(hVeto.config(),prefix);
+  TList& hList = (TList&)hVeto.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i++ ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hv = (TH1*)(obj);    
+    if ( hv == 0 ) continue;
+    CalibData::AcdCalibObj* res = fits.get(id);
+    drawVetoFitPlot(*pad,*hv,res,settings);
+  }
+  return padMap;
+}
+
+AcdPadMap* AcdCalibUtil::drawHighRangeFits(AcdHistCalibMap& h, 
+					   AcdCalibMap& fits, const char* prefix ) {
+  AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
+  TList& hList = (TList&)h.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i += 2 ) {
+    TObject* obj = hList.At(i);
+    if ( obj == 0 ) continue;
+    UInt_t id = obj->GetUniqueID();
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    TH1* hist = (TH1*)(obj);    
+    if ( hist == 0 ) continue;
+    TH1* hX = (TH1*)(hList.At(i+1));
+    CalibData::AcdCalibObj* res = fits.get(id);
+    drawHighRangePlot(*pad,*hist,*hX,res);
+  }
+  return padMap;
+}
+
 void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_t refVal, Float_t scale) {
   std::string theName(input.GetName());
   theName += "_chi2dist";
@@ -298,7 +480,6 @@ void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_
   }
   Int_t i(0);
   Float_t ref = refVal;
-  Float_t sum(0.);
   Bool_t calcMean(kFALSE);
   switch ( method ) {
   case AcdCalib::PLAIN: break;

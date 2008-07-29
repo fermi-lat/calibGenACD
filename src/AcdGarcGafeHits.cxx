@@ -18,6 +18,10 @@ void AcdGarcGafeHits::convertToTilePmt(unsigned  cable, unsigned  channel, unsig
   AcdMap::convertToTilePmt(cable,channel,tile,pmt);
 }
 
+void AcdGarcGafeHits::convertToGarcGafe(unsigned  tile, unsigned  pmt, unsigned& garc, unsigned& gafe) {
+  AcdMap::convertToGarcGafe(tile,pmt,garc,gafe);
+}
+
 AcdGarcGafeHits::AcdGarcGafeHits(){
   reset();
 }

@@ -48,7 +48,8 @@ public:
   virtual ~AcdHighRangeFitLibrary() {;}
 
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+		    CalibData::AcdCalibObj* ref );
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };

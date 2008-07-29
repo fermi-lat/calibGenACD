@@ -27,7 +27,7 @@ class AcdHighRange : public AcdCalibBase {
 public :
   
   /// Standard ctor, where user provides the input data
-  AcdHighRange(TChain* svacChain, AcdMap::Config config = AcdMap::LAT);
+  AcdHighRange(TChain* svacChain, AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdHighRange();  
 

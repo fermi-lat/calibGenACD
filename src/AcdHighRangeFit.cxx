@@ -8,23 +8,25 @@
 #include <TF1.h>
 
 
-Int_t AcdHighRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdHighRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+				  CalibData::AcdCalibObj* /* ref */) {
 
   TH1& in = *(holder.getHist(0));
+  std::cout << "AcdHighRangeFitLibrary::fit " << in.GetUniqueID() << std::endl;
 
-  TF1 calib("calib","[0]*[1]*x/([0]*x + [1])");
+  TF1 calib("hrCalib","[0] + ([1]*[2]*x/([1]*x + [2]))");
 
-  calib.SetParLimits(0,0.,10.);
-  calib.SetParLimits(1,100.,4000.);
-  calib.SetParameter(0,1.);
-  calib.SetParameter(1,1000.);
+  Float_t ped = in.GetBinContent(1);
+  calib.FixParameter(0,ped);
+  calib.SetParLimits(1,0.,10.);
+  calib.SetParameter(1,5.);
+  calib.FixParameter(2,2000.);
 
   TH1& nch = const_cast<TH1&>(in);
-  Int_t status = nch.Fit(&calib);
-  
-  Float_t ped = result[0];
-  Float_t slope = calib.GetParameter(0);
-  Float_t satur = calib.GetParameter(1);
+  Int_t status = nch.Fit(&calib,"W","");
+
+  Float_t slope = calib.GetParameter(1);
+  Float_t satur = calib.GetParameter(2);
   result.setVals(ped,slope,satur,(CalibData::AcdCalibObj::STATUS)status);
   return result.getStatus();
 }

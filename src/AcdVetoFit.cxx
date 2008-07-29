@@ -18,9 +18,10 @@ Int_t AcdVetoFitLibrary::findFirstBinAboveVal(const TH1& hist, Float_t val) {
   return -1;   
 }
 
-Int_t AcdVetoFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdVetoFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+			     CalibData::AcdCalibObj* /* ref */ ) {
 
-  TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
+  TH1& hist = const_cast<TH1&>(*(holder.getHist(2)));
   
   Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
   switch ( _type ) {

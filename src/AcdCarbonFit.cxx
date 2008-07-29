@@ -11,12 +11,13 @@
 
 
 
-Int_t AcdCarbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdCarbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+			       CalibData::AcdCalibObj* /* ref */) {
 
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
  
   Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
-  if ( hist.GetEntries() < 100 ) return returnCode;
+  if ( hist.GetEntries() < 30 ) return returnCode;
   
   switch ( _type ) {
   case None:
@@ -73,7 +74,7 @@ Int_t AcdCarbonFitLibrary::fitGauss(CalibData::AcdCalibObj& result, const TH1& h
   Float_t peakValue = hist.GetBinCenter(rebin*peak);
   Float_t minValue = hist.GetBinCenter(rebin*min);
   Float_t endValue = hist.GetBinCenter(rebin*halfMax);
-  Float_t integ = hist.Integral(minValue,endValue);
+  Double_t integ = hist.Integral((Int_t)minValue,(Int_t)endValue);
 
   TF1 gauss("gauss","[0] * TMath::Gaus(x,[1],[2])",minValue,endValue);
   gauss.SetParameter(0,integ);

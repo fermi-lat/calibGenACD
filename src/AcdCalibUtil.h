@@ -6,6 +6,7 @@
 
 // ROOT includes
 #include "TList.h"
+#include <vector>
 
 // forward declares
 class AcdHistCalibMap;
@@ -37,9 +38,15 @@ public :
   
   /// Make some pretense of cleaning up
   virtual ~AcdCalibUtil();  
-   
+  
+  static Bool_t makeFitPlots(AcdCalibMap& calib,
+			     const char* filePrefix = "",
+			     const char* suffix = ".gif");
+  
+protected:
+
   /// save a list of canvases to files
-  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".ps");
+  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".gif");
 
   /// draw a single pedestal plot.
   static void drawPedPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res);
@@ -56,6 +63,17 @@ public :
   /// draw a single veto plot
   static void drawCnoPlot(TVirtualPad& vp, TH1& hVeto, TH1& hAll, CalibData::AcdCalibObj* res);
 
+  /// draw a single veto plot
+  static void drawRangeCheckPlot(TVirtualPad& vp, TH1& lowHist, TH1& highHist, CalibData::AcdCalibObj* res);
+  
+  /// draw a single veto fit plot
+  static void drawVetoFitPlot(TVirtualPad& vp, TH1& hVeto, CalibData::AcdCalibObj* res,
+			      const std::vector<Float_t>& nomSettings);
+
+  /// draw a single high range fit plot
+  static void drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, CalibData::AcdCalibObj* res);
+ 
+
   /// draw pedestal plots onto canvases
   static AcdPadMap* drawPeds(AcdHistCalibMap& hPeds,
 			     AcdCalibMap& peds, const char* prefix = "");
@@ -65,23 +83,38 @@ public :
 			       AcdCalibMap& ranges, const char* prefix = "");
 
   /// draw veto plots onto canvases
-  static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+  static AcdPadMap* drawVetos(AcdHistCalibMap& hVeto, 
 			      AcdCalibMap& vetos, const char* prefix = "");
 
   /// draw cno plots onto canvases
-  static AcdPadMap* drawCnos(AcdHistCalibMap& hVeto, AcdHistCalibMap& hRaw,
+  static AcdPadMap* drawCnos(AcdHistCalibMap& hVeto, 
 			     AcdCalibMap& cnos, const char* prefix = "");  
 
   /// draw mip peaks onto canvases
-  static AcdPadMap* drawMips(AcdHistCalibMap& h, AcdCalibMap& gains, 
+  static AcdPadMap* drawMips(AcdHistCalibMap& h, 
+			     AcdCalibMap& gains, 
 			     Bool_t onLog = kTRUE, const char* prefix = "");
 
   /// draw mip peaks for ribbons onto canvases
-  static AcdPadMap* drawRibbons(AcdHistCalibMap& h, AcdCalibMap& ribbons, 
+  static AcdPadMap* drawRibbons(AcdHistCalibMap& h, 
+				AcdCalibMap& ribbons, 
 				Bool_t onLog = kTRUE, const char* prefix = "");  
 
   /// draw strip charts onto canvases
   static AcdPadMap* drawStripCharts(AcdHistCalibMap& h, const char* prefix = "");
+ 
+  /// draw range checking plots onto canvases
+  static AcdPadMap* drawRangeCheck(AcdHistCalibMap& hRanges, const char* prefix = "");
+
+  /// draw veto fit plots onto canvases
+  static AcdPadMap* drawVetoFits(AcdHistCalibMap& hVeto, 
+				 AcdCalibMap& fits, const char* prefix = "", bool isVeto = true);
+
+  /// draw high range fit plots onto canvases
+  static AcdPadMap* drawHighRangeFits(AcdHistCalibMap& h, 
+				      AcdCalibMap& fits, const char* prefix = "");
+
+public:
 
   /// histogram the outliers 
   static void chi2Dist(const TH1& input, TH1*& output, Int_t method = AcdCalib::PLAIN, 

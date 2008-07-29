@@ -16,40 +16,32 @@ int main(int argn, char** argc) {
 
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {
-  case 0: // ok to proceed
+  case AcdJobConfig::Success: // ok to proceed
     break;  
-  case 1: // called -h option terminate processesing normally
-    return 0; 
+  case AcdJobConfig::HelpMsg: // called -h option terminate processesing normally
+    return AcdJobConfig::Success; 
   default: 
     return parseValue;  // parse failed, return failure code
   }
 
-  Bool_t okToContinue = jc.checkDigi();
-  if ( ! okToContinue ) return 1; // no input, fail
+  if ( ! jc.checkDigi() ) return AcdJobConfig::MissingInput;  
 
-  // build filler & run over events
+  // build filler 
   AcdCalibLoop_Digi r(AcdCalibData::PEDESTAL,jc.digiChain(),jc.optval_P(),jc.config());
+
+  // run!
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
   AcdPedestalFitLibrary pedFitter(AcdPedestalFitLibrary::MeanValue);
-  AcdCalibMap* peds = r.fit(pedFitter,AcdCalibData::PEDESTAL,AcdCalib::H_RAW);
+  AcdCalibMap* peds = r.fit(pedFitter,AcdCalibData::PEDESTAL,AcdCalib::H_RAW,jc.refFileName().c_str());
+  if ( peds == 0 ) return AcdJobConfig::ProccessFail;
 
   // output
-  std::string pedTextFile = jc.outputPrefix() + "_ped.txt";
-  std::string pedXmlFile = jc.outputPrefix() + "_ped.xml";
-  std::string outputHistFile = jc.outputPrefix() + "_ped.root";
-  std::string outputRootFile = jc.outputPrefix() + "_pedFit.root";
-  std::string outputPlotFile = jc.outputPrefix() + "_ped_";
+  std::string algorithm = pedFitter.algorithm();
+  if ( ! peds->writeOutputs( jc.outputPrefix(), algorithm, jc.instrument(), jc.timeStamp()) ) return AcdJobConfig::OutputFail;
 
-  r.writeHistograms(AcdCalib::H_RAW, outputHistFile.c_str());
-  peds->writeTxtFile(pedTextFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),pedFitter.algorithm(),r);
-  peds->writeXmlFile(pedXmlFile.c_str(),jc.instrument().c_str(),jc.timeStamp().c_str(),pedFitter.algorithm(),r);
-  peds->writeResultsToTree(outputRootFile.c_str());  
-  AcdPadMap* padMap = AcdCalibUtil::drawPeds(*(r.getHistMap(AcdCalib::H_RAW)),*peds,outputPlotFile.c_str());  
-  AcdCalibUtil::saveCanvases(padMap->canvasList(),"",".gif"); 
-
-  return 0;
+  return AcdJobConfig::Success;
 }
 
 

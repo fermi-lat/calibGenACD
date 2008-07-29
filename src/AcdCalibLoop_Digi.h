@@ -38,16 +38,9 @@ class AcdCalibLoop_Digi : public AcdCalibBase {
 public :
   
   /// Standard ctor, where user provides the input data
-  AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic = kFALSE, AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdCalibLoop_Digi();  
-
-  TH2* getHitMapHist() {
-    return m_hitMapHist;
-  }
-  TH2* getCondArrHist() {
-    return m_condArrHist;
-  }
 
   /// Divide one set of histograms by another
   AcdHistCalibMap* makeRatioPlots();
@@ -64,8 +57,6 @@ protected:
   /// Try to use an event for calibration
   virtual void useEvent(Bool_t& used);
 
-  void compareDigiToGem();
-
   /// Called each event to do mapping from TILE:PMT to GARC:GAFE space
   void fillCnoData();
 
@@ -79,15 +70,8 @@ private:
 
   // Various histograms to fill
   AcdHistCalibMap* m_rawHists;
-  AcdHistCalibMap* m_gainHists;
   AcdHistCalibMap* m_vetoHists;
-  AcdHistCalibMap* m_fracHists;
   AcdHistCalibMap* m_rangeHists;
-  AcdHistCalibMap* m_unPairHists;
-
-  // A couple of specialize histograms
-  TH2* m_hitMapHist;
-  TH2* m_condArrHist;
   
   /// Input pedestal calibration
   AcdCalibMap* m_peds;

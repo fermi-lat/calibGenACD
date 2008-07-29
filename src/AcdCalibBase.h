@@ -3,7 +3,7 @@
 
 
 // local includes
-#include "./AcdMap.h"
+#include "./AcdKey.h"
 #include "./AcdCalibEnum.h"
 
 
@@ -155,7 +155,7 @@ class AcdCalibBase {
 public :
 
   /// Standard ctor, where user provides the names the output histogram files
-  AcdCalibBase(AcdCalibData::CALTYPE t, AcdMap::Config config = AcdMap::LAT);
+  AcdCalibBase(AcdCalibData::CALTYPE t, AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdCalibBase();
    
@@ -183,30 +183,26 @@ public :
   inline AcdCalibData::CALTYPE calType() const { return m_calType; }
 
   /// Which instrument calibration?
-  inline AcdMap::Config getConfig() const { return m_config; }
+  inline AcdKey::Config getConfig() const { return m_config; }
 
   /// read an input calibration (usually pedestals) from a file
   Bool_t readCalib(AcdCalibData::CALTYPE cType, const char* fileName);
   
-  /// this writes the output histograms
-  /// if newFileName is not set they will be written to the currently open file
-  Bool_t writeHistograms(AcdCalib::HISTTYPE histType, const char* newFileName = 0);
-
   /// run the event loop
   void go(int numEvents = 0, int startEvent = 0);
 
-  /// for writing output files
-  virtual void writeXmlHeader(DomElement& node) const;
-  virtual void writeTxtHeader(std::ostream& os) const;
-
-  /// for writing the list of input files  
-  virtual void writeXmlSources(DomElement& node) const;
-  virtual void writeTxtSources(std::ostream& os) const;
-
   /// do the fitting
-  AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType);
+  AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
+		   const char* referenceFile = 0);
 
 protected:
+
+  /// Feed info into a CalibMap
+  void giveInfoToCalib(AcdCalibMap& theMap);
+
+  /// Get the event stats
+  const AcdCalibEventStats& eventStats() const { return  m_eventStats; }
+  AcdCalibEventStats& eventStats() { return  m_eventStats; }
 
   /// add a calibration
   void addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal);
@@ -223,21 +219,6 @@ protected:
   /// get the pedestal for a channel
   float getPeds(UInt_t key) const;
   
-  const AcdCalibEventStats& eventStats() const { return  m_eventStats; }
-  AcdCalibEventStats& eventStats() { return  m_eventStats; }
-
-  /// Write the calibration data to a stream
-  void writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) const;
-
-  /// Write the input chain data to a stream
-  void writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const;
-
-  /// Write the calibration data to a DOM node
-  void writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const;
-
-  /// Write the input chain  data to a DOM node
-  void writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const;
-
   /// return the total number of events in the chains
   int getTotalEvents() const;
 
@@ -254,7 +235,7 @@ private:
 
 
   /// which type of instrument
-  AcdMap::Config m_config;
+  AcdKey::Config m_config;
   
   /// Which type of calibration are we getting the histograms for?
   AcdCalibData::CALTYPE m_calType;

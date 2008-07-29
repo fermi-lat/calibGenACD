@@ -11,6 +11,8 @@
 #include "AcdGarcGafeHits.h"
 
 #include "digiRootData/DigiEvent.h"
+#include "CalibData/Acd/AcdCalibObj.h"
+#include <TMath.h>
 
 #include <cassert>
 #include <cmath>
@@ -22,32 +24,29 @@ using std::endl;
 using std::string;
 
 
-AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdMap::Config config)
+AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdKey::Config config)
   :AcdCalibBase(t,config), 
    m_digiEvent(0),
    m_requirePeriodic(requirePeriodic){
 
   setChain(AcdCalib::DIGI,digiChain);
 
-  if ( t == AcdCalibData::PEDESTAL ) {
+  switch ( t ) {
+  case AcdCalibData::PEDESTAL:
+  case AcdCalibData::PED_HIGH:
     m_rawHists = bookHists(AcdCalib::H_RAW,4096,-0.5,4095.5);
-  } else if ( t == AcdCalibData::GAIN ) {
-    m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,4095.5);    
-  } else if ( t == AcdCalibData::VETO ) {
-    m_rawHists = bookHists(AcdCalib::H_RAW,256,-0.5,4095.5);
-    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,4095.5);
-    m_fracHists = bookHists(AcdCalib::H_FRAC,256,-0.5,4095.5);
-  } else if ( t == AcdCalibData::RANGE ) {
+    break;
+  case AcdCalibData::VETO:
+    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,4095.5,3);
+    break;
+  case AcdCalibData::RANGE:
     m_rangeHists = bookHists(AcdCalib::H_RANGE,4096,-0.5,4095.5,2);
-  } else if ( t == AcdCalibData::CNO ) {    
-    m_rawHists = bookHists(AcdCalib::H_RAW,64,-0.5,255.5);
-    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,255.5);
-    m_fracHists = bookHists(AcdCalib::H_FRAC,64,-0.5,255.5);
-  } else if ( t == AcdCalibData::UNPAIRED ) {
-    m_unPairHists = bookHists(AcdCalib::H_RAW,512,-0.5,4095.5);
-  } else if ( t == AcdCalibData::HITMAP ) {
-    m_hitMapHist = new TH2F("hitMapHist","hitMapHist",128,-0.5,127.5,3,0.5,3.5);  
-    m_condArrHist = new TH2F("condArrHist","condArrHist",32,-0.5,31.5,2,0.5,2.5);
+    break;
+  case AcdCalibData::CNO:
+    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,255.5,3);
+    break;
+  default:
+    break;
   }
 
   Bool_t ok = attachChains();
@@ -71,7 +70,7 @@ Bool_t AcdCalibLoop_Digi::attachChains() {
     // activate desired brances
     digiChain->SetBranchStatus("m_acd*",1);
     digiChain->SetBranchStatus("m_timeStamp", 1); 
-    digiChain->SetBranchStatus("m_evtId", 1);
+    digiChain->SetBranchStatus("m_eventId", 1);
     digiChain->SetBranchStatus("m_runId", 1);
     //if ( m_requirePeriodic ) {
     digiChain->SetBranchStatus("m_gem", 1);
@@ -94,13 +93,10 @@ Bool_t AcdCalibLoop_Digi::readEvent(int ievent, Bool_t& filtered,
     timeStamp = m_digiEvent->getTimeStamp();
     switch ( calType () ) {
     case AcdCalibData::PEDESTAL:
+    case AcdCalibData::PED_HIGH:
       if ( m_requirePeriodic &&
 	   (m_digiEvent->getGem().getConditionSummary() != 32 &&  
 	    m_digiEvent->getGem().getConditionSummary() != 128 ) )
-	filtered = kTRUE;
-      break;
-    case AcdCalibData::HITMAP:
-      if ( m_digiEvent->getGem().getConditionSummary() >= 32 ) 
 	filtered = kTRUE;
       break;
     default:
@@ -119,13 +115,8 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
   const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
   if (!acdDigiCol) return;
 
-  if ( calType() == AcdCalibData::HITMAP ) {
-    used = kTRUE;
-    compareDigiToGem();
-    return;
-  } else if ( calType() == AcdCalibData::CNO ) {  
+  if ( calType() == AcdCalibData::CNO ) {  
     m_garcGafeHits.reset();
-    //printf("0x%05x\n", m_digiEvent->getGem().getCnoVector() );
     m_garcGafeHits.setCNO( m_digiEvent->getGem().getCnoVector() );
   }
 
@@ -138,7 +129,7 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
     const AcdId& acdId = acdDigi->getId();
     int id = acdId.getId();
 
-    if ( ! AcdMap::channelExists( id ) ) continue;
+    if ( ! AcdKey::channelExists( id ) ) continue;
 
     // NOT CNO calibaration
     int rng0 = acdDigi->getRange(AcdDigi::A);    
@@ -150,40 +141,57 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
     Bool_t useA = rng0 == 0 && pmt0 > 0;
     Bool_t useB = rng1 == 0 && pmt1 > 0;
 
-    UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
-    UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+    UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
+    UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
 
-    if ( calType() == AcdCalibData::GAIN ) {
-      float pedA = getPeds(keyA);
-      float pedB = getPeds(keyB);
+    Float_t pedA(0.);    
+    Float_t pedB(0.);
+    Float_t pedHighA(0.);
+    Float_t pedHighB(0.);
+    
+    const AcdCalibMap* calib(0);
+    const CalibData::AcdCalibObj* calibA(0);
+    const CalibData::AcdCalibObj* calibB(0);
+    switch ( calType() ){
+    case AcdCalibData::CNO:
+    case AcdCalibData::RANGE:
+      calib = getCalibMap(AcdCalibData::PED_HIGH);
+      if ( calib == 0 ) return;
+      calibA = calib->get(keyA);
+      calibB = calib->get(keyB);
+      if ( calibA == 0 || calibB == 0 ) return;
+      pedHighA = calibA->operator[](0);
+      pedHighB = calibB->operator[](0);
+      break;
+    case AcdCalibData::VETO:
+      pedA = getPeds(keyA);
+      pedB = getPeds(keyB);
       if ( pedA < 0 || pedB < 0 ) return;
-      pmt0 -=  pedA;
-      pmt1 -=  pedB;
-      useA &= pmt0 > 50.;
-      useB &= pmt1 > 50.;
-    } else if ( calType() == AcdCalibData::CNO ) {
-      float pedA = getPeds(keyA);
-      float pedB = getPeds(keyB);
-      if ( pedA < 0 || pedB < 0 ) return;
+      pmt0 -= pedA;
+      pmt1 -= pedB;
+      break;
+    default:
+      break;
+    }
+
+    if ( calType() == AcdCalibData::CNO ) {
       if ( rng0 == 0 ) {
-	pmt0 = 0;
+	pmt0 = -1;
       } else {      
-	pmt0 -=  pedA;
-	pmt0 += 15;
+	pmt0 -=  pedHighA;
       }
       if ( rng1 == 0 ) {
-	pmt1 = 0;
+	pmt1 = -1;
       } else {      
-	pmt1 -=  pedB;
-	pmt1 += 15;
+	pmt1 -=  pedHighB;
       }
       m_garcGafeHits.setDigi(*acdDigi,pmt0,pmt1);
     } else if ( calType() == AcdCalibData::VETO ) {
-      float pedA = getPeds(keyA);
-      float pedB = getPeds(keyB);
-      if ( pedA < 0 || pedB < 0 ) return;
-      useA &= pmt0 > ( pedA + 10. );
-      useB &= pmt1 > ( pedB + 10. );
+      useA &= pmt0 > 25.;
+      useB &= pmt1 > 25.;
+    } else if ( calType() == AcdCalibData::RANGE ) {
+      useA = rng0 == 0 || ( pmt0 > pedHighA );
+      useB = rng1 == 0 || ( pmt1 > pedHighB );
     }
 
     switch ( calType () ) {
@@ -191,25 +199,35 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
       if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
       if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
       break;
-    case AcdCalibData::GAIN:
-      if ( useA ) fillHist(*m_gainHists, id, AcdDigi::A, pmt0);
-      if ( useB ) fillHist(*m_gainHists, id, AcdDigi::B, pmt1);
+    case AcdCalibData::PED_HIGH:
+      fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
+      fillHist(*m_rawHists, id, AcdDigi::B, pmt1);
       break;
     case AcdCalibData::RANGE:
-      if ( useA ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 0);
-      if ( useB ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 0);
-      if ( rng0 ) fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 1);
-      if ( rng1 ) fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 1);
-      break;
-    case AcdCalibData::UNPAIRED:
-      if ( pmt1 == 0 && rng0 == 0) fillHist(*m_unPairHists, id, AcdDigi::A, pmt0);
-      if ( pmt0 == 0 && rng1 == 0) fillHist(*m_unPairHists, id, AcdDigi::B, pmt1);
+      if ( useA ) {
+	if ( rng0 == 0 ) {
+	  fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 0);
+	} else {
+	  fillHist(*m_rangeHists, id, AcdDigi::A, pmt0, 1);
+	}
+      }
+      if ( useB ) {
+	if ( rng1 == 0 ) {
+	  fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 0);
+	} else {
+	  fillHist(*m_rangeHists, id, AcdDigi::B, pmt1, 1);
+	}
+      }
       break;
     case AcdCalibData::VETO:
-      if ( useA ) fillHist(*m_rawHists, id, AcdDigi::A, pmt0);
-      if ( useB ) fillHist(*m_rawHists, id, AcdDigi::B, pmt1);      
-      if ( useA && acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
-      if ( useB && acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_vetoHists, id, AcdDigi::B, pmt1);
+      if ( useA ) {
+	fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
+	if ( acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0, 1);
+      }
+      if ( useB ) {  
+	fillHist(*m_vetoHists, id, AcdDigi::B, pmt1);
+	if ( acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_vetoHists, id, AcdDigi::B, pmt1, 1);
+      }
       break;
     default:
       break;
@@ -224,16 +242,16 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
 
 
 AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
-  for ( UInt_t iPmt(0); iPmt < AcdMap::nPmt; iPmt++ ) {    
-    for ( UInt_t iFace(0); iFace < AcdMap::nFace; iFace++ ) {
-      UInt_t nRow = AcdMap::getNRow(iFace);
+  for ( UInt_t iPmt(0); iPmt < AcdKey::nPmt; iPmt++ ) {    
+    for ( UInt_t iFace(0); iFace < AcdKey::nFace; iFace++ ) {
+      UInt_t nRow = AcdKey::getNRow(iFace);
       for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
-	UInt_t nCol = AcdMap::getNCol(iFace,iRow);
+	UInt_t nCol = AcdKey::getNCol(iFace,iRow);
 	for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
-	  UInt_t key = AcdMap::makeKey(iPmt,iFace,iRow,iCol);
-	  TH1* raw = m_rawHists->getHist(key);
-	  TH1* veto = m_vetoHists->getHist(key);
-	  TH1* vf = m_fracHists->getHist(key);
+	  UInt_t key = AcdKey::makeKey(iPmt,iFace,iRow,iCol);
+	  TH1* raw = m_vetoHists->getHist(key,0);
+	  TH1* veto = m_vetoHists->getHist(key,1);
+	  TH1* vf = m_vetoHists->getHist(key,2);
 	  if ( raw == 0 || veto == 0 || vf == 0 ) {
 	    std::cout << "missing one " << key << std::endl;
 	    continue;
@@ -246,82 +264,7 @@ AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
       }
     }
   }
-  return m_fracHists;
-}
-
-void AcdCalibLoop_Digi::compareDigiToGem() {
-
-  const TObjArray* acdDigiCol = m_digiEvent->getAcdDigiCol();
-  assert ( acdDigiCol != 0 );
-  
-  const Gem& gem = m_digiEvent->getGem();
-  const GemTileList& gtl = gem.getTileList();
-
-  UInt_t gemSide[4];
-  UInt_t aemSide[4];
-
-  for ( UInt_t iZ(0); iZ < 4; iZ++ ) {
-    gemSide[iZ] = aemSide[iZ] = 0;
-  }
-
-  gemSide[0] = (gtl.getXzp() << 16) | gtl.getXzm();
-  gemSide[1] = (gtl.getYzp() << 16) | gtl.getYzm();
-  gemSide[2] = gtl.getXy();
-  gemSide[3] = (gtl.getNa() << 16) | gtl.getRbn();
-
-  int nAcdDigi = acdDigiCol->GetLast() + 1;
-  for(int i = 0; i != nAcdDigi; ++i) {
-
-    AcdDigi* acdDigi = static_cast<AcdDigi*>(acdDigiCol->At(i));
-    assert(acdDigi != 0);
-
-    if ( (!acdDigi->getVeto(AcdDigi::A)) && (!acdDigi->getVeto(AcdDigi::B) ) ) continue;
-    
-    UShort_t gid = AcdCalibUtil::gemId(acdDigi->getId().getId());
-    UShort_t gword = gid / 32;
-    UShort_t gbit = gid % 32;
-    if (gword > 3 ) continue;
-    aemSide[gword] += 1 << gbit;  
-  }
-
-  UInt_t nGem(0);
-  UInt_t nAem(0);
-  UInt_t nMatch(0);
-  for ( UInt_t iC(0); iC < 4; iC++ ) {
-    if ( (gemSide[iC] == 0) && (aemSide[iC] == 0) ) continue;
-    for ( UInt_t iB(0); iB < 32; iB++ ) {
-      UInt_t test = (1 << iB);
-      Bool_t hasGem = (gemSide[iC] & test) != 0;
-      Bool_t hasAem = (aemSide[iC] & test) != 0;
-      if ( ! hasGem && ! hasAem ) continue;      
-      if ( hasGem ) nGem++;
-      if ( hasAem ) nAem++;
-      if ( hasGem && hasAem ) nMatch++;
-      Float_t xVal( 32. * iC + iB );
-      Float_t yVal(0.);
-      if ( hasAem ) yVal += 1.;
-      if ( hasGem ) yVal += 2.;
-      m_hitMapHist->Fill(xVal,yVal,1.);
-    }
-  }
-
-
-  // exactly one hit, check the cond arrival times
-  if ( nGem == 1 && (gemSide[1] & (1 << 13)) ) {
-  //if ( nGem == 1 ) {
-    UShort_t roiTime = gem.getCondArrTime().roi();
-    if ( nMatch > 0 ) {
-      if ( roiTime > 8 && roiTime < 31 ) {
-	printf("\nBOTH %08x %08x %08x %08x %i\n",gemSide[3],gemSide[2],gemSide[1],gemSide[0],roiTime);
-      } 
-      m_condArrHist->Fill((Float_t)roiTime,1.,1.);
-    } else {
-      if ( roiTime < 6 || roiTime == 31 ) {
-	printf("\nGEM  %08x %08x %08x %08x %i\n",gemSide[3],gemSide[2],gemSide[1],gemSide[0],roiTime);
-      } 
-      m_condArrHist->Fill((Float_t)roiTime,2.,1.);
-    }
-  }
+  return m_vetoHists;
 }
 
 void AcdCalibLoop_Digi::fillCnoData() {
@@ -338,11 +281,13 @@ void AcdCalibLoop_Digi::fillCnoData() {
       if ( (flags & 0x4) != 0x4 ) continue; // low range
       UInt_t tile(0); UInt_t pmt(0);
       AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
-      //UInt_t key = AcdMap::makeKey(pmt,tile);
-      fillHist(*m_rawHists,tile,pmt,inPha);
+      //UInt_t key = AcdKey::makeKey(pmt,tile);
+      fillHist(*m_vetoHists,tile,pmt,inPha);
       if ( cno ) {
-	fillHist(*m_vetoHists,tile,pmt,inPha);
+	fillHist(*m_vetoHists,tile,pmt,inPha,1);
       }
     }
   }
 }
+
+

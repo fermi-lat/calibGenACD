@@ -6,7 +6,8 @@
 
 
 
-Int_t AcdPedestalFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdPedestalFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+				 CalibData::AcdCalibObj* /* ref */ ) {
   
   Int_t returnCode(-1);
   switch ( _type ) {

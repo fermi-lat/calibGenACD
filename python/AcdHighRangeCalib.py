@@ -116,7 +116,7 @@ class AcdHighRangeCalib:
                     continue
                 pmt = AcdXmlUtil.getAttribute(pmtNode,"iPmt")
                 for vetoNode in pmtNode.childNodes:
-                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdGain":
+                    if vetoNode.nodeType != vetoNode.ELEMENT_NODE or vetoNode.nodeName != "acdCarbon":
                         continue                    
                     peakVal = float(AcdXmlUtil.getAttribute(vetoNode,"peak"))
                     pmtName = ""
@@ -170,7 +170,7 @@ class AcdHighRangeCalib:
         AcdXmlUtil.setAttribute(pedFileNode,"type","Ped")
         AcdXmlUtil.setAttribute(pedFileNode,"path",pedFile)           
         carbonFileNode = AcdXmlUtil.makeChildNode(inputNode,"inputFile")            
-        AcdXmlUtil.setAttribute(carbonFileNode,"type","AcdCarbon")
+        AcdXmlUtil.setAttribute(carbonFileNode,"type","Carbon")
         AcdXmlUtil.setAttribute(carbonFileNode,"path",carbonFile)
       
         dimNode = AcdXmlUtil.makeChildNode(topNode,"dimension")
@@ -187,7 +187,7 @@ class AcdHighRangeCalib:
                 elif pmt == 'B':
                     iPmt = 1
                 AcdXmlUtil.setAttribute(pmtNode,"iPmt",iPmt)
-                valNode = AcdXmlUtil.makeChildNode(pmtNode,"acdVeto")
+                valNode = AcdXmlUtil.makeChildNode(pmtNode,"acdHighRange")
                 (garc,gafe) = self.__theTileMap.tileDict[tile][pmt]
                 AcdXmlUtil.setAttribute(valNode,"slope","%7.6f"%self.__slopeArray[garc,gafe])
                 AcdXmlUtil.setAttribute(valNode,"pedestal","%7.6f"%self.__peds[garc,gafe])

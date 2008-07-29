@@ -123,7 +123,8 @@ public:
   virtual ~AcdStripFitLibrary() {;}
 
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder,
+		    CalibData::AcdCalibObj* ref = 0);
 
   /// Test all histograms for discreet jumps, print warning and error on std::cerr
   Bool_t test(AcdCalibMap& results, Float_t lo, Float_t hi, const char* msg, const char* testName) const;

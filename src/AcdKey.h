@@ -1,6 +1,6 @@
 
-#ifndef AcdMap_h
-#define AcdMap_h
+#ifndef AcdKey_calibGenACD_h
+#define AcdKey_calibGenACD_h
 
 // ROOT includes
 #include "Rtypes.h"
@@ -10,7 +10,7 @@
 #include <string>
 
 /** 
- * @class AcdMap
+ * @class AcdKey
  *
  * @brief Various tools to associate map tile into a unique key and back
  *
@@ -22,7 +22,7 @@
  * $Header$
  */
 
-class AcdMap {
+class AcdKey {
 
 public:
 
@@ -76,8 +76,8 @@ public:
 
 public:
 
-  AcdMap( ){;};
-  virtual ~AcdMap(){;};
+  AcdKey( ){;};
+  virtual ~AcdKey(){;};
 
 protected:
 
@@ -87,11 +87,11 @@ private:
 
 #endif
 
-#ifdef AcdMap_cxx
+#ifdef AcdKey_calibGenACD_cxx
 
 #include <sstream>
 
-UInt_t AcdMap::getNRow(UInt_t face) {
+UInt_t AcdKey::getNRow(UInt_t face) {
   switch (face) {
   case 0: 
     return 5;
@@ -111,7 +111,7 @@ UInt_t AcdMap::getNRow(UInt_t face) {
   return 0;
 }
   
-UInt_t AcdMap::getNCol(UInt_t face,UInt_t row) {
+UInt_t AcdKey::getNCol(UInt_t face,UInt_t row) {
   switch (face) {
   case 0: 
     return 5;
@@ -132,7 +132,7 @@ UInt_t AcdMap::getNCol(UInt_t face,UInt_t row) {
 }
 
 
-Bool_t AcdMap::channelExists(int iFace,int iRow,int iCol) {
+Bool_t AcdKey::channelExists(int iFace,int iRow,int iCol) {
   switch (iFace) {
   case 0:
     // top
@@ -160,7 +160,7 @@ Bool_t AcdMap::channelExists(int iFace,int iRow,int iCol) {
   return true;
 }
 
-void AcdMap::makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol, UInt_t idx) {
+void AcdKey::makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol, UInt_t idx) {
   std::stringstream suf;
   suf << iPmt << '_' << iFace << iRow << iCol;
   if ( idx > 0 ) {
@@ -169,7 +169,7 @@ void AcdMap::makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t i
   suffix = suf.str();
 }
 
-void AcdMap::nSpaces(std::ostream& os, int n) {
+void AcdKey::nSpaces(std::ostream& os, int n) {
   for ( int i(0); i < n; i++ ) {
     os << ' ';
   }

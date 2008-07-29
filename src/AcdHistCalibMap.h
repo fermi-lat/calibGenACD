@@ -3,7 +3,7 @@
 #define AcdHistCalibMap_h
 
 // local includes
-#include "AcdMap.h"
+#include "AcdKey.h"
 
 // ROOT includes
 #include "TH1.h"
@@ -54,10 +54,11 @@ class AcdHistCalibMap {
 public:
 
   /// Build by attaching a map to a TFile, 
-  AcdHistCalibMap(TFile& file, AcdMap::Config config = AcdMap::LAT);
+  AcdHistCalibMap(TFile& file, AcdKey::Config config = AcdKey::LAT);
 
   /// Build with histogram details
-  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, AcdMap::Config config = AcdMap::LAT, UInt_t n=1);
+  AcdHistCalibMap(const char* prefix, UInt_t nBins = 4096, Float_t lo = -0.5, Float_t hi = 4095.5, 
+		  AcdKey::Config config = AcdKey::LAT, UInt_t n=1);
   
   virtual ~AcdHistCalibMap();
   
@@ -82,7 +83,7 @@ public:
   /// Write histograms to a file
   Bool_t writeHistograms(const char* newFileName );
 
-  AcdMap::Config config() const { return m_config; }
+  AcdKey::Config config() const { return m_config; }
 
 protected:
 
@@ -91,7 +92,7 @@ protected:
 
 private:
 
-  AcdMap::Config         m_config;
+  AcdKey::Config         m_config;
 
   UInt_t                 m_bins;
   Float_t                m_lo;
@@ -107,14 +108,14 @@ private:
 #ifdef AcdHistCalibMap_cxx
 
 
-AcdHistCalibMap::AcdHistCalibMap(const char* prefix, UInt_t nBins, Float_t lo, Float_t hi, AcdMap::Config config, UInt_t n)
+AcdHistCalibMap::AcdHistCalibMap(const char* prefix, 
+				 UInt_t nBins, Float_t lo, Float_t hi, AcdKey::Config config, UInt_t n)
   :m_config(config),
-   m_bins(nBins),
-   m_lo(lo),
-   m_hi(hi)
-{  
+  m_bins(nBins),m_lo(lo),m_hi(hi){
   bookHists(prefix,n);
 }
+
+
 
 AcdHistCalibMap::~AcdHistCalibMap()
 {
