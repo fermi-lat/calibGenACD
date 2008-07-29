@@ -23,7 +23,7 @@ using std::endl;
 using std::string;
 
 AcdCoherentNoise::AcdCoherentNoise(TChain* digiChain, UInt_t loDT, UInt_t hiDT, UInt_t nBins, 
-				   AcdMap::Config config)
+				   AcdKey::Config config)
   :AcdCalibBase(AcdCalibData::COHERENT_NOISE,config),
    m_loDT(loDT),
    m_hiDT(hiDT),
@@ -95,8 +95,8 @@ void AcdCoherentNoise::fillHistograms() {
       Double_t mean = x / nn;
       Double_t rms2 = (x2/nn) - (mean*mean);
       Double_t rms = sqrt(rms2);
-      UInt_t id = AcdMap::getId(key);
-      UInt_t pmt = AcdMap::getPmt(key);
+      UInt_t id = AcdKey::getId(key);
+      UInt_t pmt = AcdKey::getPmt(key);
       // got it, fill the histogram
       fillHistBin(*m_histMap,id,pmt == 0 ? AcdDigi::A : AcdDigi::B, idx, mean, rms);      
     }    
@@ -120,8 +120,8 @@ void AcdCoherentNoise::accumulate(Int_t deltaT, const AcdDigi& digi) {
   int id = digi.getId().getId();
   if ( id > 700 ) return;
   
-  UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
-  UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+  UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
+  UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
 
   Float_t redPha_A = ((Float_t)(pmt0));
   Float_t redPha_B = ((Float_t)(pmt1));

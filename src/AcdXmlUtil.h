@@ -3,6 +3,7 @@
 
 #include <string>
 #include "CalibData/Acd/AcdCalibEnum.h"
+#include "AcdCalibEnum.h"
 
 class DomElement;
 
@@ -17,9 +18,15 @@ namespace AcdXmlUtil {
 
   void getDtdFileName(std::string& dtdFileName);
 
-  void getCalibElemName( std::string& calibElemName, AcdCalibData::CALTYPE calType);
+  bool redirectLinkPath(std::string& path);
 
-  void getCalibTypeName( std::string& calibTypeName, AcdCalibData::CALTYPE calType);
+  void getSuffix( std::string& suffix, int calType );
+
+  void getEventFileType( std::string& eventFileType, int cType);
+
+  void getCalibElemName( std::string& calibElemName, int calType);
+
+  void getCalibTypeName( std::string& calibTypeName, int calType);
 
   DomElement makeDocument(const char* topNode);
   DomElement makeChildNode(DomElement& domNode, const char* name);
@@ -31,6 +38,8 @@ namespace AcdXmlUtil {
   void addAttributeMET(DomElement& domNode, const char* name, const double& val);
   
   bool writeIt(DomElement& doc, const char* fileName);
+
+  bool writeHtml(DomElement& doc, const char* fileName);
 
 };
 

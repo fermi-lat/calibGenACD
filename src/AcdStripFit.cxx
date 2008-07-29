@@ -19,12 +19,12 @@ Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, co
   
     const CalibData::AcdCalibObj* theFit = itr->second;
     if ( (*theFit)[2] < lo ) {
-      std::cout << msg << "  Channel " << AcdMap::getId(itr->first) << ':' << AcdMap::getPmt(itr->first)
+      std::cout << msg << "  Channel " << AcdKey::getId(itr->first) << ':' << AcdKey::getPmt(itr->first)
 		<< " is below min level.  " << (*theFit)[2]  << " < " << lo << std::endl;
       retVal = kFALSE;
     }
     if ( (*theFit)[3] > hi ) {
-      std::cout << msg << "  Channel " << AcdMap::getId(itr->first) << ':' << AcdMap::getPmt(itr->first)
+      std::cout << msg << "  Channel " << AcdKey::getId(itr->first) << ':' << AcdKey::getPmt(itr->first)
 		<< " is above max level.  " << (*theFit)[3] << " > " << hi << std::endl;
       retVal = kFALSE;
     }
@@ -40,7 +40,8 @@ Bool_t AcdStripFitLibrary::test(AcdCalibMap& results, Float_t lo, Float_t hi, co
 }
 
 
-Int_t AcdStripFitLibrary::fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder) {
+Int_t AcdStripFitLibrary::fit(CalibData::AcdCalibObj& result, AcdCalibHistHolder& holder,
+			      CalibData::AcdCalibObj* /* ref */ ) {
 
   TH1& in = *(holder.getHist(0));
   TH1* out(0);

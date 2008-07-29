@@ -27,6 +27,10 @@ public:
   /// Go from GARC, GAFE to tile and PMT
   static void convertToTilePmt(unsigned  cable, unsigned  channel, unsigned& tile, unsigned& pmt);
 
+  /// Go from tile and pmt to garc and gafe 
+  static void convertToGarcGafe(unsigned  tile, unsigned  pmt, unsigned& garc, unsigned& gafe);
+  
+
 public:
   
   AcdGarcGafeHits();

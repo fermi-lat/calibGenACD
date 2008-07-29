@@ -9,7 +9,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-AcdPadMap::AcdPadMap(AcdMap::Config padConfig, const char* prefix)
+AcdPadMap::AcdPadMap(AcdKey::Config padConfig, const char* prefix)
   :m_config(padConfig),
    m_prefix(prefix)
 {
@@ -17,7 +17,7 @@ AcdPadMap::AcdPadMap(AcdMap::Config padConfig, const char* prefix)
 }
 
 AcdPadMap::AcdPadMap()
-  :m_config(AcdMap::LAT),
+  :m_config(AcdKey::LAT),
    m_prefix("")
 {
   fill();
@@ -30,16 +30,16 @@ AcdPadMap::~AcdPadMap()
 
 void AcdPadMap::fill() {
   switch (m_config) {
-  case AcdMap::LAT:
+  case AcdKey::LAT:
     fillForLat();
     break;
-  case AcdMap::GARC_GAFE:
+  case AcdKey::GARC_GAFE:
     fillForGarcGafe();
     break;
-  case AcdMap::RIBBONS:
+  case AcdKey::RIBBONS:
     fillForRibbons();
     break;    
-  case AcdMap::BEAM:
+  case AcdKey::BEAM:
     fillForBeam();
     break;
   default:

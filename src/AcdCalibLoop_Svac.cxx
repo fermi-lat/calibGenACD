@@ -12,29 +12,34 @@
 
 #include <cassert>
 #include <cmath>
-
+#include <TMath.h>
 
 
 AcdCalibLoop_Svac::AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 
 				     Bool_t correctPathLength, 
 				     Bool_t calGCRSelect,
-				     AcdMap::Config config)
+				     AcdKey::Config config)
   :AcdCalibBase(t,config),
    m_correctPathLength(correctPathLength),
    m_calGCRSelect(calGCRSelect),
-   m_gainHists(0){
+   m_gainHists(0),
+   m_rangeHists(0){
 
   setChain(AcdCalib::SVAC,svacChain);
   
   switch ( t ) {
   case AcdCalibData::GAIN:
-    m_gainHists = bookHists(AcdCalib::H_GAIN,256,-0.5,4095.5);
+    m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,2047.5);
     break;
   case AcdCalibData::RIBBON:
     m_gainHists = bookHists(AcdCalib::H_RIBBONS,256,-0.5,4095.5,7);
     break;
   case AcdCalibData::CARBON:
     m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,1023.5);
+    break;
+  case AcdCalibData::MERITCALIB:
+    m_rangeHists = bookHists(AcdCalib::H_RANGE,100,-1.,3.,2);
+    m_gainHists = bookHists(AcdCalib::H_GAIN,50,-0.0,2.5);
     break;
   default:
     break;
@@ -97,6 +102,11 @@ Bool_t AcdCalibLoop_Svac::attachChains() {
 
     }
 
+    if ( calType() == AcdCalibData::MERITCALIB ) {
+      svacChain->SetBranchAddress("AcdMips",&(m_AcdMips[0][0]));
+      svacChain->SetBranchStatus("AcdMips", 1); 	 
+    }
+
     if ( calType() == AcdCalibData::CARBON && m_calGCRSelect ) {
       svacChain->SetBranchAddress("TrgEngineGem",&(m_TrgEngineGem));
       svacChain->SetBranchStatus("TrgEngineGem", 1);    
@@ -134,18 +144,23 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
     if ( pathFactor > 1.2 ) return;
   }  
 
-  UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
-  UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+  UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
+  UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
 
-  float pedA = getPeds(keyA);
-  float pedB = getPeds(keyB);
-  if ( pedA < 0 || pedB < 0 ) {
-    std::cerr << "No Pedestal " << keyA << ' ' << keyB << std::endl;
-    return;
-  }
-
-  Float_t redPha_A = ((Float_t)(pmt0)) - pedA;
-  Float_t redPha_B = ((Float_t)(pmt1)) - pedB;
+  Float_t redPha_A = ((Float_t)(pmt0));
+  Float_t redPha_B = ((Float_t)(pmt1));
+  
+  if ( calType() == AcdCalibData::GAIN || 
+       calType() == AcdCalibData::RIBBON ) {
+    float pedA = getPeds(keyA);
+    float pedB = getPeds(keyB);
+    if ( pedA < 0 || pedB < 0 ) {
+      std::cerr << "No Pedestal " << keyA << ' ' << keyB << std::endl;
+      return;
+    }
+    redPha_A -= pedA;
+    redPha_B -= pedB;
+  } 
 
   if ( m_correctPathLength ) {
     redPha_A /= pathFactor;
@@ -171,6 +186,27 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
     if ( !ribbonCut ) return;
     if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A);
     if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B);
+  } else if ( calType() == AcdCalibData::MERITCALIB ) {
+    if ( !ribbonCut ) return;    
+    Float_t mipsA = m_AcdMips[id][0];
+    Float_t mipsB = m_AcdMips[id][1];
+    if ( m_correctPathLength ) {
+      mipsA /= pathFactor;
+      mipsB /= pathFactor;
+    }
+    if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,mipsA);
+    if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,mipsB);
+    if ( !getMipValues(id,mipsA,mipsB) ) return;
+    if ( rng0 == 0 ) {
+      fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),0);
+    } else {
+      fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),1);
+    }
+    if ( rng1 == 0 ) {
+      fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),0);
+    } else {
+      fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),1);
+    }
   } else if ( calType() == AcdCalibData::RIBBON ) {
     if ( ribbonBin < 0 ) {
       std::cerr << "Couldn't bin ribbon " << id << ' ' 
@@ -235,6 +271,9 @@ void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
     used = kTRUE;
     unsigned id = m_AcdTkrIntSecTileId[i];
     float path = m_AcdTkrIntSecPathLengthInTile[i];
+    
+    if ( calType() == AcdCalibData::RIBBON &&
+	 id < 500 ) continue;
 
     fillGainHistCorrect(id,path,i);
   }
@@ -262,12 +301,12 @@ Bool_t AcdCalibLoop_Svac::runGCRSelect() {
        CalELayer[2] <= 0. ) return kFALSE;
   
   Float_t ratio10 = TMath::Abs((CalELayer[1]/CalELayer[0])-1.);
-  Float_t ratio21 = TMath::Abs((CalELayer[2]/CalELayer[1])-1.);
-  Float_t ratio32 = TMath::Abs((CalELayer[3]/CalELayer[2])-1.);
+  //Float_t ratio21 = TMath::Abs((CalELayer[2]/CalELayer[1])-1.);
+  //Float_t ratio32 = TMath::Abs((CalELayer[3]/CalELayer[2])-1.);
   
-  if ( ratio10 > 0.3 ) return kFALSE;
-  if ( ratio21 > 0.3 ) return kFALSE;
-  if ( ratio32 > 0.3 ) return kFALSE;
+  if ( ratio10 > 0.5 ) return kFALSE;
+  //if ( ratio21 > 0.3 ) return kFALSE;
+  //if ( ratio32 > 0.3 ) return kFALSE;
 
   return kTRUE;  
 }
@@ -297,19 +336,54 @@ float AcdCalibLoop_Svac::getPedsHigh(UInt_t key) const {
 
 /// Transform the data into a single range
 Bool_t AcdCalibLoop_Svac::singleRange(UInt_t key, Int_t pha, Int_t range, Float_t& val) const {
-  Float_t low_max(0);
-  Float_t high_min(0);
   if ( range == 1 ) {
-    if ( ! getRangeData(key,low_max,high_min) ){
-      return kFALSE;
-    }
-    val = pha - high_min;
-    val += 40;
-  } else {
-    Float_t peds = getPeds(key);
-    if ( peds < 0 ) return kFALSE;
+    Float_t peds = getPedsHigh(key);
     val = pha - peds;
-    val /= 100.;
+  } else {
+    val = -1.;
   }
   return kTRUE;
+}
+
+
+/// Get the MIP values
+bool AcdCalibLoop_Svac::getMipValues(UInt_t id, Float_t& mipsA, Float_t& mipsB) {
+  UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
+  UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
+  if ( ! getMipValue(keyA,m_AcdRange[id][0],m_AcdPha[id][0],mipsA) ) return false;
+  if ( ! getMipValue(keyB,m_AcdRange[id][1],m_AcdPha[id][1],mipsB) ) return false;
+  return true;
+
+}
+  
+/// get the MIP value for one pmt
+bool AcdCalibLoop_Svac::getMipValue(UInt_t key, UInt_t range, UInt_t pha, Float_t& mips) {
+  if ( range == 0 ) {    
+    const CalibData::AcdCalibObj* mip = getCalibMap(AcdCalibData::GAIN)->get(key);
+    const CalibData::AcdCalibObj* ped = getCalibMap(AcdCalibData::PEDESTAL)->get(key);
+    if ( mip == 0 || ped == 0 ) return false;
+    mips = (pha - ped->operator[](0) ) / mip->operator[](0);
+  } else {
+    const CalibData::AcdCalibObj* calib = getCalibMap(AcdCalibData::HIGH_RANGE)->get(key);
+    if ( calib == 0 ) return false;
+    float pedRed = pha - calib->operator[](0);
+    if ( pedRed < 0 ) {
+      mips = 3.;
+      return true;
+    }
+    float fromSat = calib->operator[](2) - pedRed;
+    if ( fromSat < 50 ) {
+      mips = 1000.;
+      return true;
+    }
+    float top =  calib->operator[](2) * pedRed;
+    float bot =  calib->operator[](1) * fromSat;
+    mips = top/bot;
+    if ( mips < 3.5 ) {
+      mips = 3.5;
+    } if ( mips > 1000) {
+      mips = 1000;
+    }
+  }
+  return true;
 }

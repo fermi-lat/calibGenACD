@@ -88,7 +88,8 @@ Int_t AcdGainFitLibrary::findMaxAfter(const TH1& hist, Int_t startBin) {
 }
 
 
-Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
+Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, 
+					 Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
 
   TH1F copy((TH1F&)hist);
   copy.Rebin(rebin);
@@ -111,7 +112,8 @@ Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, Int_
 }
 
 
-Int_t AcdGainFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdGainFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+			     CalibData::AcdCalibObj* ref ) {
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
   
   Int_t returnCode = CalibData::AcdCalibObj::NOFIT;
@@ -137,6 +139,9 @@ Int_t AcdGainFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistH
     break;
   case LogNormal:
     returnCode = fitLogNormal(result,hist);
+    break;
+  case GaussP1:
+    returnCode = fitGaussP1(result,hist,ref);
     break;
   }  
   return returnCode;
@@ -275,6 +280,44 @@ Int_t AcdGainFitLibrary::fitLogNormal(CalibData::AcdCalibObj& result, const TH1&
   
   Double_t width = m * es2 * ( es2 - 1 );
   result.setVals(peakValue,width,(CalibData::AcdCalibObj::STATUS)status);
+
+  return status;
+
+}
+
+
+
+Int_t AcdGainFitLibrary::fitGaussP1(CalibData::AcdCalibObj& result, const TH1& hist, const CalibData::AcdCalibObj* seed) {
+  
+  if ( seed == 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
+  
+  Float_t peak = seed->operator[](0);
+  Float_t width = seed->operator[](1);
+
+  Float_t minVal = TMath::Max(50., peak - width);
+  Float_t maxVal = 4000.;
+  
+  Float_t norm = hist.GetMaximum();
+
+      
+  TF1 gaussP1("gaussP1","[0] * (TMath::Gaus(x,[1],[2]) + [3] + [4] * x )",minVal,maxVal);
+  gaussP1.SetParameter(0,norm);  
+  gaussP1.SetParameter(1,peak);
+  gaussP1.SetParLimits(1,0.5*peak,3*peak);
+  gaussP1.SetParameter(2,width);
+  gaussP1.SetParLimits(2,0.,2*width);
+  gaussP1.SetParameter(3,0.2);  
+  gaussP1.SetParLimits(3,0.,1.0);
+  gaussP1.SetParameter(4,0.);
+  gaussP1.SetParLimits(4,-0.01,0.01);
+  
+
+  TH1& nch = const_cast<TH1&>(hist);
+  Int_t status = nch.Fit(&gaussP1,"","",minVal,maxVal);
+
+  peak = gaussP1.GetParameter(1);
+  width = gaussP1.GetParameter(2);
+  result.setVals(peak,width,(CalibData::AcdCalibObj::STATUS)status);
 
   return status;
 

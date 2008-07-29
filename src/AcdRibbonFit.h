@@ -49,7 +49,8 @@ public:
   virtual ~AcdRibbonFitLibrary() {;}
 
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+		    CalibData::AcdCalibObj* ref = 0);
 
 protected:
 

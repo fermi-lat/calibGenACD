@@ -85,8 +85,8 @@ void AcdStripChart::accumulate(int /* ievent */, const AcdDigi& digi) {
 
   int id = digi.getId().getId();
   
-  UInt_t keyA = AcdMap::makeKey(AcdDigi::A,id);
-  UInt_t keyB = AcdMap::makeKey(AcdDigi::B,id);
+  UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
+  UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
 
   Float_t redPha_A = ((Float_t)(pmt0));
   Float_t redPha_B = ((Float_t)(pmt1));
@@ -204,8 +204,8 @@ Bool_t AcdStripChart::readEvent(int ievent, Bool_t& filtered,
       Double_t mean = x / nn;
       Double_t rms2 = (x2/nn) - (mean*mean);
       Double_t rms = sqrt(rms2);
-      UInt_t id = AcdMap::getId(fillkey);
-      UInt_t pmt = AcdMap::getPmt(fillkey);
+      UInt_t id = AcdKey::getId(fillkey);
+      UInt_t pmt = AcdKey::getPmt(fillkey);
       // got in, fill the histogram
       fillHistBin(*m_phaStrip,id,pmt == 0 ? AcdDigi::A : AcdDigi::B, m_currentBin, mean, rms);
     }

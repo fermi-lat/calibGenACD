@@ -36,7 +36,7 @@ class AcdCnoFitLibrary : public AcdCalibFit {
 public:
   
   /// Find the first bin in a histogram above a given value
-  static Int_t findFirstBinAboveVal(const TH1& hist, Float_t val);
+  static Int_t findFirstBinAboveVal(const TH1& hist, Float_t val, Int_t start);
 
 public:
 
@@ -55,7 +55,8 @@ public:
   virtual ~AcdCnoFitLibrary() {;}
   
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+		    CalibData::AcdCalibObj* ref = 0);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };
@@ -69,7 +70,7 @@ public:
 protected:
 
   /// Fit using counting algorithm
-  Int_t counting(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t counting(CalibData::AcdCalibObj& result, const TH1& hist, Int_t start);
 
   /// Fit using ERF and Minuit (FIXME not implemented)
   Int_t fitErf(CalibData::AcdCalibObj& result, const TH1& hist);

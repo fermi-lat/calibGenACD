@@ -6,6 +6,7 @@
 #include "AcdCalibFit.h"
 
 #include "CalibData/Acd/AcdPed.h"
+#include "CalibData/Acd/AcdHighPed.h"
 
 // stl includes
 #include <string>
@@ -43,8 +44,10 @@ public:
 public:
 
   /// Standard c'tor, specify fit type
-  AcdPedestalFitLibrary(FitType type)
-    :AcdCalibFit(&CalibData::AcdPedestalFitDesc::instance()),
+  AcdPedestalFitLibrary(FitType type, Bool_t high = kFALSE)
+    :AcdCalibFit(high ? 
+		 (CalibData::AcdCalibDescription*)(&CalibData::AcdHighPedestalFitDesc::instance()) : 
+		 (CalibData::AcdCalibDescription*)(&CalibData::AcdPedestalFitDesc::instance())),
     _type(type){}
 
   AcdPedestalFitLibrary(){}
@@ -52,7 +55,8 @@ public:
   virtual ~AcdPedestalFitLibrary() {;}
 
   /// Do the fit, return the status
-  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder);
+  virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder, 
+		    CalibData::AcdCalibObj* ref = 0);
 
   inline FitType fitType() const { return _type; };
   inline void setFitType(FitType type) { _type = type; };

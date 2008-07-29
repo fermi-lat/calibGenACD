@@ -2,7 +2,7 @@
 #define AcdJobConfig_h 
 
 // local includes
-#include "./AcdMap.h"
+#include "./AcdKey.h"
 
 // ROOT includes
 #include "Rtypes.h"
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 
 // forward declares
 class TChain;
@@ -33,6 +34,8 @@ class TChain;
  *        -d <digiFiles>    : comma seperated list of digi ROOT files
  *        -S <svacFiles>    : comma seperated list of svac ROOT files
  *        -m <meritFiles>   : comma seperated list of merit ROOT files
+ *        -f <histFile>     : file with histograms
+ *        -i <inputFile>    : generic input file
  *     NOTE:  Different calibrations jobs take diffenent types of input files
  *
  *        -o <output>       : prefix (path or filename) to add to output files"
@@ -49,6 +52,7 @@ class TChain;
  *        -L                : correct for pathlength in tile
  *        -b <bins>         : number of time bins in strip chart [300]
  *        -p <pedFile>      : use pedestals from this file
+ *        -H <pedHighFile>  : use high range pedestals from this file
  *        -g <gainFile>     : use gains from this file
  *        -R <rangeFile>    : use range data from this file
  *
@@ -58,6 +62,15 @@ class TChain;
  */
 
 class AcdJobConfig {
+
+public :
+
+  enum ReturnCode { Success = 0,
+		    HelpMsg = 1,
+		    IllegalOption = 2,
+		    MissingInput = 3,
+		    ProccessFail = 4,
+		    OutputFail = 5 };
 
 public :
   
@@ -71,47 +84,37 @@ public :
   Int_t parse(int argn, char** argc);
 
   inline const std::string& theApp() const { return m_theApp; }
-  inline const std::string& path() const { return m_path; }
-
-  inline const std::string& jobOptionXmlFile() const { return m_jobOptionXmlFile; }
-
-  inline const std::string& inputFileName() const { return m_inputFileName; }
-  inline const std::string& inputDigiFileStr() const { return m_inputDigiFileStr; }
-  inline const std::string& inputReconFileStr() const { return m_inputReconFileStr; }
-  inline const std::string& inputSvacFileStr() const { return m_inputSvacFileStr; }
-  inline const std::string& inputMeritFileStr() const { return m_inputMeritFileStr; }
-  inline const std::string& inputHistFile() const { return m_inputHistFile; }
 
   inline const std::string& outputPrefix() const { return m_outputPrefix; }
   inline const std::string& instrument() const { return m_instrument; }
   inline const std::string& timeStamp() const { return m_timeStamp; }
 
+  inline const std::string& refFileName() const { return m_refFileName; }
+
   inline const std::string& pedFileName() const { return m_pedFileName; }
   inline const std::string& gainFileName() const { return m_gainFileName; }  
   inline const std::string& rangeFileName() const { return m_rangeFileName; }
-  inline const std::string& pedHighFileName() const { return m_pedHighFileName; }  
+  inline const std::string& pedHighFileName() const { return m_pedHighFileName; } 
+  inline const std::string& carbonFileName() const { return m_carbonFileName; } 
 
-  inline AcdMap::Config config() const { return m_config; }
+  inline const std::list<std::string>& theArgs() const { return m_args; }
+
+  inline AcdKey::Config config() const { return m_config; }
   inline int optval_n() const { return m_optval_n; }
   inline int optval_s() const { return m_optval_s; }
-  inline int optval_b() const { return m_optval_b; }
   inline Bool_t optval_P() const { return m_optval_P; }
   inline Bool_t optval_L() const { return m_optval_L; }  
-  inline Bool_t optval_C() const { return m_optval_C; }  
+  inline Bool_t optval_G() const { return m_optval_G; }  
 
   inline TChain* digiChain() const { return m_digiChain;}
-  inline TChain* reconChain() const { return m_reconChain;}
   inline TChain* svacChain() const { return m_svacChain;}
-  inline TChain* meritChain() const { return m_meritChain;}
 
   Bool_t checkDigi() const;
-  Bool_t checkRecon() const;
   Bool_t checkSvac() const;
-  Bool_t checkMerit() const;
    
 protected:
 
-  TChain* makeChain(const char* name, const std::string& fileString) const;
+  Bool_t makeChain( ) const;
 
   Bool_t getFileList(const char* fileName, std::vector<std::string>& files) const;
  
@@ -119,38 +122,30 @@ private:
 
   std::string m_theApp;
   std::string m_description;
-  std::string m_path;
-
-  std::string m_jobOptionXmlFile;
-
-  std::string m_inputFileName;
-  std::string m_inputDigiFileStr;
-  std::string m_inputReconFileStr;
-  std::string m_inputSvacFileStr;
-  std::string m_inputMeritFileStr;
-  std::string m_inputHistFile;
 
   std::string m_outputPrefix;
   std::string m_instrument;
   std::string m_timeStamp;
 
+  std::string m_refFileName;
+
   std::string m_pedFileName;
   std::string m_gainFileName;
   std::string m_rangeFileName;
   std::string m_pedHighFileName;
+  std::string m_carbonFileName;
+  
+  std::list<std::string> m_args;
 
-  AcdMap::Config m_config;
+  AcdKey::Config m_config;
   int m_optval_n;
   int m_optval_s;
-  int m_optval_b;
   Bool_t m_optval_P;
   Bool_t m_optval_L;
-  Bool_t m_optval_C;
+  Bool_t m_optval_G;
 
-  TChain* m_digiChain;
-  TChain* m_reconChain;
-  TChain* m_svacChain;
-  TChain* m_meritChain;
+  mutable TChain* m_digiChain;
+  mutable TChain* m_svacChain;
     
 };
 

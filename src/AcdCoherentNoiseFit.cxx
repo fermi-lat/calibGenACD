@@ -6,9 +6,11 @@
 #include "AcdHistCalibMap.h"
 
 #include <TF1.h>
+#include <TMath.h>
 
 
-Int_t AcdCoherentNoiseFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder) {
+Int_t AcdCoherentNoiseFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
+				      CalibData::AcdCalibObj* /* ref */ ) {
 
   TH1& in = *(holder.getHist(0));
 
@@ -22,8 +24,8 @@ Int_t AcdCoherentNoiseFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdC
 
   ring.FixParameter(2,0.0054); // frequency
 
-  ring.SetParameter(3,0);     // phase
-  ring.SetParLimits(3,-5.,5.);
+  ring.SetParameter(3,1.5*TMath::Pi());     // phase
+  ring.SetParLimits(3,0.,2.*TMath::Pi());
 
   TH1& nch = const_cast<TH1&>(in);
   Int_t status = nch.Fit(&ring,"","");

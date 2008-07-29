@@ -15,7 +15,7 @@
 
 
 
-AcdHighRange::AcdHighRange(TChain* svacChain, AcdMap::Config config)
+AcdHighRange::AcdHighRange(TChain* svacChain, AcdKey::Config config)
   :AcdCalibBase(AcdCalibData::HIGH_RANGE,config),
    m_histMap(0){
 
@@ -65,7 +65,7 @@ Bool_t AcdHighRange::convertTxt(const char* txtFileName) {
       return kFALSE;
     }
     idx++;
-    UInt_t key = AcdMap::makeKey(iPmt,id);
+    UInt_t key = AcdKey::makeKey(iPmt,id);
     TH1* h = m_histMap->getHist(key);
     if ( peds != 0 ) {
       float pedVal = getPeds(key);

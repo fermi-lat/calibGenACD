@@ -23,6 +23,9 @@ class DomElement {
   
 public:
   DomElement(DOMElement& elem);
+  DomElement()
+    :_elem(0){
+  }
   ~DomElement(){}
   DomElement& operator=(const DomElement& other);
   DOMElement& operator()(){

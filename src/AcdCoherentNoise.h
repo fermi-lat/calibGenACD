@@ -68,7 +68,7 @@ public :
   
   /// Standard ctor, where user provides the input data
   AcdCoherentNoise(TChain* digiChain, UInt_t loDT = 529, UInt_t hiDT = 2529, UInt_t nBins = 100, 
-		   AcdMap::Config config = AcdMap::LAT);
+		   AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdCoherentNoise();  
 

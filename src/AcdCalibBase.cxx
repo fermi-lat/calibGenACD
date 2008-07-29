@@ -19,6 +19,12 @@
 #include "AcdCalibFit.h"
 #include "AcdXmlUtil.h"
 #include "DomElement.h"
+#include "CalibData/Acd/AcdHighPed.h"
+#include "CalibData/Acd/AcdPed.h"
+#include "CalibData/Acd/AcdCarbon.h"
+#include "CalibData/Acd/AcdGain.h"
+#include "CalibData/Acd/AcdRange.h"
+#include "CalibData/Acd/AcdHighRange.h"
 
 // other packages
 #include "digiRootData/DigiEvent.h"
@@ -53,7 +59,7 @@ void AcdCalibEventStats::logEvent(int ievent, Bool_t passedCut, Bool_t filtered,
 }
 
 
-AcdCalibBase::AcdCalibBase(AcdCalibData::CALTYPE t, AcdMap::Config config)
+AcdCalibBase::AcdCalibBase(AcdCalibData::CALTYPE t, AcdKey::Config config)
   :m_config(config),
    m_calType(t),
    m_histMaps(AcdCalib::H_NHIST,0),
@@ -117,9 +123,9 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
 void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val, UInt_t idx)
 {
-  UInt_t histId = AcdMap::makeKey(pmtId,id);
+  UInt_t histId = AcdKey::makeKey(pmtId,id);
   
-  if ( ! AcdMap::channelExists(id) ) {
+  if ( ! AcdKey::channelExists(id) ) {
     cout << "Missing " << id << endl;
     return;
   }
@@ -132,9 +138,9 @@ void AcdCalibBase::fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float v
 
 void AcdCalibBase::fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err, UInt_t idx)
 {
-  UInt_t histId = AcdMap::makeKey(pmtId,id);
+  UInt_t histId = AcdKey::makeKey(pmtId,id);
   
-  if ( ! AcdMap::channelExists(id) ) {
+  if ( ! AcdKey::channelExists(id) ) {
     cout << "Missing " << id << endl;
     return;
   }
@@ -161,9 +167,9 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   case AcdCalib::H_GAIN: name += "GAIN"; break;
   case AcdCalib::H_VETO: name += "VETO"; break;
   case AcdCalib::H_UNPAIRED: name += "UNPAIRED"; break;
-  case AcdCalib::H_FRAC: name += "FRAC"; break;
   case AcdCalib::H_RIBBONS: name += "RIBBONS"; break;
   case AcdCalib::H_RANGE: name += "RANGE"; break;
+  case AcdCalib::H_VETO_FIT: name += "VETO_FIT"; break;
   case AcdCalib::H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
   case AcdCalib::H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
   case AcdCalib::H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
@@ -179,6 +185,34 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   return map;
 } 
 
+void AcdCalibBase::giveInfoToCalib(AcdCalibMap& theMap) {
+  theMap.latchStats( m_eventStats.time_first(), m_eventStats.time_last(), m_eventStats.nUsed() );
+  for ( int iCalib = AcdCalibData::PEDESTAL; iCalib < AcdCalibData::NDESC; iCalib++ ) {
+    AcdCalibMap* inputMap = m_fitMaps[iCalib];
+    if ( inputMap == 0 ) continue;    
+    std::string path = inputMap->fileName();
+    if ( path.size() < 1 ) continue;
+    std::string type;
+    AcdXmlUtil::getCalibTypeName(type,iCalib);
+    type.erase(0,4);
+    theMap.addInput(path,type); 
+  }
+  for ( int iChain = AcdCalib::DIGI; iChain < AcdCalib::NCHAIN; iChain++ ) {
+    TChain* inputChain = m_chains[iChain];
+    if ( inputChain == 0 ) continue;
+    TObjArray* files = inputChain->GetListOfFiles();
+    if ( files == 0 ) return;
+    std::string type;
+    AcdXmlUtil::getEventFileType(type,iChain);
+    for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
+      TObject* obj = files->At(i);
+      std::string path = obj->GetTitle();
+      theMap.addInput(path,type); 
+    }
+  }  
+}
+
+
 void AcdCalibBase::addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal) {  
   AcdCalibMap* old = getCalibMap(calibKey);
   if ( old != 0 ) {
@@ -188,26 +222,17 @@ void AcdCalibBase::addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& n
   m_fitMaps[calibKey] = &newCal;
 }
 
-Bool_t AcdCalibBase::writeHistograms(AcdCalib::HISTTYPE histType, const char* newFileName ) {
-  AcdHistCalibMap* map = getHistMap(histType);
-  if ( map == 0 ) return kFALSE;
-  return map->writeHistograms(newFileName);
-}
-
 Bool_t AcdCalibBase::readCalib(AcdCalibData::CALTYPE calKey, const char* fileName) {
   AcdCalibMap* map = getCalibMap(calKey);
   if ( map != 0 ) {
     std::cout << "Warning: replacing old calibration" << std::endl;
     delete map;
   }
+  
   const CalibData::AcdCalibDescription* desc = CalibData::AcdCalibDescription::getDesc(calKey);
   if ( desc == 0 ) {
-    switch (calKey) {
-    case AcdCalibData::PEDESTAL:  desc = &CalibData::AcdPedestalFitDesc::instance(); break;
-    case AcdCalibData::GAIN:      desc = &CalibData::AcdGainFitDesc::instance(); break;
-    default: 
-      ;
-    }
+    std::cerr << "No description for calibration type " << calKey << std::endl;
+    return kFALSE;
   }
   map = new AcdCalibMap(*desc);
 
@@ -217,49 +242,12 @@ Bool_t AcdCalibBase::readCalib(AcdCalibData::CALTYPE calKey, const char* fileNam
   std::string fName(fileName); 
   if ( fName.find(".xml") != fName.npos ) {
     return map->readXmlFile(fileName);
+  } else if ( fName.find(".txt") != fName.npos ) {
+    return map->readTxtFile(fileName);
+  } else {
+    std::cerr << "File " << fName << " is not xml or txt file for calibration type " << desc->calibTypeName() << std::endl;
   }
-  return map->readTxtFile(fileName);
-}
-
-
-void AcdCalibBase::writeXmlHeader(DomElement& node) const {
-  
-  DomElement sourceNode = AcdXmlUtil::makeChildNode(node,"inputSample");  
-  AcdXmlUtil::addAttributeMET(sourceNode,"startTime",m_eventStats.time_first());
-  AcdXmlUtil::addAttributeMET(sourceNode,"stopTime",m_eventStats.time_last());
-  AcdXmlUtil::addAttribute(sourceNode,"triggers",m_eventStats.nUsed());
-  AcdXmlUtil::addAttribute(sourceNode,"source","Orbit");
-  AcdXmlUtil::addAttribute(sourceNode,"mode","Normal"); 
-  writeXmlSources(sourceNode);
-}
-
-void AcdCalibBase::writeTxtHeader(std::ostream& os) const {
-  os << "#startTime = " << m_eventStats.runId_first() << ':'  << m_eventStats.evtId_first() << endl
-     << "#stopTime = " << m_eventStats.runId_last() << ':'  << m_eventStats.evtId_last() << endl
-     << "#triggers = " << m_eventStats.nUsed() << '/' << m_eventStats.nFilter() << '/' << m_eventStats.nTrigger() << endl
-     << "#source = " << endl
-     << "#mode = " << 0 << endl;
-  writeTxtSources(os);
-}
-
-
-/// for writing output files
-void AcdCalibBase::writeXmlSources( DomElement& node) const {
-  writeCalibXml(node,AcdCalibData::PEDESTAL);
-  writeChainXml(node,AcdCalib::DIGI);
-  writeChainXml(node,AcdCalib::RECON);
-  writeChainXml(node,AcdCalib::MERIT);
-  writeChainXml(node,AcdCalib::SVAC);
-  writeChainXml(node,AcdCalib::BENCH);  
-}
-
-void AcdCalibBase::writeTxtSources(std::ostream& os) const {
-  writeCalibTxt(os,AcdCalibData::PEDESTAL);
-  writeChainTxt(os,AcdCalib::DIGI);
-  writeChainTxt(os,AcdCalib::RECON);
-  writeChainTxt(os,AcdCalib::MERIT);
-  writeChainTxt(os,AcdCalib::SVAC);
-  writeChainTxt(os,AcdCalib::BENCH);  
+  return kFALSE;
 }
 
 
@@ -299,14 +287,33 @@ const TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) const {
 }
 
 
-AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType) { 
+AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
+			       const char* referenceFile) {   
+
+  AcdHistCalibMap* hists = getHistMap(hType);
+  if ( hists == 0 ) return 0;
+
   AcdCalibMap* result = getCalibMap(cType);
   if ( result == 0 ) {
     result = new AcdCalibMap(*(fitter.desc()));
     addCalibration(cType,*result);
   }
-  AcdHistCalibMap* hists = getHistMap(hType);
+  AcdCalibMap* ref(0);
+  if ( referenceFile != 0 && std::string(referenceFile).size() > 1 ) {       
+    ref = new AcdCalibMap(*(fitter.desc()));
+    if ( ! ref->readXmlFile(referenceFile) ) {
+      std::cerr << "Failed to read reference file " << referenceFile  << std::endl;
+      return 0;
+    }
+    if ( ! ref->readTree() ) {
+      std::cerr << "Failed to read reference results from TTree " << referenceFile << std::endl;
+      return 0;
+    }
+    result->setReference(*ref);
+  }
   fitter.fitAll(*result,*hists);
+  result->setHists(*hists);
+  giveInfoToCalib(*result);
   return result;
 }
 
@@ -317,88 +324,6 @@ float AcdCalibBase::getPeds(UInt_t key) const {
   const CalibData::AcdCalibObj * pedRes = peds->get(key);
   if ( pedRes == 0 ) return -2;
   return (*pedRes)[0];
-}
-
-// 
-void AcdCalibBase::writeCalibTxt(std::ostream& os, AcdCalibData::CALTYPE cType) const {
-
-  std::string tag;
-  switch (cType) {
-  case AcdCalibData::PEDESTAL:   tag += "#pedestalFile = "; break;
-  case AcdCalibData::GAIN:       tag += "#gainFile = ";     break;
-  case AcdCalibData::RANGE:      tag += "#rangeFile = ";    break;
-  case AcdCalibData::HIGH_RANGE: tag += "#pedHighFile = ";    break;
-  default:
-    return;
-  }
-  const AcdCalibMap* calib = getCalibMap(cType);
-  if ( calib == 0 ) return;
-  os << tag << calib->fileName() << endl;
-}
-
-//
-void AcdCalibBase::writeChainTxt(std::ostream& os, AcdCalib::CHAIN chain) const {
-  std::string tag;
-  switch (chain) {
-  case AcdCalib::DIGI:  tag += "#inputDigiFile = ";  break;
-  case AcdCalib::RECON: tag += "#inputReconFile = "; break;
-  case AcdCalib::MERIT: tag += "#inputMeritFile = "; break;
-  case AcdCalib::SVAC:  tag += "#inputSvacFile = ";  break;
-  case AcdCalib::BENCH: tag += "#inputBenchFile = "; break;
-  default:
-    return;
-  }
-  const TChain* tchain = getChain(chain);
-  if ( tchain == 0 ) return;
-  TObjArray* files = tchain->GetListOfFiles();
-  if ( files == 0 ) return;
-  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-    TObject* obj = files->At(i);
-    os << tag << obj->GetTitle() << endl;
-  }
-}
-
-// 
-void AcdCalibBase::writeCalibXml(DomElement& node, AcdCalibData::CALTYPE cType) const {
-  std::string tag;
-  switch (cType) {
-  case AcdCalibData::PEDESTAL:   tag += "Pedestal";  break;
-  case AcdCalibData::GAIN:       tag += "Gain";      break;
-  case AcdCalibData::RANGE:      tag += "Range";     break;
-  case AcdCalibData::HIGH_RANGE: tag += "Pedestal";  break;
-  default:
-    return;
-  }
-  const AcdCalibMap* calib = getCalibMap(cType);
-  if ( calib == 0 ) return;
-  std::string fname = calib->fileName();
-  if ( fname.length() < 2 ) return;
-  DomElement cNode = AcdXmlUtil::makeChildNode(node,"inputFile");
-  AcdXmlUtil::addAttribute(cNode,"type",tag.c_str());
-  AcdXmlUtil::addAttribute(cNode,"path",calib->fileName());
-}
-
-//
-void AcdCalibBase::writeChainXml(DomElement& node, AcdCalib::CHAIN chain) const {
-  std::string tag;
-  switch (chain) {
-  case AcdCalib::DIGI:  tag += "Digi";  break;
-  case AcdCalib::RECON: tag += "Recon"; break;
-  case AcdCalib::MERIT: tag += "Merit"; break;
-  case AcdCalib::SVAC:  tag += "Svac";  break;
-  default:
-    return;
-  }
-  const TChain* tchain = getChain(chain);
-  if ( tchain == 0 ) return;
-  TObjArray* files = tchain->GetListOfFiles();
-  if ( files == 0 ) return;
-  for ( Int_t i(0); i < files->GetEntriesFast(); i++ ) {
-    TObject* obj = files->At(i);
-    DomElement cNode = AcdXmlUtil::makeChildNode(node,"inputFile");
-    AcdXmlUtil::addAttribute(cNode,"type",tag.c_str());
-    AcdXmlUtil::addAttribute(cNode,"path",obj->GetTitle());
-  }
 }
 
 

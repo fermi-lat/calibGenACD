@@ -28,8 +28,80 @@ AcdXmlUtil::getDtdFileName(std::string& dtdFileName) {
   dtdFileName = dtdPath;
 }
 
+bool 
+AcdXmlUtil::redirectLinkPath(std::string& path) {
+  static std::string searchForXml(".xml");
+  static std::string searchForDir("/ACD/FLIGHT/");
+  std::string::size_type found = path.find(searchForXml);
+  if ( found == path.npos ) {
+    return false;
+  }
+  path.replace(found,found+searchForXml.size(),".html");  
+  found = path.find(searchForDir);
+  if ( found != path.npos ) {
+    path.erase(0,found);  
+  }
+  return true;
+}
+
 void 
-AcdXmlUtil::getCalibElemName( std::string& calibElemName, AcdCalibData::CALTYPE calType) {
+AcdXmlUtil::getSuffix( std::string& suffix, int calType) {
+  switch ( calType ) {
+  case AcdCalibData::PEDESTAL: 
+    suffix = "_ped"; 
+    break;
+  case AcdCalibData::GAIN: 
+    suffix = "_gain"; 
+    break;
+  case AcdCalibData::VETO: 
+    suffix = "_veto"; 
+    break;
+  case AcdCalibData::RANGE: 
+    suffix = "_range"; 
+    break;
+  case AcdCalibData::CNO: 
+    suffix = "_cno"; 
+    break;
+  case AcdCalibData::HIGH_RANGE: 
+    suffix = "_highRange"; 
+    break;
+  case AcdCalibData::COHERENT_NOISE: 
+    suffix = "_coherentNoise"; 
+    break;
+  case AcdCalibData::RIBBON: 
+    suffix = "_ribbon"; 
+    break;    
+  case AcdCalibData::PED_HIGH: 
+    suffix = "_pedHigh"; 
+    break;
+  case AcdCalibData::CARBON: 
+    suffix = "_carbon"; 
+    break;
+  case AcdCalibData::VETO_FIT: 
+    suffix = "_vetoFit"; 
+    break;
+  case AcdCalibData::CNO_FIT: 
+    suffix = "_cnoFit"; 
+    break;
+  default:
+    suffix = "_calib";    
+  }
+}
+
+void 
+AcdXmlUtil::getEventFileType( std::string& eventFileType, int cType) {
+  switch (cType) {
+  case AcdCalib::DIGI:  eventFileType = "Digi";  break;
+  case AcdCalib::RECON: eventFileType = "Recon"; break;
+  case AcdCalib::MERIT: eventFileType = "Merit"; break;
+  case AcdCalib::SVAC:  eventFileType = "Svac";  break;
+  default:
+    return;
+  }
+}
+
+void 
+AcdXmlUtil::getCalibElemName( std::string& calibElemName, int calType) {
   switch ( calType ) {
   case AcdCalibData::PEDESTAL: 
     calibElemName = "acdPed"; 
@@ -73,10 +145,10 @@ AcdXmlUtil::getCalibElemName( std::string& calibElemName, AcdCalibData::CALTYPE 
 }
 
 void 
-AcdXmlUtil::getCalibTypeName( std::string& calibElemName, AcdCalibData::CALTYPE calType) {
+AcdXmlUtil::getCalibTypeName( std::string& calibElemName, int calType) {
   switch ( calType ) {
   case AcdCalibData::PED_HIGH: 
-     calibElemName = "ACD_Pedestal"; 
+    calibElemName = "ACD_HighPed"; 
     break;
   case AcdCalibData::GAIN: 
     calibElemName = "ACD_Gain"; 
@@ -100,7 +172,7 @@ AcdXmlUtil::getCalibTypeName( std::string& calibElemName, AcdCalibData::CALTYPE 
     calibElemName = "ACD_Ribbon"; 
     break;    
   case AcdCalibData::PEDESTAL: 
-    calibElemName = "ACD_HighPed"; 
+    calibElemName = "ACD_Pedestal"; 
     break;    
   case AcdCalibData::CARBON: 
     calibElemName = "ACD_Carbon"; 
@@ -176,6 +248,11 @@ AcdXmlUtil::writeIt(DomElement& doc,const char* fileName) {
   xmlBase::Dom::prettyPrintElement(&(doc()),fout,"");
   fout.close();
   return true;
+}
+
+bool  
+AcdXmlUtil::writeHtml(DomElement& doc,const char* fileName) {
+  return xmlBase::Dom::writeIt(&(doc()),fileName); 
 }
 
 
