@@ -61,8 +61,8 @@ Int_t AcdRibbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHis
     case P7:
       returnCode = fitP7(gainFit,hist);
       break;
-    case P5:
-      returnCode = fitP5(gainFit,hist);
+    case P3:
+      returnCode = fitP3(gainFit,hist);
       break;
     case LogNormal:
       returnCode = fitLogNormal(gainFit,hist);

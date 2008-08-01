@@ -27,7 +27,10 @@ using std::string;
 AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain, Bool_t requirePeriodic, AcdKey::Config config)
   :AcdCalibBase(t,config), 
    m_digiEvent(0),
-   m_requirePeriodic(requirePeriodic){
+   m_requirePeriodic(requirePeriodic),
+   m_rawHists(0),
+   m_threshHists(0),
+   m_rangeHists(0){
 
   setChain(AcdCalib::DIGI,digiChain);
 
@@ -37,13 +40,13 @@ AcdCalibLoop_Digi::AcdCalibLoop_Digi(AcdCalibData::CALTYPE t, TChain *digiChain,
     m_rawHists = bookHists(AcdCalib::H_RAW,4096,-0.5,4095.5);
     break;
   case AcdCalibData::VETO:
-    m_vetoHists = bookHists(AcdCalib::H_VETO,256,-0.5,4095.5,3);
+    m_threshHists = bookHists(AcdCalib::H_VETO,256,-0.5,4095.5,3);
     break;
   case AcdCalibData::RANGE:
     m_rangeHists = bookHists(AcdCalib::H_RANGE,4096,-0.5,4095.5,2);
     break;
   case AcdCalibData::CNO:
-    m_vetoHists = bookHists(AcdCalib::H_VETO,64,-0.5,255.5,3);
+    m_threshHists = bookHists(AcdCalib::H_CNO,64,-0.5,255.5,3);
     break;
   default:
     break;
@@ -221,12 +224,12 @@ void AcdCalibLoop_Digi::useEvent(Bool_t& used) {
       break;
     case AcdCalibData::VETO:
       if ( useA ) {
-	fillHist(*m_vetoHists, id, AcdDigi::A, pmt0);
-	if ( acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_vetoHists, id, AcdDigi::A, pmt0, 1);
+	fillHist(*m_threshHists, id, AcdDigi::A, pmt0);
+	if ( acdDigi->getVeto(AcdDigi::A) ) fillHist(*m_threshHists, id, AcdDigi::A, pmt0, 1);
       }
       if ( useB ) {  
-	fillHist(*m_vetoHists, id, AcdDigi::B, pmt1);
-	if ( acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_vetoHists, id, AcdDigi::B, pmt1, 1);
+	fillHist(*m_threshHists, id, AcdDigi::B, pmt1);
+	if ( acdDigi->getVeto(AcdDigi::B) ) fillHist(*m_threshHists, id, AcdDigi::B, pmt1, 1);
       }
       break;
     default:
@@ -249,9 +252,9 @@ AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
 	UInt_t nCol = AcdKey::getNCol(iFace,iRow);
 	for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
 	  UInt_t key = AcdKey::makeKey(iPmt,iFace,iRow,iCol);
-	  TH1* raw = m_vetoHists->getHist(key,0);
-	  TH1* veto = m_vetoHists->getHist(key,1);
-	  TH1* vf = m_vetoHists->getHist(key,2);
+	  TH1* raw = m_threshHists->getHist(key,0);
+	  TH1* veto = m_threshHists->getHist(key,1);
+	  TH1* vf = m_threshHists->getHist(key,2);
 	  if ( raw == 0 || veto == 0 || vf == 0 ) {
 	    std::cout << "missing one " << key << std::endl;
 	    continue;
@@ -264,7 +267,7 @@ AcdHistCalibMap* AcdCalibLoop_Digi::makeRatioPlots() {
       }
     }
   }
-  return m_vetoHists;
+  return m_threshHists;
 }
 
 void AcdCalibLoop_Digi::fillCnoData() {
@@ -282,9 +285,9 @@ void AcdCalibLoop_Digi::fillCnoData() {
       UInt_t tile(0); UInt_t pmt(0);
       AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
       //UInt_t key = AcdKey::makeKey(pmt,tile);
-      fillHist(*m_vetoHists,tile,pmt,inPha);
+      fillHist(*m_threshHists,tile,pmt,inPha);
       if ( cno ) {
-	fillHist(*m_vetoHists,tile,pmt,inPha,1);
+	fillHist(*m_threshHists,tile,pmt,inPha,1);
       }
     }
   }

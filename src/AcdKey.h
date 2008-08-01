@@ -8,12 +8,12 @@
 // stl includes
 #include <iostream>
 #include <string>
+#include <list>
 
 /** 
  * @class AcdKey
  *
  * @brief Various tools to associate map tile into a unique key and back
- *
  *  
  * All mapping is done using a decimal key:
  *    1000 * pmt + 100*face + 10*row + col
@@ -73,6 +73,8 @@ public:
   static void makeSuffix(std::string& suffix, UInt_t iPmt, UInt_t iFace, UInt_t iRow, UInt_t iCol, UInt_t idx);
   
   static void nSpaces(std::ostream& os, int n);  
+
+  static std::list<Int_t>& acdIdList();
 
 public:
 

@@ -16,39 +16,38 @@
 
 
 AcdCalibLoop_Svac::AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 
-				     Bool_t correctPathLength, 
-				     Bool_t calGCRSelect,
+				     Int_t calGCRSelect,
 				     AcdKey::Config config)
   :AcdCalibBase(t,config),
-   m_correctPathLength(correctPathLength),
    m_calGCRSelect(calGCRSelect),
-   m_gainHists(0),
-   m_rangeHists(0){
+   m_peakHists(0),
+   m_rangeHists(0),
+   m_vetoHists(0),
+   m_cnoHists(0){
 
   setChain(AcdCalib::SVAC,svacChain);
   
   switch ( t ) {
   case AcdCalibData::GAIN:
-    m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,2047.5);
+    m_peakHists = bookHists(AcdCalib::H_GAIN,64,-0.5,2047.5);
     break;
   case AcdCalibData::RIBBON:
-    m_gainHists = bookHists(AcdCalib::H_RIBBONS,256,-0.5,4095.5,7);
+    m_peakHists = bookHists(AcdCalib::H_RIBBONS,64,-0.5,1023.5,7);
     break;
   case AcdCalibData::CARBON:
-    m_gainHists = bookHists(AcdCalib::H_GAIN,64,-0.5,1023.5);
+    m_peakHists = bookHists(AcdCalib::H_GAIN,64,-0.5,1023.5);
     break;
   case AcdCalibData::MERITCALIB:
     m_rangeHists = bookHists(AcdCalib::H_RANGE,100,-1.,3.,2);
-    m_gainHists = bookHists(AcdCalib::H_GAIN,50,-0.0,2.5);
+    m_peakHists = bookHists(AcdCalib::H_GAIN,50,-0.0,2.5);
+    m_vetoHists = bookHists(AcdCalib::H_VETO,150,-0.0,1.5,3);    
+    m_cnoHists = bookHists(AcdCalib::H_CNO,100,-0.0,50.,3); 
     break;
   default:
+    std::cerr << "ERR:  Unknown calibration type." << t << std::endl;
     break;
   }
   
-  if ( m_gainHists == 0 ) {
-    std::cerr << "ERR:  Unknown calibration type." << t << std::endl;
-  }
-
   Bool_t ok = attachChains();
   if ( ! ok ) {
     std::cerr << "ERR:  Failed to attach to input chains."  << std::endl;
@@ -105,9 +104,15 @@ Bool_t AcdCalibLoop_Svac::attachChains() {
     if ( calType() == AcdCalibData::MERITCALIB ) {
       svacChain->SetBranchAddress("AcdMips",&(m_AcdMips[0][0]));
       svacChain->SetBranchStatus("AcdMips", 1); 	 
+
+      svacChain->SetBranchAddress("AcdHitMap",&(m_AcdHitmap[0][0]));
+      svacChain->SetBranchStatus("AcdHitMap", 1); 	 
+
+      svacChain->SetBranchAddress("GemCnoVector",&(m_GemCnoVector[0]));
+      svacChain->SetBranchStatus("GemCnoVector", 1); 	 
     }
 
-    if ( calType() == AcdCalibData::CARBON && m_calGCRSelect ) {
+    if ( calType() == AcdCalibData::CARBON ) {
       svacChain->SetBranchAddress("TrgEngineGem",&(m_TrgEngineGem));
       svacChain->SetBranchStatus("TrgEngineGem", 1);    
 
@@ -134,15 +139,10 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
   float width = AcdCalibUtil::width(id);
   float pathFactor = pathLength / width;
   
-  if ( m_correctPathLength ) {
-    // require that track not clip edge of tile
-    if ( id < 500 && pathFactor < 0.99 ) return;    
-    // correcting for pathlength, go ahead and take stuff up to 1/cos_th = 1.5
-    if ( pathFactor > 1.5 ) return;
-  } else {
-    // not correcting for pathlength, only take stuff up to 1/cos_th = 1.2
-    if ( pathFactor > 1.2 ) return;
-  }  
+  // require that track not clip edge of tile
+  if ( id < 500 && pathFactor < 0.99 ) return;    
+  // correcting for pathlength, go ahead and take stuff up to 1/cos_th = 2.0
+  if ( pathFactor > 2.0 ) return;
 
   UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
@@ -160,15 +160,10 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
     }
     redPha_A -= pedA;
     redPha_B -= pedB;
-  } 
-
-  if ( m_correctPathLength ) {
+    // Correct for the pathLength
     redPha_A /= pathFactor;
     redPha_B /= pathFactor;
   }
-
-  ///Float_t redPha_A = ((Float_t)(pmt0));
-  // Float_t redPha_B = ((Float_t)(pmt1));
   
   // only take stuff in the middle of ribbons
   Int_t ribbonBin(-1);
@@ -184,29 +179,17 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
 
   if ( calType() == AcdCalibData::GAIN ) {
     if ( !ribbonCut ) return;
-    if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A);
-    if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B);
+    if ( rng0 == 0 ) fillHist(*m_peakHists,id,AcdDigi::A,redPha_A);
+    if ( rng1 == 0 ) fillHist(*m_peakHists,id,AcdDigi::B,redPha_B);
   } else if ( calType() == AcdCalibData::MERITCALIB ) {
     if ( !ribbonCut ) return;    
-    Float_t mipsA = m_AcdMips[id][0];
-    Float_t mipsB = m_AcdMips[id][1];
-    if ( m_correctPathLength ) {
-      mipsA /= pathFactor;
-      mipsB /= pathFactor;
-    }
-    if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,mipsA);
-    if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,mipsB);
+    Float_t mipsA(0.), mipsB(0.);
     if ( !getMipValues(id,mipsA,mipsB) ) return;
-    if ( rng0 == 0 ) {
-      fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),0);
-    } else {
-      fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),1);
-    }
-    if ( rng1 == 0 ) {
-      fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),0);
-    } else {
-      fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),1);
-    }
+    // For the MIP peaks, use the corrected path length
+    mipsA /= pathFactor;
+    mipsB /= pathFactor;
+    if ( rng0 == 0 ) fillHist(*m_peakHists,id,AcdDigi::A,mipsA);
+    if ( rng1 == 0 ) fillHist(*m_peakHists,id,AcdDigi::B,mipsB);
   } else if ( calType() == AcdCalibData::RIBBON ) {
     if ( ribbonBin < 0 ) {
       std::cerr << "Couldn't bin ribbon " << id << ' ' 
@@ -215,19 +198,16 @@ void AcdCalibLoop_Svac::fillGainHistCorrect(unsigned id, float pathLength, unsig
 		<< m_AcdTkrIntSecGlobalZ[iISect] << std::endl;
       return;
     }
-    if ( rng0 == 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A,ribbonBin);
-    if ( rng1 == 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B,ribbonBin);
+    if ( rng0 == 0 ) fillHist(*m_peakHists,id,AcdDigi::A,redPha_A,ribbonBin);
+    if ( rng1 == 0 ) fillHist(*m_peakHists,id,AcdDigi::B,redPha_B,ribbonBin);
   } else if (  calType() == AcdCalibData::CARBON ) {
     if ( !ribbonCut ) return;
     if ( ! singleRange(keyA,pmt0,rng0,redPha_A ) ) return;
     if ( ! singleRange(keyB,pmt1,rng1,redPha_B ) ) return;
-    if ( m_correctPathLength ) {
-      redPha_A /= pathFactor;
-      redPha_B /= pathFactor;
-    }
-    if ( redPha_A > 0 ) fillHist(*m_gainHists,id,AcdDigi::A,redPha_A);
-    if ( redPha_B > 0 ) fillHist(*m_gainHists,id,AcdDigi::B,redPha_B);
-    
+    redPha_A /= pathFactor;
+    redPha_B /= pathFactor;
+    if ( redPha_A > 0 ) fillHist(*m_peakHists,id,AcdDigi::A,redPha_A);
+    if ( redPha_B > 0 ) fillHist(*m_peakHists,id,AcdDigi::B,redPha_B);    
   } else {
     std::cerr << "Unknown calibration type " << calType() << std::endl;
     return;
@@ -260,9 +240,45 @@ void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
   used = kFALSE;
 
   if (  calType() == AcdCalibData::CARBON ) {
-    if ( m_calGCRSelect && !runGCRSelect() ) return;
+    if ( !runGCRSelect(m_calGCRSelect) ) return;
   }
-  
+
+  if ( calType() == AcdCalibData::MERITCALIB ) {
+    m_garcGafeHits.reset();
+    UShort_t cnoVector(0);
+    for ( UInt_t iGarc(0); iGarc < 12; iGarc++ ) {
+      if ( m_GemCnoVector[iGarc] ) cnoVector |= ( 1 << iGarc );
+    }
+    m_garcGafeHits.setCNO(cnoVector);
+    for ( std::list<Int_t>::const_iterator itr = AcdKey::acdIdList().begin(); 
+	  itr !=  AcdKey::acdIdList().end(); itr++ ) {
+      Int_t id = *itr;
+      if ( m_AcdPha[id][0] <= 0 && m_AcdPha[id][1] <= 0 ) continue;
+      Float_t mipsA(0.), mipsB(0.);
+      if ( ! getMipValues(id,mipsA,mipsB) ) continue;      
+      m_garcGafeHits.setHit(id,(m_AcdRange[id][0] > 0 ? mipsA : 0.),(m_AcdRange[id][1] > 0 ? mipsB : 0.));
+      if ( m_AcdRange[id][0] == 0 ) {
+	fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),0);
+      } else {
+	fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),1);	
+      }
+      if ( m_AcdRange[id][1] == 0 ) {
+	fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),0);
+      } else {
+	fillHist(*m_rangeHists,id,AcdDigi::B,TMath::Log10(mipsB),1);
+      }
+      fillHist(*m_vetoHists,id,AcdDigi::A,mipsA);
+      if ( m_AcdHitmap[id][0] ) {
+	fillHist(*m_vetoHists,id,AcdDigi::A,mipsA,1);
+      }
+      fillHist(*m_vetoHists,id,AcdDigi::B,mipsB);
+      if ( m_AcdHitmap[id][1] ) {
+	fillHist(*m_vetoHists,id,AcdDigi::B,mipsB,1);
+      }
+    }  
+    fillCnoData();
+  }
+
   for(int i = 0; i != m_AcdNumTkrIntSec; i++) {
 
     if ( i >= 20 ) continue;
@@ -282,8 +298,17 @@ void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
 
 
 
-Bool_t AcdCalibLoop_Svac::runGCRSelect() {
-  //if ( m_TrgEngineGem !=4 ) return kFALSE;
+Bool_t AcdCalibLoop_Svac::runGCRSelect(Int_t whichZ) {
+
+  
+  if ( whichZ != 6 ) {
+    static bool warned(false);
+    if ( ! warned ) {
+      std::cerr << "For now we can only use the GCR to select Z=6" << std::endl;
+      warned = true;
+    }
+    return kFALSE;
+  }
 
   Float_t CalELayer[4] = {0.,0.,0.,0.};
 
@@ -387,3 +412,64 @@ bool AcdCalibLoop_Svac::getMipValue(UInt_t key, UInt_t range, UInt_t pha, Float_
   }
   return true;
 }
+
+AcdHistCalibMap* AcdCalibLoop_Svac::makeRatioPlots() {
+  for ( UInt_t iPmt(0); iPmt < AcdKey::nPmt; iPmt++ ) {    
+    for ( UInt_t iFace(0); iFace < AcdKey::nFace; iFace++ ) {
+      UInt_t nRow = AcdKey::getNRow(iFace);
+      for ( UInt_t iRow(0); iRow < nRow; iRow++ ) {
+	UInt_t nCol = AcdKey::getNCol(iFace,iRow);
+	for ( UInt_t iCol(0); iCol < nCol; iCol++ ) {
+	  UInt_t key = AcdKey::makeKey(iPmt,iFace,iRow,iCol);
+	  TH1* raw = m_vetoHists->getHist(key,0);
+	  TH1* veto = m_vetoHists->getHist(key,1);
+	  TH1* vf = m_vetoHists->getHist(key,2);
+	  if ( raw == 0 || veto == 0 || vf == 0 ) {
+	    std::cout << "missing one " << key << std::endl;
+	    continue;
+	  }
+	  Int_t nVeto = (Int_t)veto->GetEntries();
+	  if ( nVeto > 100 && veto->GetMaximum() > 10 ) {	  
+	    AcdCalibUtil::efficDivide(*vf,*veto,*raw,kFALSE,10.);
+	  }
+	  if ( m_cnoHists == 0 ) continue;
+	  raw = m_cnoHists->getHist(key,0);
+	  veto = m_cnoHists->getHist(key,1);
+	  vf = m_cnoHists->getHist(key,2);
+	  if ( raw == 0 || veto == 0 || vf == 0 ) {
+	    std::cout << "missing one " << key << std::endl;
+	    continue;
+	  }
+	  nVeto = (Int_t)veto->GetEntries();
+	  if ( nVeto > 100 && veto->GetMaximum() > 10 ) {	  
+	    AcdCalibUtil::efficDivide(*vf,*veto,*raw,kFALSE,10.);
+	  }	  
+	}
+      }
+    }
+  }
+  return m_vetoHists;
+}
+
+
+void AcdCalibLoop_Svac::fillCnoData() {
+  for ( UInt_t iGarc(0); iGarc < 12; iGarc++ ) {
+    Bool_t cno(kFALSE); 
+    UInt_t nHits(0), nVeto(0);
+    m_garcGafeHits.garcStatus(iGarc,cno,nHits,nVeto);
+    //if ( nVeto != 1  ) continue;
+    Int_t gafe(-1);
+    while ( m_garcGafeHits.nextGarcVeto(iGarc,gafe) ) {
+      UInt_t uGafe = (UInt_t)gafe;
+      Float_t inMips = m_garcGafeHits.inMips(iGarc,uGafe);
+      if ( inMips <= 0. ) continue;
+      UInt_t tile(0); UInt_t pmt(0);
+      AcdGarcGafeHits::convertToTilePmt(iGarc,uGafe,tile,pmt);
+      fillHist(*m_cnoHists,tile,pmt,inMips);
+      if ( cno ) {
+	fillHist(*m_cnoHists,tile,pmt,inMips,1);
+      }
+    }
+  }
+}
+

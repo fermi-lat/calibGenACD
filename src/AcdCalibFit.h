@@ -19,7 +19,9 @@ namespace CalibData {
  * @class AcdCalibFit 
  *
  * @brief Base class for object that makes calibration fits
- * 
+ *
+ * The main point of this class is implement the fitAll() function, which 
+ * just loops on all the channels and calls fit(), which is implemented in the various sub-classes
  *
  * @author Eric Charles
  * $Header$
@@ -38,23 +40,39 @@ public:
   /// Trivial d'tor
   virtual ~AcdCalibFit() {;}
   
-  /// Fit a single channel, store the result and return a status code
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param holder is the set of histograms to be fit
+   * @param ref is an optional reference result that may be use to seed the fit
+   * @return 0 for success, a failure code otherwise  
+   **/
   virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder, 
 		    CalibData::AcdCalibObj* ref = 0);
 
-  /// Fit a single channel, store the result and return a status code
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param input is the set of all the input histograms
+   * @param key is the id of the channel to be fit
+   * @return 0 for success, a failure code otherwise  
+   **/
   virtual UInt_t fitChannel(AcdCalibMap& result, AcdHistCalibMap& input, UInt_t key);
 
-  /// Fit all the channels
+  /**
+   * @brief Fit all the channels and store the results
+   * @param results are the result of all the fits
+   * @param hists are the set of all the input histograms
+   **/
   void fitAll(AcdCalibMap& results, AcdHistCalibMap& hists);
 
-  /// Return the name of the fitting algorithm
+  /// return the name of the fitting algorith
   virtual const char* algorithm() const {
     static const char* def("Default");
     return def;
   }
 
-  /// Return the calibration description
+  /// return the calibration description
   const CalibData::AcdCalibDescription* desc() const { return _desc; }
 
 private:
@@ -66,7 +84,3 @@ private:
 
 
 #endif
-
-#ifdef AcdCalibFit_cxx
-
-#endif // #ifdef AcdCalibFit_cxx

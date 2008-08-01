@@ -91,39 +91,24 @@ void AcdGarcGafeHits::setDigi(const AcdDigi& digi, Float_t pmtA, Float_t pmtB){
 }
 
 
-void AcdGarcGafeHits::setHits(const AcdRecon& recon) {
-  int nAcdHit = recon.nAcdHit();
-  for(int i = 0; i != nAcdHit; i++) {
-    const AcdHit* acdHit = recon.getAcdHit(i);
-    setHit(*acdHit);
-  }
-}
 
-void AcdGarcGafeHits::setHit(const AcdHit& hit) {
-  const AcdId& acdId = hit.getId();
+void AcdGarcGafeHits::setHit(Int_t id, Float_t mipsA, Float_t mipsB) {
+  UInt_t garcA(0), gafeA(0), garcB(0), gafeB(0);
+  convertToGarcGafe(id,0,garcA,gafeA);
+  convertToGarcGafe(id,1,garcB,gafeB);
 
-  UInt_t garc(13), gafe(19);
+  _inMips[garcA][gafeA] = mipsA;
+  _inMips[garcB][gafeB] = mipsB;
 
-  lookup(acdId,0,garc,gafe);
-  _inMips[garc][gafe] = hit.getMips(AcdHit::A);
-  _inPha[garc][gafe] = hit.getPha(AcdHit::A);  
-  _flags[garc][gafe] = hit.getFlags(AcdHit::A);
-  if ( hit.getAcceptMapBit(AcdHit::A) ) {
-    _nHits[garc] += 1;
+  if ( mipsA > 0. )  {
+    _nHits[garcA] += 1;
+    _nVeto[garcA] += 1;
+    _flags[garcA][gafeA] += 0x3;
   }
-  if ( hit.getHitMapBit(AcdHit::A) ) {
-    _nVeto[garc] += 1;
-  }
-
-  lookup(acdId,1,garc,gafe);
-  _inMips[garc][gafe] = hit.getMips(AcdHit::B);
-  _inPha[garc][gafe] = hit.getPha(AcdHit::B);  
-  _flags[garc][gafe] = hit.getFlags(AcdHit::B);
-  if ( hit.getAcceptMapBit(AcdHit::B) ) {
-    _nHits[garc] += 1;
-  }
-  if ( hit.getHitMapBit(AcdHit::B) ) {
-    _nVeto[garc] += 1;
+  if ( mipsB > 0. ) { 
+    _nHits[garcB] += 1;
+    _nVeto[garcB] += 1;
+    _flags[garcB][gafeB] += 0x3;
   }
 }
 

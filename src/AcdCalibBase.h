@@ -39,37 +39,44 @@ public :
   AcdCalibEventStats();
   virtual ~AcdCalibEventStats() {;};
 
-  // Acceses to the event and run ID
+  /// return the ID of the current event (during processing) 
   inline Int_t& evtId() { return m_evtId; }
+  
+  /// return the ID of the current run (during processing) 
   inline Int_t& runId() { return  m_runId; }
 
-  // get the index of the last event
-  inline Int_t last() const { return m_last; }
-
-  // get the id of the first and last events used
+  /// return the ID of the first event processed 
   inline Int_t evtId_first() const { return m_evtId_first; }
+  /// return the ID of the last event processed
   inline Int_t evtId_last() const { return m_evtId_last; }
+  /// return the run ID of the first event processed
   inline Int_t runId_first() const { return m_runId_first; }
+  /// return the run ID of the last event processed
   inline Int_t runId_last() const { return m_runId_last; }
-  inline Double_t time_first() const { return m_time_first; }
+  /// return the MET for the first event processed
+  inline Double_t time_first() const { return m_time_first; }  
+  /// return the MET for the last event processed
   inline Double_t time_last() const { return m_time_last; }
 
-  /// starting event number in chain order
+  /// return the index of the first event to process in the TChain
   inline Int_t startEvent() const { return m_startEvent; }
-  
-  /// number of events we ran over
+
+  /// return the index of the last event to process in the TChain
+  inline Int_t last() const { return m_last; }
+
+  /// return the number of events we ran over
   inline Int_t nTrigger() const { return m_nTrigger; }
 
-  /// number of events that passed the filter
+  /// return the number of events that passed our prefilter
   inline Int_t nFilter() const { return m_nFilter; }
 
-  /// number of events we used
+  /// return the number of events we used
   inline Int_t nUsed() const { return m_nUsed; }
 
-  // print stuff every 1k events, keep track of the current event
+  ///  print stuff every 1k events and keep track of the current event
   void logEvent(int ievent, Bool_t passedCut, Bool_t filtered, int runId, int evtId, Double_t timeStamp = 0.); 
 
-  /// reset all the counters 
+  ///  reset all the counters 
   void resetCounters() {
     m_evtId_first = 0;
     m_evtId_last = 0;
@@ -84,51 +91,58 @@ public :
     m_nUsed = 0;
   }
 
-  /// set the start event
+  ///  set the start and end evnts
   void setRange(Int_t startEvent, Int_t lastEvent) {
     m_startEvent = startEvent;
     m_last = lastEvent;
   }
 
-  /// cache the id of the first event
+  ///  cache some info about the first event
   void firstEvent() {
     m_evtId_first = m_evtId;
     m_runId_first = m_runId;
     m_time_first = m_evtTime;
   } 
   
-  /// cache the id of the last event
+  ///  cache some info about the last event
   void lastEvent() {
     m_evtId_last = m_evtId;
     m_runId_last = m_runId;
     m_time_last = m_evtTime;
   } 
-
+  
 private :
-
-  // the current run and event
+  
+  /// The ID of the current event
   Int_t m_evtId;
+  /// The ID of the current run
   Int_t m_runId;
+  /// The timestamp (in MET) of the current event
   Double_t m_evtTime;
 
-  // store some information about what we ran over
+  /// The ID of the first event we saw
   Int_t m_evtId_first;
+  /// The ID of the last event we saw  
   Int_t m_evtId_last;
+  /// The run ID of the first event we saw
   Int_t m_runId_first;
+  /// The run ID of the last event we saw
   Int_t m_runId_last;
+  /// The timestamp (in MET) of the first event we saw
   Double_t m_time_first;
+  /// The timestamp (in MET) of the last event we saw  
   Double_t m_time_last;
-  Int_t m_last;
+
 
   /// starting event number in chain order
   Int_t m_startEvent;
+  /// ending event number in chain order
+  Int_t m_last;
   
   /// number of events we ran over
   Int_t m_nTrigger;
-
   /// number of events that passed the filter
   Int_t m_nFilter;
-
   /// number of events we used
   Int_t m_nUsed;
 
@@ -140,7 +154,7 @@ private :
  *
  * @brief AcdCalibration base class
  *
- * Mangage input data, calibration types and event looping.
+ * Mangages input data, calibration types and event looping.
  *
  * Basic strategy is to loop on events, filling histograms, 
  * then at the end of the event loop, do some fitting.
@@ -157,82 +171,90 @@ public :
   /// Standard ctor, where user provides the names the output histogram files
   AcdCalibBase(AcdCalibData::CALTYPE t, AcdKey::Config config = AcdKey::LAT);
   
+  /// D'tor is a simple cleanup
   virtual ~AcdCalibBase();
+
    
   // access functions
 
-  /// get the maps of the histograms to be fit
+  /// return the maps of the histograms to be fit for a given type of histogram
   AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType);
+  /// return the maps of the histograms to be fit for a given type of histogram
   const AcdHistCalibMap* getHistMap(AcdCalib::HISTTYPE hType) const;
 
-  /// Read the map of the histograms to be fit from a root file
+  ///  read and return the map of the histograms to be fit from a root file
   AcdHistCalibMap* readHistMap(AcdCalib::HISTTYPE hType, const char* fileName);
 
-  /// get the results maps
+  /// return the calibration results for a given calibration type
   AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType);
+  /// return the calibration results for a given calibration type
   const AcdCalibMap* getCalibMap(AcdCalibData::CALTYPE cType) const;
   
-  /// get a particular chain
+  /// return the input data TChain of a given type
   TChain* getChain(AcdCalib::CHAIN chain);
+  /// return the input data TChain of a given type
   const TChain* getChain(AcdCalib::CHAIN chain) const;
+
+  ///  set the input data TChain of a given type
   void setChain(AcdCalib::CHAIN chain, TChain* tchain) {
     m_chains[chain] = tchain;
   }
 
-  /// Which type of calibration are we running
+  /// return which type of calibration are we running
   inline AcdCalibData::CALTYPE calType() const { return m_calType; }
 
-  /// Which instrument calibration?
+  /// return which instrument are we calibrating (LAT or CU)
   inline AcdKey::Config getConfig() const { return m_config; }
 
-  /// read an input calibration (usually pedestals) from a file
+  ///  read and return an input calibration of a given type from a file
   Bool_t readCalib(AcdCalibData::CALTYPE cType, const char* fileName);
   
-  /// run the event loop
+  ///  run the event loop
   void go(int numEvents = 0, int startEvent = 0);
 
-  /// do the fitting
+  ///  fit all the histograms
   AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
 		   const char* referenceFile = 0);
 
 protected:
 
-  /// Feed info into a CalibMap
+  ///  feed input data info into a CalibMap so it can be stored with the calibration
   void giveInfoToCalib(AcdCalibMap& theMap);
 
-  /// Get the event stats
+  /// return the event stats
   const AcdCalibEventStats& eventStats() const { return  m_eventStats; }
+  /// return the event stats
   AcdCalibEventStats& eventStats() { return  m_eventStats; }
 
-  /// add a calibration
+  ///  add a calibration
   void addCalibration(AcdCalibData::CALTYPE calibKey, AcdCalibMap& newCal);
 
-  /// This opens the output file and fills books the output histograms
-  AcdHistCalibMap* bookHists(AcdCalib::HISTTYPE histType, UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5, UInt_t nHist = 1);
+  ///  book the output histograms
+  AcdHistCalibMap* bookHists(AcdCalib::HISTTYPE histType, 
+			     UInt_t nBin = 256, Float_t low = -0.5, Float_t hi = 4095.5, UInt_t nHist = 1);
   
-  /// fill the histogram for id:pmtId with a value
+  ///  fill the histogram for id:pmtId:idx with a value
   void fillHist(AcdHistCalibMap& histMap, int id, int pmtId, float val, UInt_t idx = 0);
   
-  /// set a bin in a histogram 
+  ///  set a bin in the histogram for id:pmtId:idx with val and err
   void fillHistBin(AcdHistCalibMap& histMap, int id, int pmtId, UInt_t binX, Float_t val, Float_t err, UInt_t idx=0);
 
-  /// get the pedestal for a channel
+  /// return the pedestal value for a channel
   float getPeds(UInt_t key) const;
   
-  /// return the total number of events in the chains
+  /// return the total number of events in input chain
   int getTotalEvents() const;
 
-  /// read in 1 event
+  ///  read in 1 event
   virtual Bool_t readEvent(int /*ievent*/, Bool_t& /*filtered*/, 
 			   int& /*runId*/, int& /*evtId*/, Double_t& /*timestamp*/) {
     return kFALSE;
   }
   
-  /// Try to use an event for an calibration
+  ///  try to use an event for an calibration
   virtual void useEvent(Bool_t& /*used*/) {;}
 
 private:
-
 
   /// which type of instrument
   AcdKey::Config m_config;

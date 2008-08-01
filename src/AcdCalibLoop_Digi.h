@@ -21,13 +21,10 @@ class DigiEvent;
  * @brief AcdCalibration class that loop on Digis
  *
  * This is used for the following calibrations:
- *   - Pedestals
+ *   - Pedestals (low and high range)
  *   - Veto thresholds
  *   - CNO thresholds
  *   - Range crossover
- *   - Gains without pathlength correction
- *   - Looking at unpaired hits (only 1 PMT fired in a detector element)
- *   - Comparing GEM data to ACD hitmap
  *
  * @author Eric Charles
  * $Header$
@@ -68,9 +65,11 @@ private:
   /// Take only periodic events
   Bool_t m_requirePeriodic;
 
-  // Various histograms to fill
+  /// Histograms for pedestal calibrations
   AcdHistCalibMap* m_rawHists;
-  AcdHistCalibMap* m_vetoHists;
+  /// Histograms for veto and cno set point calibrations
+  AcdHistCalibMap* m_threshHists;
+  /// Histograms for range crossover calibrations
   AcdHistCalibMap* m_rangeHists;
   
   /// Input pedestal calibration
@@ -78,7 +77,7 @@ private:
   /// Input range calibration
   AcdCalibMap* m_ranges;
 
-  /// Used to work in GARC:GAFE space instead of TILE:PMT space
+  /// Used to work in GARC:GAFE space instead of TILE:PMT space, Needed for CNO
   AcdGarcGafeHits m_garcGafeHits;  
     
 };

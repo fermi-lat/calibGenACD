@@ -27,34 +27,28 @@ class TChain;
  *   <configFile>      : name of xml file with job configuration
  *
  * 
- *   application [options] [input] -o <output>
+ *   application [options] <input>
  *
- *     INPUT
- *        -r <reconFiles>   : comma seperated list of recon ROOT files
- *        -d <digiFiles>    : comma seperated list of digi ROOT files
- *        -S <svacFiles>    : comma seperated list of svac ROOT files
- *        -m <meritFiles>   : comma seperated list of merit ROOT files
- *        -f <histFile>     : file with histograms
- *        -i <inputFile>    : generic input file
- *     NOTE:  Different calibrations jobs take diffenent types of input files
- *
- *        -o <output>       : prefix (path or filename) to add to output files"
+ *     INPUT file types
+ *        *.root            : root files (including xrootd)
+ *        *.lst, *.txt      : text files with list of root files
  *     
  *     OPTIONS for all jobs
  *        -h                : print this message
- *        -n <nEvents>      : run over <nEvents>
- *        -s <startEvent>   : start with event <startEvent>
+ *        -o <string>       : prefix to add to output files
+ *        -x <fileName>     : refrence calibration, may be used to seed fits
+ *        -n <int>          : run over <nEvents>
+ *        -s <int>          : start with event <startEvent>
  *        -I (LAT | CU06)   : specify instument being calibrated [LAT]
  *
  *     OPTIONS for specific jobs (will be ignored by other jobs)
  *        -P                : use only periodic triggers
- *        -C                : use CAL GCR selection
- *        -L                : correct for pathlength in tile
- *        -b <bins>         : number of time bins in strip chart [300]
- *        -p <pedFile>      : use pedestals from this file
- *        -H <pedHighFile>  : use high range pedestals from this file
- *        -g <gainFile>     : use gains from this file
- *        -R <rangeFile>    : use range data from this file
+ *        -G <int>          : use CAL GCR selection for a given Z
+ *        -p <fileName>     : use pedestals from this file
+ *        -R <fileName>     : use range data from this file
+ *        -g <fileName>     : use gains from this file
+ *        -H <fileName>     : use high range pedestals from this file
+ *        -C <fileName>     : use carbon peak calibration from this file
  *
  *
  * @author Eric Charles
@@ -79,43 +73,66 @@ public :
 
   virtual ~AcdJobConfig();  
 
+  ///  print the usage mesage
   void usage();
   
+  ///  parse the arguments, return one of the ReturnCode enum
   Int_t parse(int argn, char** argc);
 
+  /// return the name of the executable
   inline const std::string& theApp() const { return m_theApp; }
 
+  /// return the output prefix (-o)
   inline const std::string& outputPrefix() const { return m_outputPrefix; }
+  /// return the instrument being calibrated (-I)
   inline const std::string& instrument() const { return m_instrument; }
+  /// return the timestamp 
   inline const std::string& timeStamp() const { return m_timeStamp; }
-
+  
+  /// return the name of the reference calibration file (-x)
   inline const std::string& refFileName() const { return m_refFileName; }
 
+  /// return the name of the pedestal calibration file (-p)
   inline const std::string& pedFileName() const { return m_pedFileName; }
+  /// return the name of the gain calibration file (-g)
   inline const std::string& gainFileName() const { return m_gainFileName; }  
+  /// return the name of the range calibration file (-R)
   inline const std::string& rangeFileName() const { return m_rangeFileName; }
+  /// return the name of the high range pedestal calibration file (-H)
   inline const std::string& pedHighFileName() const { return m_pedHighFileName; } 
+  /// return the name of the carbon peak calibration file (-C)
   inline const std::string& carbonFileName() const { return m_carbonFileName; } 
 
+  /// return the input arguments after the options have been stripped off
   inline const std::list<std::string>& theArgs() const { return m_args; }
 
+  /// return the config (LAT | CU06)
   inline AcdKey::Config config() const { return m_config; }
-  inline int optval_n() const { return m_optval_n; }
-  inline int optval_s() const { return m_optval_s; }
-  inline Bool_t optval_P() const { return m_optval_P; }
-  inline Bool_t optval_L() const { return m_optval_L; }  
-  inline Bool_t optval_G() const { return m_optval_G; }  
 
+  /// return the number of events to use
+  inline int optval_n() const { return m_optval_n; }
+  /// return the number of events to use
+  inline int optval_s() const { return m_optval_s; }
+  /// return the flag to use only periodic triggers
+  inline Bool_t optval_P() const { return m_optval_P; }
+  inline int optval_G() const { return m_optval_G; }  
+
+  /// return the TChain of digi trees
   inline TChain* digiChain() const { return m_digiChain;}
+  /// return the TChain of svac trees
   inline TChain* svacChain() const { return m_svacChain;}
 
+  /// return the status of the Digi TChain
   Bool_t checkDigi() const;
+  /// return the status of the Svac TChain
   Bool_t checkSvac() const;
    
 protected:
 
+  /// Take the arguments and add the files to the input TChains, return kTRUE for success
   Bool_t makeChain( ) const;
 
+  /// Open a text file and get the list of root files (one per line), return kTRUE for success
   Bool_t getFileList(const char* fileName, std::vector<std::string>& files) const;
  
 private:
@@ -141,8 +158,7 @@ private:
   int m_optval_n;
   int m_optval_s;
   Bool_t m_optval_P;
-  Bool_t m_optval_L;
-  Bool_t m_optval_G;
+  int m_optval_G;
 
   mutable TChain* m_digiChain;
   mutable TChain* m_svacChain;

@@ -43,7 +43,7 @@ AcdHtmlReport::~AcdHtmlReport() {
 
 
 /// Write calibration to an xml file
-Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* timeStamp  ) const {
+Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* timeStamp, bool isCheckCalib  ) const {
 
 
   DomElement inElem;
@@ -62,25 +62,51 @@ Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* tim
 
   std::list<std::string> sumPlotNames;
   std::list<std::string> delPlotNames;  
-  if ( ! makeSummaryPlots(outputPrefix,inTree,sumPlotNames) ) return kFALSE;
-  if ( ! makeDeltaPlots(outputPrefix,inTree,refTree,delPlotNames) ) return kFALSE;  
+  if ( ! makeSummaryPlots(outputPrefix,inTree,sumPlotNames,isCheckCalib) ) {
+    std::cerr << "Failed to make summary plots" << std::endl;
+    return kFALSE;
+  }
+  if ( ! makeDeltaPlots(outputPrefix,inTree,refTree,delPlotNames,isCheckCalib) ) {
+    std::cerr << "Failed to make delta plots" << std::endl;
+    return kFALSE;  
+  }
   
   std::string titleString;
   makeTitleString(titleString,outputPrefix);
   
   DomElement elem = AcdXmlUtil::makeDocument("html");
-  if ( ! writeHtmlHeader(elem,titleString) ) return kFALSE;
+  if ( ! writeHtmlHeader(elem,titleString) ) {
+    std::cerr << "Failed to write header" << std::endl;
+    return kFALSE;
+  }
   
   DomElement body = AcdXmlUtil::makeChildNode(elem,"body");  
   xmlBase::Dom::makeChildNodeWithContent(&(body()),"h1",titleString.c_str());
   
-  if ( ! writeInputFileInfo(body) ) return kFALSE;
-  if ( ! writeHistory(body) ) return kFALSE; 
-  if ( ! writeOutputFileInfo(body) ) return kFALSE;
-  if ( ! writeSummaryPlots(body,sumPlotNames) ) return kFALSE;
-  if ( ! writeDeltaPlots(body,delPlotNames) ) return kFALSE;
-  if ( ! writeComments(body,timeStamp) ) return kFALSE;
-  
+  if ( ! writeInputFileInfo(body) ) {
+    std::cerr << "Failed to write input file info" << std::endl;
+    return kFALSE;
+  }
+  if ( ! writeHistory(body) ) {
+    std::cerr << "Failed to write use history" << std::endl;
+    return kFALSE; 
+  }
+  if ( ! writeOutputFileInfo(body) ) {
+    std::cerr << "Failed to write output file info" << std::endl;
+    return kFALSE;
+  }
+  if ( ! writeSummaryPlots(body,sumPlotNames) ) {
+    std::cerr << "Failed to write summary plot links" << std::endl;
+    return kFALSE;
+  }
+  if ( ! writeDeltaPlots(body,delPlotNames) ){
+    std::cerr << "Failed to write data plot links" << std::endl; 
+    return kFALSE;
+  }
+  if ( ! writeComments(body,timeStamp) ) {
+    std::cerr << "Failed to write comments" << std::endl;
+    return kFALSE;
+  }
   std::string fileName = outputPrefix; fileName += ".html";
   return AcdXmlUtil::writeHtml(elem,fileName.c_str());				    
 }
@@ -88,20 +114,20 @@ Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* tim
 
 ///
 Bool_t AcdHtmlReport::makeSummaryPlots( const char* outputPrefix, TTree* inTree, 
-					std::list<std::string>& sumPlotsNames ) const {
+					std::list<std::string>& sumPlotsNames, bool isCheckCalib ) const {
   if ( outputPrefix == 0 || inTree == 0 ) return kFALSE;
   sumPlotsNames.clear();
-  return AcdReport::makeSummaryPlots( m_desc->calibType(), outputPrefix, inTree, sumPlotsNames);
+  return AcdReport::makeSummaryPlots( m_desc->calibType(), outputPrefix, inTree, sumPlotsNames, isCheckCalib);
 }
 
 ///
 Bool_t AcdHtmlReport::makeDeltaPlots( const char* outputPrefix, TTree* inTree, TTree* refTree,
-				      std::list<std::string>& delPlotsNames ) const {
+				      std::list<std::string>& delPlotsNames, bool isCheckCalib ) const {
   if ( outputPrefix == 0 || inTree == 0 ) return kFALSE;
   delPlotsNames.clear();
   if ( refTree == 0 ) return kTRUE;
   inTree->AddFriend(refTree,"old");
-  return AcdReport::makeDeltaPlots( m_desc->calibType(), outputPrefix, inTree, delPlotsNames);
+  return AcdReport::makeDeltaPlots( m_desc->calibType(), outputPrefix, inTree, delPlotsNames, isCheckCalib);
 }
  
 Bool_t AcdHtmlReport::writeHtmlHeader( DomElement& outNode, const std::string& titleString) const {  

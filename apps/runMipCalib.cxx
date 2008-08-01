@@ -28,16 +28,14 @@ int main(int argn, char** argc) {
   if ( ! jc.checkSvac() ) return AcdJobConfig::MissingInput;  
 
   /// build filler & load calibs
-  AcdCalibLoop_Svac r(AcdCalibData::GAIN,jc.svacChain(),jc.optval_L(),jc.config());
-
-  bool removePeds = false;
+  AcdCalibLoop_Svac r(AcdCalibData::GAIN,jc.svacChain(),jc.optval_G(),jc.config());
   if ( ! r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
 
   // run!
   r.go(jc.optval_n(),jc.optval_s());    
 
   // do fits
-  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::GaussP1,removePeds);
+  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::GaussP1);
   AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::GAIN,AcdCalib::H_GAIN, jc.refFileName().c_str());
   if ( gains == 0 ) return AcdJobConfig::ProccessFail;
 

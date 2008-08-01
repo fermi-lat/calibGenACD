@@ -166,15 +166,13 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   case AcdCalib::H_RAW: name += "RAW"; break;
   case AcdCalib::H_GAIN: name += "GAIN"; break;
   case AcdCalib::H_VETO: name += "VETO"; break;
-  case AcdCalib::H_UNPAIRED: name += "UNPAIRED"; break;
-  case AcdCalib::H_RIBBONS: name += "RIBBONS"; break;
   case AcdCalib::H_RANGE: name += "RANGE"; break;
-  case AcdCalib::H_VETO_FIT: name += "VETO_FIT"; break;
-  case AcdCalib::H_TIME_PHA: name += "TIME_PROFILE_PHA"; break;
-  case AcdCalib::H_TIME_HIT: name += "TIME_PROFILE_HIT"; break;
-  case AcdCalib::H_TIME_VETO: name += "TIME_PROFILE_VETO"; break;
-  case AcdCalib::H_COHERENT_NOISE: name += "DELTA_T_PROFILE"; break;
+  case AcdCalib::H_CNO: name += "CNO"; break;  
   case AcdCalib::H_HIGH_RANGE: name += "HIGH_RANGE"; break;    
+  case AcdCalib::H_COHERENT_NOISE: name += "COHERENT_NOISE"; break;
+  case AcdCalib::H_RIBBONS: name += "RIBBONS"; break;
+  case AcdCalib::H_CARBON: name += "CARBON"; break;
+  case AcdCalib::H_VETO_FIT: name += "VETO_FIT"; break;  
   case AcdCalib::H_NONE:
   default:
     return 0;

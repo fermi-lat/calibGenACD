@@ -29,7 +29,8 @@ class TTree;
  *
  * @brief A set of calibration constants for all channels, 
  *
- * Also provides functions to read and write constants to XML and TXT formats
+ * Also provides functions to read and write constants to XML and TXT formats, write html reports
+ * store plots of the fit results 
  *
  * All mapping is done using a decimal key:
  *    1000 * pmt + 100*face + 10*row + col
@@ -50,98 +51,113 @@ public:
   /// Null c'tor
   virtual ~AcdCalibMap();
 
-  /// Add a calibration object by key
+  ///  add a calibration object by key
   void add(UInt_t key, CalibData::AcdCalibObj& result);
 
-  /// Get a calibration object by key
+  /// return a calibration object by key
   const CalibData::AcdCalibObj* get(UInt_t key) const;  
-  /// Get a calibration object by key
+  /// return a calibration object by key
   CalibData::AcdCalibObj* get(UInt_t key);
 
-   /// Start time for data used for this calib
+  /// return the start time for data used for this calib
   Double_t startTime() const { return m_startTime; }
 
-  /// End time for data used for this calib
+  /// return the end time for data used for this calib
   Double_t endTime() const { return m_endTime; }
   
-  /// Number of triggers used for this calib
+  /// return the number of triggers used for this calib
   UInt_t nTriggers() const { return m_triggers; }
  
-  /// Latch the stats for this calib
+  ///  Latch the stats for this calib
   void latchStats( Double_t sTime, Double_t eTime, UInt_t nTrig ) {
     m_startTime = sTime;
     m_endTime = eTime;
     m_triggers = nTrig;
   }
 
-  /// add an input 
+  ///  add a file to the list of inputs associated with this calibration
   void addInput( const std::string& path, const std::string& type ) {
     m_inputs.push_back( std::make_pair(path,type) ) ;
   }
 
-  /// write all the various output types
+  ///  write all the various output types
   Bool_t writeOutputs( const std::string& outputPrefix, 
 		       const std::string& algorithm,
 		       const std::string& instrument,
-		       const std::string& timestamp );
+		       const std::string& timestamp,
+		       bool isCheckCalib = false);
 
   /// Allocate a new calibration object
   /// This uses the calibration description to make the correct type of object
   CalibData::AcdCalibObj* makeNew() const;
 
   
-  /// Read calibration from an xml file, return kTRUE for success
+  ///  read calibration from an xml file, return kTRUE for success
   Bool_t readXmlFile(const char* fileName);
-  /// Read the header info from an xml file, return kTRUE for success
-  Bool_t readXmlHeader(DOMElement& node);
-  /// Read calibration for 1 element (2 PMTs) from an xml file, return kTRUE for success
-  Bool_t readXmlTile(DOMElement& node);
-  /// Read calibration for 1 PMT from an xml file, return kTRUE for success
-  Bool_t readXmlCalib(DOMElement& node, UInt_t key);
 
-  /// Read calibration from a text file, return kTRUE for success
+  ///  read calibration from a text file, return kTRUE for success
   Bool_t readTxtFile(const char* fileName);
-  /// Read calibration from input stream, return kTRUE for success
-  Bool_t readTxt(std::istream& is);
 
-  /// Read the TTree based on the xml filename
+  ///  read the TTree with the calibration results (root filename is based on the xml filename)
   Bool_t readTree() const;
 
-  /// Return the name of the file associated with this calibration
+  /// return the name of the file associated with this calibration
   const char* fileName() const {
     return m_fileName.c_str();
   }
 
+  ///  set the group of input histograms to be used for this calibration
   inline void setHists( AcdHistCalibMap& theHists ) {
     m_hists = &theHists;
   }
 
+  ///  set the TTree which has the results of this calibration
   inline void setTree(TTree& tree) {
     m_tree = &tree;
   }
 
+  ///  associate a reference calibration with this one
   inline void setReference(const AcdCalibMap& ref) {
     m_reference = &ref;
   }
   
+  /// return the group of input histograms used for this calibration
   inline const AcdHistCalibMap* theHists() const { return m_hists; }
 
+  /// return the reference calibration
   inline const AcdCalibMap* theReference() const { return m_reference; };
 
+  /// return the TTree which has the results of this calibration
   inline TTree* theTree() const { return m_tree; }
 
+  /// return the list of inputs associated with this calibration
   inline const std::list<std::pair<std::string,std::string> >& inputs() const { return m_inputs; }
   
+  /// return the map from key to calibration result for each channel
   inline const std::map<UInt_t,CalibData::AcdCalibObj*>& theMap() const { return m_map; }
 
+  /// return the description of the calibration results
   inline const CalibData::AcdCalibDescription* theDesc() const { return m_desc; }
 
-  /// Write fit results to a TTree in a file
+  ///  write fit results to a TTree in a file
   Bool_t writeResultsToTree(const char* newFileName);
 
 protected:
 
+  /// Default c'tor
   AcdCalibMap();
+
+  /// Read the header info from an xml file, return kTRUE for success
+  Bool_t readXmlHeader(DOMElement& node);
+
+  /// Read calibration for 1 element (2 PMTs) from an xml file, return kTRUE for success
+  Bool_t readXmlTile(DOMElement& node);
+
+  /// Read calibration for 1 PMT from an xml file, return kTRUE for success
+  Bool_t readXmlCalib(DOMElement& node, UInt_t key);
+
+  /// Read calibration from input stream, return kTRUE for success
+  Bool_t readTxt(std::istream& is);
 
   /// Write calibration to a text file
   Bool_t writeTxtFile(const char* fileName,
@@ -209,6 +225,3 @@ private:
 
 #endif
 
-#ifdef AcdCalibMap_cxx
-
-#endif // #ifdef AcdCalibMap_cxx

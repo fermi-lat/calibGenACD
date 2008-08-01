@@ -21,7 +21,7 @@ class AcdHistCalibMap;
 /** 
  * @class AcdRibbonFitLibrary
  *
- * @brief MIP peak calibration fitting library
+ * @brief Ribbon MIP peak calibration fitting library
  *
  * Algorithms are same as for gain fit, but done for each segment seperately.
  * Calibration parameters are ratios relative to central segment
@@ -41,14 +41,18 @@ public:
 public:
 
   /// Standard c'tor, specify fit type
-  AcdRibbonFitLibrary(FitType type, Bool_t pedRemove = kTRUE)
-    :AcdGainFitLibrary(&CalibData::AcdRibbonFitDesc::instance(), type, pedRemove){}
-
-  AcdRibbonFitLibrary(){}
+  AcdRibbonFitLibrary(FitType type)
+    :AcdGainFitLibrary(&CalibData::AcdRibbonFitDesc::instance(), type){}
 
   virtual ~AcdRibbonFitLibrary() {;}
 
-  /// Do the fit, return the status
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param holder is the set of histograms to be fit
+   * @param ref is an optional reference result that may be use to seed the fit
+   * @return 0 for success, a failure code otherwise  
+   **/ 
   virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
 		    CalibData::AcdCalibObj* ref = 0);
 
@@ -60,7 +64,3 @@ private:
 
 
 #endif
-
-#ifdef AcdRibbonFit_cxx
-
-#endif // #ifdef AcdRibbonFit_cxx

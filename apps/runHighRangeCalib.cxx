@@ -28,7 +28,7 @@ int main(int argn, char** argc) {
   /// build filler & load calibs
   AcdMetaCalib r(AcdCalibData::HIGH_RANGE);
   if ( ! r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
-  if ( ! r.readCalib(AcdCalibData::PED_HIGH,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
+  if ( ! r.readCalib(AcdCalibData::PED_HIGH,jc.pedHighFileName().c_str()) ) return AcdJobConfig::MissingInput;
   if ( ! r.readCalib(AcdCalibData::GAIN,jc.gainFileName().c_str()) ) return AcdJobConfig::MissingInput;
   if ( ! r.readCalib(AcdCalibData::CARBON,jc.carbonFileName().c_str()) ) return AcdJobConfig::MissingInput;
   if ( ! r.readCalib(AcdCalibData::RANGE,jc.rangeFileName().c_str()) ) return AcdJobConfig::MissingInput;

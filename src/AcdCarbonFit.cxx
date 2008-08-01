@@ -50,7 +50,7 @@ Int_t AcdCarbonFitLibrary::stats(CalibData::AcdCalibObj& result, const TH1& hist
 
 Int_t AcdCarbonFitLibrary::fallback(CalibData::AcdCalibObj& result, const TH1& hist) {
   Int_t ped, min, peak, halfMax;
-  Int_t status = AcdGainFitLibrary::extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+  Int_t status = AcdGainFitLibrary::extractFeatures(hist,4,ped,min,peak,halfMax);
   if ( status != 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   //Float_t pedValue = hist.GetBinCenter(4*ped);
   //Float_t minValue = hist.GetBinCenter(4*min);
@@ -66,7 +66,7 @@ Int_t AcdCarbonFitLibrary::fitGauss(CalibData::AcdCalibObj& result, const TH1& h
 
   Int_t ped, min, peak, halfMax;
   Int_t rebin(4);
-  Int_t status = AcdGainFitLibrary::extractFeatures(_pedRemove,hist,rebin,ped,min,peak,halfMax);
+  Int_t status = AcdGainFitLibrary::extractFeatures(hist,rebin,ped,min,peak,halfMax);
 
   TH1& theHist = const_cast<TH1&>(hist);
 

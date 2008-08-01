@@ -9,12 +9,14 @@
 #include "../src/AcdCalibMap.h"
 #include "../src/AcdGainFit.h"
 #include "../src/AcdRangeFit.h"
+#include "../src/AcdVetoFit.h"
+#include "../src/AcdCnoFit.h"
 
 
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runMeritCalib.exe","This utility checks the PHA calibration code on digi files");
+  AcdJobConfig jc("runMeritCalib.exe","This utility checks the various calibrations on svac files");
 
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {
@@ -29,8 +31,7 @@ int main(int argn, char** argc) {
   if ( ! jc.checkSvac() ) return AcdJobConfig::MissingInput;  
 
   // build filler & load calibs
-  AcdCalibLoop_Svac r(AcdCalibData::MERITCALIB,jc.svacChain(),jc.optval_L(),jc.optval_G(),jc.config());  
-  bool removePeds = true;
+  AcdCalibLoop_Svac r(AcdCalibData::MERITCALIB,jc.svacChain(),0,jc.config());  
 
   if ( ! r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
   if ( ! r.readCalib(AcdCalibData::HIGH_RANGE,jc.rangeFileName().c_str()) ) return AcdJobConfig::MissingInput;
@@ -39,8 +40,10 @@ int main(int argn, char** argc) {
   // run!
   r.go(jc.optval_n(),jc.optval_s()); 
 
+  r.makeRatioPlots();
+
   // do fits
-  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::P5,removePeds);
+  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::P3);
   AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::GAIN,AcdCalib::H_GAIN);
   if ( gains == 0 ) return AcdJobConfig::ProccessFail;
   
@@ -48,12 +51,31 @@ int main(int argn, char** argc) {
   AcdCalibMap* ranges = r.fit(rangeFitter,AcdCalibData::RANGE,AcdCalib::H_RANGE);
   if ( ranges == 0 ) return AcdJobConfig::ProccessFail;
 
+  AcdVetoFitLibrary vetoFitter(AcdVetoFitLibrary::Counting);
+  AcdCalibMap* veto = r.fit(vetoFitter,AcdCalibData::VETO,AcdCalib::H_VETO);
+  if ( veto == 0 ) return AcdJobConfig::ProccessFail;
+
+  AcdCnoFitLibrary cnoFitter(AcdCnoFitLibrary::Counting);
+  AcdCalibMap* cno = r.fit(cnoFitter,AcdCalibData::CNO,AcdCalib::H_CNO);
+  if ( cno == 0 ) return AcdJobConfig::ProccessFail;
+
+  std::string outputPrefix = jc.outputPrefix();
+  outputPrefix += "_check";
+
   std::string gain_algorithm = gainFitter.algorithm();
-  if ( ! gains->writeOutputs( jc.outputPrefix(), gain_algorithm, jc.instrument(), jc.timeStamp()) ) 
+  if ( ! gains->writeOutputs( outputPrefix, gain_algorithm, jc.instrument(), jc.timeStamp(), true) )
     return AcdJobConfig::OutputFail;
 
   std::string range_algorithm = rangeFitter.algorithm();
-  if ( ! ranges->writeOutputs( jc.outputPrefix(), range_algorithm, jc.instrument(), jc.timeStamp()) )
+  if ( ! ranges->writeOutputs( outputPrefix, range_algorithm, jc.instrument(), jc.timeStamp(), true) )
+    return AcdJobConfig::OutputFail;
+  
+  std::string veto_algorithm = vetoFitter.algorithm();
+  if ( ! veto->writeOutputs( outputPrefix, veto_algorithm, jc.instrument(), jc.timeStamp(), true) )
+    return AcdJobConfig::OutputFail;
+
+  std::string cno_algorithm = cnoFitter.algorithm();
+  if ( ! cno->writeOutputs( outputPrefix, cno_algorithm, jc.instrument(), jc.timeStamp(), true) )
     return AcdJobConfig::OutputFail;
 
   return AcdJobConfig::Success;

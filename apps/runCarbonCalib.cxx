@@ -28,8 +28,7 @@ int main(int argn, char** argc) {
   if ( ! jc.checkSvac() ) return AcdJobConfig::MissingInput;  
 
   // build filler & load calibs
-  AcdCalibLoop_Svac r(AcdCalibData::CARBON,jc.svacChain(),jc.optval_L(),jc.optval_G(),jc.config());  
-  bool removePeds = false;
+  AcdCalibLoop_Svac r(AcdCalibData::CARBON,jc.svacChain(),jc.optval_G(),jc.config());  
 
   if ( ! r.readCalib(AcdCalibData::PED_HIGH,jc.pedHighFileName().c_str() ) ) return AcdJobConfig::MissingInput;
 
@@ -37,7 +36,7 @@ int main(int argn, char** argc) {
   r.go(jc.optval_n(),jc.optval_s()); 
 
   // do fits
-  AcdCarbonFitLibrary gainFitter(AcdCarbonFitLibrary::Gauss,removePeds);  
+  AcdCarbonFitLibrary gainFitter(AcdCarbonFitLibrary::Gauss);  
   AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::CARBON,AcdCalib::H_GAIN,jc.refFileName().c_str());
   if ( gains == 0 ) return AcdJobConfig::ProccessFail;
 

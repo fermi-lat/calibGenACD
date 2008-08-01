@@ -470,46 +470,7 @@ AcdPadMap* AcdCalibUtil::drawHighRangeFits(AcdHistCalibMap& h,
   return padMap;
 }
 
-void AcdCalibUtil::chi2Dist(const TH1& input, TH1*& output, Int_t method, Float_t refVal, Float_t scale) {
-  std::string theName(input.GetName());
-  theName += "_chi2dist";
-  Int_t nBin = input.GetNbinsX();
-  if ( output == 0 ) {
-    // make sure that we have somewhere to put the output
-    output = new TH1F(theName.c_str(),theName.c_str(),100,-6.,6.);
-  }
-  Int_t i(0);
-  Float_t ref = refVal;
-  Bool_t calcMean(kFALSE);
-  switch ( method ) {
-  case AcdCalib::PLAIN: break;
-  case AcdCalib::MEAN_ABSOLUTE: 
-  case AcdCalib::MEAN_RELATIVE: 
-  case AcdCalib::MEAN_SIGMA: 
-    calcMean = kTRUE;
-    break;
-  }
 
-
-  for ( i = 1; i <= nBin; i++ ) {
-    Float_t val = input.GetBinContent(i);
-    Float_t err = input.GetBinError(i);
-    Float_t valDif = val - ref;
-    switch ( method ) {
-    case AcdCalib::PLAIN:
-    case AcdCalib::MEAN_ABSOLUTE:
-      break;
-    case AcdCalib::MEAN_RELATIVE:
-      if ( ref > 1e-9 ) { valDif /= ref; }
-      break;
-    case AcdCalib::MEAN_SIGMA:
-      if ( err > 1e-9 ) { valDif /= err; }
-      break;
-    }
-    valDif *= scale;
-    output->Fill(valDif);
-  }
-}
 
 Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic, Float_t minBot) {
 
@@ -577,9 +538,6 @@ Float_t AcdCalibUtil::width(UInt_t id) {
   UInt_t face = id / 100;
   UInt_t row = (id % 100 ) / 10;
   //UInt_t col = (id % 10 );
-
-  // FIXME stupid temp hack
-  if ( id == 34 ) return 12.;
 
   switch ( face ) {
   case 0:

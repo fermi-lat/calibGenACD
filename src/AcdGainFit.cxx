@@ -88,24 +88,17 @@ Int_t AcdGainFitLibrary::findMaxAfter(const TH1& hist, Int_t startBin) {
 }
 
 
-Int_t AcdGainFitLibrary::extractFeatures(Bool_t pedRemove, const TH1& hist, 
-					 Int_t rebin, Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
+Int_t AcdGainFitLibrary::extractFeatures(const TH1& hist, Int_t rebin, 
+					 Int_t& ped, Int_t& min, Int_t& peak, Int_t& halfMax) {
 
   TH1F copy((TH1F&)hist);
   copy.Rebin(rebin);
 
-  ped = pedRemove ? findLowestNonZeroBin(copy) : 0;
-  if ( ped < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
-  Int_t ped_1 = pedRemove ? findNextLocalMax(copy,ped) : 0;
-  if ( ped_1 < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
-  min = pedRemove ? findNextLocalMin(copy,ped_1) : 0;
-  if ( min < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
-  peak = pedRemove ? findNextLocalMax(copy,min) : findMaxAfter(copy,2);
-  if ( ! pedRemove ) {
-    min = findHalfMaxLow(copy,peak);
-    if ( min < 0 ) min = 1;
-  }
+  ped = 0;
+  peak = findMaxAfter(copy,2);
   if ( peak < 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
+  min = findHalfMaxLow(copy,peak);
+  if ( min < 0 ) min = 1;    
   halfMax = findHalfMaxHigh(copy,peak);
   halfMax = halfMax < 0 ? copy.GetNbinsX() : halfMax;
   return 0;
@@ -134,8 +127,8 @@ Int_t AcdGainFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistH
   case P7:
     returnCode = fitP7(result,hist);
     break;
-  case P5:
-    returnCode = fitP5(result,hist);
+  case P3:
+    returnCode = fitP3(result,hist);
     break;
   case LogNormal:
     returnCode = fitLogNormal(result,hist);
@@ -160,7 +153,7 @@ Int_t AcdGainFitLibrary::stats(CalibData::AcdCalibObj& result, const TH1& hist) 
 
 Int_t AcdGainFitLibrary::fallback(CalibData::AcdCalibObj& result, const TH1& hist) {
   Int_t ped, min, peak, halfMax;
-  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+  Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   if ( status != 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
   //Float_t pedValue = hist.GetBinCenter(4*ped);
@@ -196,7 +189,7 @@ Int_t AcdGainFitLibrary::fitLandau(CalibData::AcdCalibObj& result, const TH1& hi
 Int_t AcdGainFitLibrary::fitP7(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   Int_t ped, min, peak, halfMax;
-  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+  Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   TH1& theHist = const_cast<TH1&>(hist);
 
@@ -218,10 +211,10 @@ Int_t AcdGainFitLibrary::fitP7(CalibData::AcdCalibObj& result, const TH1& hist) 
 }
 
 
-Int_t AcdGainFitLibrary::fitP5(CalibData::AcdCalibObj& result, const TH1& hist) {
+Int_t AcdGainFitLibrary::fitP3(CalibData::AcdCalibObj& result, const TH1& hist) {
 
   Int_t ped, min, peak, halfMax;
-  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+  Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   TH1& theHist = const_cast<TH1&>(hist);
 
@@ -247,7 +240,7 @@ Int_t AcdGainFitLibrary::fitP5(CalibData::AcdCalibObj& result, const TH1& hist) 
 Int_t AcdGainFitLibrary::fitLogNormal(CalibData::AcdCalibObj& result, const TH1& hist) {
   
   Int_t ped, min, peak, halfMax;
-  Int_t status = extractFeatures(_pedRemove,hist,4,ped,min,peak,halfMax);
+  Int_t status = extractFeatures(hist,4,ped,min,peak,halfMax);
 
   if ( status != 0 ) return status;
   //Float_t pedValue = hist.GetBinCenter(4*ped);
