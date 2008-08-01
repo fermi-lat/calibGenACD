@@ -1,4 +1,28 @@
 ------------------------------------------------------------
+User: echarles  Thu Jul 31 17:08:26 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibBase.h AcdCalibEnum.h AcdCalibFit.h 
+	AcdCalibLoop_Digi.cxx AcdCalibLoop_Digi.h 
+	AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h AcdCalibMap.cxx 
+	AcdCalibMap.h AcdCalibUtil.cxx AcdCalibUtil.h AcdCarbonFit.cxx 
+	AcdCarbonFit.h AcdCnoFit.h AcdCoherentNoise.h 
+	AcdCoherentNoiseFit.h AcdDacFit.h AcdGainFit.cxx AcdGainFit.h 
+	AcdGarcGafeHits.cxx AcdGarcGafeHits.h AcdHighRangeFit.h 
+	AcdHistCalibMap.h AcdHldConfig.h AcdHtmlReport.cxx 
+	AcdHtmlReport.h AcdJobConfig.cxx AcdJobConfig.h AcdKey.cxx 
+	AcdKey.h AcdMetaCalib.h AcdPedestalFit.h AcdRangeFit.h 
+	AcdReportPlots.cxx AcdReportPlots.h AcdRibbonFit.cxx 
+	AcdRibbonFit.h AcdVetoConfig.h AcdVetoFit.h AcdXmlUtil.cxx 
+	AcdXmlUtil.h mainpage.h 
+Removed Files:
+	AcdHighRange.cxx AcdHighRange.h AcdStripChart.cxx 
+	AcdStripChart.h AcdStripFit.cxx AcdStripFit.h calibOption.xml 
+Log Message:
+lots of comments, removed some old files
+    *
+------------------------------------------------------------
 User: echarles  Thu Jul 31 17:08:24 PDT 2008
 calibGenACD/python
 
