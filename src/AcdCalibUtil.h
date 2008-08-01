@@ -116,10 +116,6 @@ protected:
 
 public:
 
-  /// histogram the outliers 
-  static void chi2Dist(const TH1& input, TH1*& output, Int_t method = AcdCalib::PLAIN, 
-		       Float_t refVal = 0., Float_t scale = 1.);
-
   /// switch from decimal tile ID (0-603) to GemID(0-127)
   static UShort_t gemId(UInt_t id);
 

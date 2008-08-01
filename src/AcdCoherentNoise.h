@@ -56,7 +56,13 @@ private:
  *
  * @brief AcdCalibration to fit coherent readout noise
  *
- * FIXME more here
+ * This Event Loop looks only at periodic triggers and accumulates the PHA values 
+ * according to the time since the last read out event (GemDeltaEventTime)
+ * 
+ * At the end of the loop each of the histograms filled as a profile with the mean and error for 
+ * each of the time bins
+ *
+ * Those profile plots are then fit to extract the coherent noise parameters
  *
  * @author Eric Charles
  * $Header$
@@ -72,6 +78,7 @@ public :
   
   virtual ~AcdCoherentNoise();  
 
+  /// Fill the profile histograms at the end of the event loop
   void fillHistograms();
   
 protected:
@@ -91,20 +98,25 @@ protected:
 
 private:
 
-  // Local stash
+  /// Low end of time distribution, used to calculate binning
   UInt_t m_loDT;
+  /// High end of time distribution, used to calculate binning
   UInt_t m_hiDT;
+  /// Number of time bins
   UInt_t m_nBins;
+  /// Bin size, used to calculate binning
   Float_t m_binSize;
+
+  /// Time bin for current event, cached for efficiency
   mutable Int_t m_currentBin;
 
-  /// pointer to a ReconEvent
+  /// pointer to a DigiEvent
   DigiEvent* m_digiEvent;
 
   /// The strip charts
   AcdHistCalibMap* m_histMap;
 
-  /// stashed values
+  /// stashed PHA value for each channel
   mutable std::map<UInt_t, AcdBinDataMap> m_vals;
 
 };

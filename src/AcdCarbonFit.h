@@ -19,11 +19,15 @@ class AcdHistCalibMap;
 /** 
  * @class AcdCarbonFitLibrary
  *
- * @brief ACD range crossover calibration fitting library
+ * @brief ACD carbon peak calibration fitting library
  *
  * Algorithms are:
- * - Counting:
- *    - Scan histograms, looking for first and last bins with entries
+ * - Stats:
+ *    - Just use mean and rms
+ * - Fallback:
+ *    - Scan histogram for features, can be used to seed other methods
+ * - Gauss:
+ *    - Fit peak region to a gaussian
  *
  * @author Eric Charles
  * $Header$
@@ -42,24 +46,32 @@ public:
 public:
 
   /// Standard c'tor, specify fit type
-  AcdCarbonFitLibrary(FitType type,bool removePeds)
+  AcdCarbonFitLibrary(FitType type)
     :AcdCalibFit(&CalibData::AcdCarbonFitDesc::instance()),
-    _type(type),
-    _pedRemove(removePeds){
+    _type(type){
   }
 
   AcdCarbonFitLibrary(){}
 
   virtual ~AcdCarbonFitLibrary() {;}
 
-  /// Do the fit, return the status
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param holder is the set of histograms to be fit
+   * @param ref is an optional reference result that may be use to seed the fit
+   * @return 0 for success, a failure code otherwise  
+   **/
   virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
 		    CalibData::AcdCalibObj* ref = 0);
 
+  /// return the fitting alogrithm
   inline FitType fitType() const { return _type; };
+
+  ///  set the fitting algoritm
   inline void setFitType(FitType type) { _type = type; };
 
-  /// return the name of the algorithm  
+  /// return the name of the fitting algorithm  
   virtual const char* algorithm() const {
     static const char* names[4] = {"None","Stats","Fallback","Gauss"};
     return names[_type];
@@ -78,13 +90,8 @@ private:
 
   /// Algorithm to use
   FitType _type;
-  bool _pedRemove;
 
 };
 
 
 #endif
-
-#ifdef AcdCarbonFit_cxx
-
-#endif // #ifdef AcdCarbonFit_cxx

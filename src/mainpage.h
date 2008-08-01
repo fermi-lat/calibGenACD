@@ -9,13 +9,21 @@
 This package contains code to produce calibration constants for ACD. The package includes the following executables:
 
 <ul>
-<li> runMuonCalib_Svac.exe:  Does Gain (aka MIP peak) calibrations.</li>
-<li> runPedestal.exe:  Does pedestal calibrations.</li>
-<li> runVetoCalib.exe:  Does veto threshold calibrations.</li>
-<li> runCnoCalib.exe:  Does cno threshold calibrations.</li>
-<li> runStripChart.exe:  Does time series strip chart testing</li>
-<li> runCoherentNoise.exe:  Does coherent noise calibrations.</li>
-<li> runRangeCalib.exe:  Does range crossover calibrations.</li>
+  <li>runPedestal.exe: runs pedestal calibrations using periodic triggers</li>
+  <li>runMipCalib.exe: runs mip calibrations using charged particles and tracker data</li>
+  <li>runRangeCalib.exe: runs range crossover calibration using all event data</li>
+  <li>runVetoCalib.exe: runs veto threshold calibration using all event data</li>
+  <li>runCnoCalib.exe: runs veto threshold calibration using all event data</li>
+  <li>runCoherentNoiseCalib.exe: runs coherent noise calibration using periodic triggers</li>
+  <li>runCarbonCalib.exe: runs carbon peak calibration using CAL GCR selection and tracker data</li>
+  <li>runRibbonCalib.exe: runs ribbon attenuation calibrations using charged particles and tracker data</li>
+  <li>runHighPed.exe: runs pedestal calibrations special AcdPedestal run</li>
+  <li>runVetoFitCalib.exe: runs veto threshold v. setting calibration using special calibraiton runs</li>
+  <li>runCnoFitCalib.exe: runs cno threshold v. setting calibration using special calibraiton runs</li>
+  <li>runHighRangeCalib.exe: creates high range PHA -> MIP calibration using various inputs</li>
+  <li>runMeritCalib.exe: runs a check on gains, thresholds and range calibrations</li>
+  <li>calibReport.exe: make the HTML report for a calibration</li>
+  <li>makeResultTree.exe: convers the calibration xml file to a root file</li>
 </ul>
 
 
@@ -23,39 +31,28 @@ This package contains code to produce calibration constants for ACD. The package
 
 @verbatim
   Usage:
-    application  -c <configFile>
-  
-    <configFile>      : name of xml file with job configuration
+    application [options] <input>
  
-  
-    application [options] [input] -o <output>
- 
-      INPUT
-         -r <reconFiles>   : comma seperated list of recon ROOT files
-         -d <digiFiles>    : comma seperated list of digi ROOT files
-         -S <svacFiles>    : comma seperated list of svac ROOT files
-         -m <meritFiles>   : comma seperated list of merit ROOT files
-      NOTE:  Different calibrations jobs take diffenent types of input files
- 
-         -o <output>       : prefix (path or filename) to add to output files
-      
-      OPTIONS for all jobs
-         -h                : print this message
-         -n <nEvents>      : run over <nEvents>
-         -s <startEvent>   : start with event <startEvent>
-         -I (LAT | CU06)   : specify instument being calibrated [LAT]
- 
-      OPTIONS for specific jobs (will be ignored by other jobs)
-         -P                : use only periodic triggers
-         -L                : correct for pathlength in tile
-         -b <bins>         : number of time bins in strip chart [300]
-         -p <pedFile>      : use pedestals from this file
-         -g <gainFile>     : use gains from this file
-         -R <rangeFile>    : use range data from this file
+     INPUT file types
+        *.root            : root files (including xrootd)
+        *.lst, *.txt      : text files with list of root files
+     
+     OPTIONS for all jobs
+        -h                : print this message
+        -o <string>       : prefix to add to output files
+        -x <fileName>     : refrence calibration, may be used to seed fits
+        -n <int>          : run over <nEvents>
+        -s <int>          : start with event <startEvent>
+        -I (LAT | CU06)   : specify instument being calibrated [LAT]
+ *
+     OPTIONS for specific jobs (will be ignored by other jobs)
+        -P                : use only periodic triggers
+        -G <int>          : use CAL GCR selection for a given Z
+        -p <fileName>     : use pedestals from this file
+        -R <fileName>     : use range data from this file
+        -g <fileName>     : use gains from this file
+        -H <fileName>     : use high range pedestals from this file
+        -C <fileName>     : use carbon peak calibration from this file
 @endverbatim
-
-@section jobOpt Example of the option file
-
-@verbinclude src/calibOption.xml
 
 */

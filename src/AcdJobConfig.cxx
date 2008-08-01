@@ -25,8 +25,7 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_optval_n(0),
    m_optval_s(0),
    m_optval_P(kFALSE),
-   m_optval_L(kFALSE),
-   m_optval_G(kFALSE),
+   m_optval_G(0),
    m_digiChain(0),
    m_svacChain(0)
 {
@@ -53,26 +52,26 @@ void AcdJobConfig::usage() {
   cout << "Usage:" << endl
        << "\t" << m_theApp << " [options] <inputs>" << endl 
        << endl
-       << "\tNOTE:  Different calibrations jobs take diffenent types of input files" << endl
+       << "\t    INPUT file types" << endl
+       << "\t       *.root        : root files (including xrootd)" << endl
+       << "\t       *.lst, *.txt  : text files with list of root files" << endl
        << endl
        << "\tOPTIONS for all jobs" << endl
        << "\t   -h                : print this message" << endl
-       << "\t   -n <nEvents>      : run over <nEvents>" << endl
-       << "\t   -s <startEvent>   : start with event <startEvent>" << endl
+       << "\t   -o <string>       : prefix to add to output files" << endl
+       << "\t   -x <fileName>     : " << endl
+       << "\t   -n <int>          : run over <nEvents>" << endl
+       << "\t   -s <int>          : start with event <startEvent>" << endl
        << "\t   -I (LAT | CU06)   : specify instument being calibrated [LAT]" << endl
-       << "\t   -t <timeString>   : force a timestamp" << endl
-       << "\t   -x <fileName>     : reference calibration file for comparision" << endl
-       << "\t   -o <output>       : prefix (path or filename) to add to output files" << endl
        << endl
        << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
+       << "\t   -P                : use only periodic triggers" << endl
+       << "\t   -G <int>          : use CAL GCR selection for a given Z" << endl
        << "\t   -p <fileName>     : use pedestals from this file" << endl
        << "\t   -H <fileName>     : use high range pedestals from this file" << endl
        << "\t   -g <fileName>     : use gains from this file" << endl
        << "\t   -R <fileName>     : use range data from this file" << endl
        << "\t   -C <fileName>     : use carbon peak data from this file" << endl
-       << "\t   -P                : use only periodic triggers" << endl
-       << "\t   -G                : use CAL GCR selection" << endl
-       << "\t   -L                : correct for pathlength in tile" << endl
        << endl;
 }
   
@@ -89,7 +88,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
-  char* optString = "hn:s:I:t:x:o:p:H:g:R:C:PGL";
+  char* optString = "hn:s:I:x:o:p:H:g:R:C:PG:";
+
+  m_outputPrefix = "test";
 
 #ifdef WIN32
   while ( (opt = facilities::getopt(argn, argc, optString)) != EOF ) {
@@ -108,9 +109,6 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
       break;
     case 'I':   // Instrument
       m_instrument = string(optarg);
-      break;
-    case 't':
-      m_timeStamp = string(optarg);
       break;
     case 'x':
       m_refFileName = string(optarg);
@@ -137,10 +135,7 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
       m_optval_P = kTRUE;
       break;
     case 'G':   // use CAL GCR selection
-      m_optval_G = kTRUE;
-      break;
-    case 'L':   // pathlength correction
-      m_optval_L = kTRUE;
+      m_optval_G = strtoul( optarg, &endPtr, 0 );
       break;
     case '?':
       usage();
@@ -164,15 +159,14 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   }
   
   // timestamp  
-  if ( m_timeStamp == "" ) {
-    facilities::Timestamp ts;
-    m_timeStamp = ts.getString();
-    m_timeStamp += " UTC";
-  }
+  facilities::Timestamp ts;
+  m_timeStamp = ts.getString();
+  m_timeStamp += " UTC";
   
   if ( m_instrument == std::string("LAT") || 
        m_instrument == std::string("") ) {
     m_config = AcdKey::LAT;
+    m_instrument = "LAT";
   } else if ( m_instrument == std::string("CU06") ) {
     m_config = AcdKey::BEAM;
   } else {
@@ -190,11 +184,8 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   if ( m_optval_P ) {
     std::cout << "Using only periodic triggers" << std::endl;
   }
-  if ( m_optval_G ) {
-    std::cout << "Using CAL GCR selection" << std::endl;
-  }
-  if ( m_optval_L ) {
-    std::cout << "Using pathlength correction" << std::endl;
+  if ( m_optval_G != 0 ) {
+    std::cout << "Using CAL GCR selection for Z = " << m_optval_G << std::endl;
   }
   if ( m_pedFileName != "" ) {
     std::cout << "pedestal file: " << m_pedFileName << std::endl;

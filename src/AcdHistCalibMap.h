@@ -30,11 +30,15 @@ class  AcdCalibHistHolder {
 public:
   AcdCalibHistHolder(){;}  
   virtual ~AcdCalibHistHolder(){;}
+  /// return the ith histogram
   TH1* getHist(UInt_t idx) const;
+  ///  add a histogram to the set
   void addHist(TH1& hist);  
 private:
   std::vector<TH1*> m_hists;     // NOT owned
 };
+
+
 
 /** 
  * @class AcdHistCalibMap
@@ -47,7 +51,6 @@ private:
  * @author Eric Charles
  * $Header$
  */
-
 
 class AcdHistCalibMap {
 
@@ -62,27 +65,26 @@ public:
   
   virtual ~AcdHistCalibMap();
   
-  /// Get a histogram by key and index
+  /// return a histogram by key and index
   TH1* getHist(UInt_t key, UInt_t idx=0);
 
-  /// Get a histogram holder by key
+  /// return a set of histograms by key
   AcdCalibHistHolder* getHolder(UInt_t key);
 
+  /// return the entire map
   const std::map<UInt_t,AcdCalibHistHolder>& theMap() const {
     return m_map;
   }
 
+  /// return the list of all the histograms
   const TList& histograms() const { 
     return m_list;
   }
   
-  void ls() {
-    m_list.Print();
-  }
-
-  /// Write histograms to a file
+  ///  write histograms to a file
   Bool_t writeHistograms(const char* newFileName );
 
+  /// return the configuration (LAT or CU06)
   AcdKey::Config config() const { return m_config; }
 
 protected:
@@ -92,13 +94,19 @@ protected:
 
 private:
 
+  /// The configuration (LAT or CU06)
   AcdKey::Config         m_config;
 
+  /// Number of bins in each histogram
   UInt_t                 m_bins;
+  /// Low value of each histogram
   Float_t                m_lo;
+  /// High value of each histogram
   Float_t                m_hi;
 
+  /// All the histograms
   TList                  m_list;
+  /// Map for channel key to set of histograms
   std::map<UInt_t,AcdCalibHistHolder>  m_map;
   
 };
@@ -106,7 +114,6 @@ private:
 #endif
 
 #ifdef AcdHistCalibMap_cxx
-
 
 AcdHistCalibMap::AcdHistCalibMap(const char* prefix, 
 				 UInt_t nBins, Float_t lo, Float_t hi, AcdKey::Config config, UInt_t n)

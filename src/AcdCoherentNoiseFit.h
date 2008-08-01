@@ -23,7 +23,7 @@ class AcdHistCalibMap;
  * @brief CNO calibration fitting library
  *
  * Algorithms are:
- *  - Minuit:      fit using Minuit and form y = [0] * exp(-x/[1]) * sin(x*[2] + [3]
+ *  - Minuit:      fit using Minuit and form y = [0] * exp(-x/[1]) * sin(x*[2] + [3])
  *      Success depends mainly on good seed value
  *
  * @author Eric Charles
@@ -48,14 +48,23 @@ public:
 
   virtual ~AcdCoherentNoiseFitLibrary() {;}
 
-  /// Do the fit, return the status
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param holder is the set of histograms to be fit
+   * @param ref is an optional reference result that may be use to seed the fit
+   * @return 0 for success, a failure code otherwise  
+   **/
   virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
 		    CalibData::AcdCalibObj* ref = 0);
 
+  /// return the fitting alogrithm  
   inline FitType fitType() const { return _type; };
+
+  ///  set the fitting algoritm  
   inline void setFitType(FitType type) { _type = type; };
 
-  /// return the name of the algorithm
+  /// return the name of the fitting algorithm
   virtual const char* algorithm() const {
     static const char* names[2] = {"None","Minuit"};
     return names[_type];

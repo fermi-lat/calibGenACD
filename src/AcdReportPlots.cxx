@@ -73,6 +73,7 @@ namespace AcdReport {
   TString title_hiMin    = "Hi Range Min";
 
   TString units_pha      = "(PHA)";
+  TString units_mip      = "(mip)";
   TString units_decay    = "(ticks)";
   TString units_phase    = "(rad)";
   TString units_dac      = "(dac)";
@@ -131,19 +132,19 @@ void AcdReport::makeTrendChain( const std::string& calType,
 }
 
 Bool_t AcdReport::makeSummaryPlots( AcdCalibData::CALTYPE pType, const char* outputPrefix, TTree* inTree, 
-				    std::list<std::string>& plotNames ) {
+				    std::list<std::string>& plotNames, bool isCheckCalib  ) {
   Bool_t ok(kFALSE);
   switch (pType) {
   case AcdCalibData::PEDESTAL:
     ok = makeSummaryPlots_Ped(inTree,outputPrefix,plotNames); break;    
   case AcdCalibData::GAIN:
-    ok = makeSummaryPlots_Gain(inTree,outputPrefix,plotNames); break; 
+    ok = makeSummaryPlots_Gain(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::VETO:
-    ok = makeSummaryPlots_Veto(inTree,outputPrefix,plotNames); break; 
+    ok = makeSummaryPlots_Veto(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::RANGE:
-    ok = makeSummaryPlots_Range(inTree,outputPrefix,plotNames); break; 
+    ok = makeSummaryPlots_Range(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::CNO:
-    ok = makeSummaryPlots_Cno(inTree,outputPrefix,plotNames); break; 
+    ok = makeSummaryPlots_Cno(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::HIGH_RANGE:
     ok = makeSummaryPlots_HighRange(inTree,outputPrefix,plotNames); break; 
   case AcdCalibData::COHERENT_NOISE:
@@ -167,19 +168,19 @@ Bool_t AcdReport::makeSummaryPlots( AcdCalibData::CALTYPE pType, const char* out
 
 
 Bool_t AcdReport::makeDeltaPlots( AcdCalibData::CALTYPE pType, const char* outputPrefix, TTree* inTree, 
-				  std::list<std::string>& plotNames ){
+				  std::list<std::string>& plotNames, bool isCheckCalib ){
   Bool_t ok(kFALSE);
   switch (pType) {
   case AcdCalibData::PEDESTAL:
     ok = makeDeltaPlots_Ped(inTree,outputPrefix,plotNames); break;    
   case AcdCalibData::GAIN:
-    ok = makeDeltaPlots_Gain(inTree,outputPrefix,plotNames); break; 
+    ok = makeDeltaPlots_Gain(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::VETO:
-    ok = makeDeltaPlots_Veto(inTree,outputPrefix,plotNames); break; 
+    ok = makeDeltaPlots_Veto(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::RANGE:
-    ok = makeDeltaPlots_Range(inTree,outputPrefix,plotNames); break; 
+    ok = makeDeltaPlots_Range(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::CNO:
-    ok = makeDeltaPlots_Cno(inTree,outputPrefix,plotNames); break; 
+    ok = makeDeltaPlots_Cno(inTree,outputPrefix,plotNames,isCheckCalib); break; 
   case AcdCalibData::HIGH_RANGE:
     ok = makeDeltaPlots_HighRange(inTree,outputPrefix,plotNames); break; 
   case AcdCalibData::COHERENT_NOISE:
@@ -384,83 +385,96 @@ Bool_t AcdReport::makeDeltaPlots_Ped( TTree* inTree, const char* outputPrefix, s
   return kTRUE;
 }
 
-Bool_t AcdReport::makeSummaryPlots_Gain( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeSummaryPlots_Gain( TTree* inTree, const char* outputPrefix, 
+					 std::list<std::string>& plotNames , bool isCheckCalib){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t max = isCheckCalib ? 2. : 1500.;
   if ( ! makeSummaryPlot_Generic(inTree,h1,name_sum,
-				 title_gain,name_peak,units_pha,cut_chan,100,0.,1500.) ) return kFALSE;
+				 title_gain,name_peak,units,cut_chan,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-				 title_gain,name_peak,units_pha,cut_rib,100,0.,1500.) ) return kFALSE;
+				 title_gain,name_peak,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2,name_sum,
-				       title_gain,name_peak,units_pha,cut_tile,100,0.,1500.) ) return kFALSE;
+				       title_gain,name_peak,units,cut_tile,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				       title_gain,name_peak,units_pha,cut_rib,100,0.,1500.) ) return kFALSE;  
+				       title_gain,name_peak,units,cut_rib,100,0.,max) ) return kFALSE;  
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 }
 
-Bool_t AcdReport::makeDeltaPlots_Gain( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeDeltaPlots_Gain( TTree* inTree, const char* outputPrefix, 
+				       std::list<std::string>& plotNames, bool isCheckCalib ){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t max = isCheckCalib ? 2. : 1500.;
   if ( ! makeDeltaPlot_Relative(inTree,h1,name_sum,
-				title_gain,name_peak,units_pha,cut_chan,100,-1.,1.) ) return kFALSE;
+				title_gain,name_peak,units,cut_chan,100,-1.,1.) ) return kFALSE;
   if ( ! makeDeltaPlot_Relative(inTree,h1_rib,name_sum+"_rib",
-				title_gain,name_peak,units_pha,cut_rib,100,-1.,1.) ) return kFALSE;
+				title_gain,name_peak,units,cut_rib,100,-1.,1.) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeCorrelPlot_Generic(inTree,h2,name_sum,
-				title_gain,name_peak,units_pha,cut_chan,100,0.,1500.) ) return kFALSE;
+				title_gain,name_peak,units,cut_chan,100,0.,max) ) return kFALSE;
   if ( ! makeCorrelPlot_Generic(inTree,h2_rib,name_sum+"_rib",
-				title_gain,name_peak,units_pha,cut_chan,100,0.,1500.) ) return kFALSE;
+				title_gain,name_peak,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 }
 
-Bool_t AcdReport::makeSummaryPlots_Veto( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeSummaryPlots_Veto( TTree* inTree, const char* outputPrefix, 
+					 std::list<std::string>& plotNames, bool isCheckCalib ){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t max = isCheckCalib ? 2. : 1500.;
   if ( ! makeSummaryPlot_Generic(inTree,h1,name_sum,
-				 title_veto,name_veto,units_pha,cut_chan,100,0.,1500.) ) return kFALSE;
+				 title_veto,name_veto,units,cut_chan,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-				 title_veto,name_veto,units_pha,cut_rib,100,0.,1500.) ) return kFALSE;
+				 title_veto,name_veto,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2,name_sum,
-				       title_veto,name_veto,units_pha,cut_tile,100,0.,1500.) ) return kFALSE;
+				       title_veto,name_veto,units,cut_tile,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				       title_veto,name_veto,units_pha,cut_rib,100,0.,1500.) ) return kFALSE;
+				       title_veto,name_veto,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 }
 
-Bool_t AcdReport::makeDeltaPlots_Veto( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeDeltaPlots_Veto( TTree* inTree, const char* outputPrefix, 
+				       std::list<std::string>& plotNames, bool isCheckCalib ){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t maxDel = isCheckCalib ? 0.5 : 300.;
   if ( ! makeDeltaPlot_Generic(inTree,h1,name_sum,
-			       title_veto,name_veto,units_pha,cut_chan,100,-300.,300.) ) return kFALSE;
+			       title_veto,name_veto,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
   if ( ! makeDeltaPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-			       title_veto,name_veto,units_pha,cut_rib,100,-300.,300.) ) return kFALSE;
+			       title_veto,name_veto,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2,name_sum,
-				     title_veto,name_veto,units_pha,cut_chan,100,-300.,300.) ) return kFALSE;
+				     title_veto,name_veto,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				     title_veto,name_veto,units_pha,cut_rib,100,-300.,300.) ) return kFALSE;
+				     title_veto,name_veto,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 }
 
-Bool_t AcdReport::makeSummaryPlots_Range( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeSummaryPlots_Range( TTree* inTree, const char* outputPrefix, 
+					  std::list<std::string>& plotNames, bool /* isCheckCalib */){
   TCanvas cnv;
   TH1* h1_lo(0);
   TH1* h1_hi(0);
@@ -482,7 +496,8 @@ Bool_t AcdReport::makeSummaryPlots_Range( TTree* inTree, const char* outputPrefi
   return kTRUE;
 }
 
-Bool_t AcdReport::makeDeltaPlots_Range( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeDeltaPlots_Range( TTree* inTree, const char* outputPrefix, 
+					std::list<std::string>& plotNames, bool /* isCheckCalib */){
   TCanvas cnv;
   TH1* h1_lo(0);
   TH1* h1_hi(0);
@@ -504,40 +519,46 @@ Bool_t AcdReport::makeDeltaPlots_Range( TTree* inTree, const char* outputPrefix,
   return kTRUE;
 }
 
-Bool_t AcdReport::makeSummaryPlots_Cno( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeSummaryPlots_Cno( TTree* inTree, const char* outputPrefix, 
+					std::list<std::string>& plotNames, bool isCheckCalib ){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t max = isCheckCalib ? 100. : 300.;
   if ( ! makeSummaryPlot_Generic(inTree,h1,name_sum,
-				 title_cno,name_cno,units_pha,cut_chan,100,0.,300.) ) return kFALSE;
+				 title_cno,name_cno,units,cut_chan,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-				 title_cno,name_cno,units_pha,cut_rib,100,0.,300.) ) return kFALSE;
+				 title_cno,name_cno,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2,name_sum,
-				       title_cno,name_cno,units_pha,cut_chan,100,0.,300.) ) return kFALSE;
+				       title_cno,name_cno,units,cut_chan,100,0.,max) ) return kFALSE;
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				       title_cno,name_cno,units_pha,cut_rib,100,0.,300.) ) return kFALSE;
+				       title_cno,name_cno,units,cut_rib,100,0.,max) ) return kFALSE;
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 }
 
-Bool_t AcdReport::makeDeltaPlots_Cno( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames ){
+Bool_t AcdReport::makeDeltaPlots_Cno( TTree* inTree, const char* outputPrefix, 
+				      std::list<std::string>& plotNames, bool isCheckCalib ){
   TCanvas cnv;
   TH1* h1(0);
   TH1* h1_rib(0);
+  const TString& units = isCheckCalib ? units_mip : units_pha;
+  Float_t maxDel = isCheckCalib ? 0.5 : 300.;
   if ( ! makeDeltaPlot_Generic(inTree,h1,name_sum,
-			       title_cno,name_cno,units_pha,cut_chan,100,-300.,300.) ) return kFALSE;
+			       title_cno,name_cno,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
   if ( ! makeDeltaPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-			       title_cno,name_cno,units_pha,cut_rib,100,-300.,300.) ) return kFALSE;
+			       title_cno,name_cno,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2,name_sum,
-				     title_cno,name_cno,units_pha,cut_chan,100,-300.,300.) ) return kFALSE;
+				     title_cno,name_cno,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				     title_cno,name_cno,units_pha,cut_rib,100,-300.,300.) ) return kFALSE;
+				     title_cno,name_cno,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
   savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
   return kTRUE;
 } 

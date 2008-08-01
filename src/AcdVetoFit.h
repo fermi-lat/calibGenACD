@@ -20,7 +20,7 @@ class AcdHistCalibMap;
  *  - Counting:  find first bin above 50% of maximum value. 
  *      Accuracy depends mainly on bin size
  *  - Erf:       fit using Minuit and ERF
- *      Accuracy depends mainly on good seed value
+ *      Accuracy depends mainly on good seed value (NOT implemented)
  *
  * @author Eric Charles
  * $Header$
@@ -50,14 +50,23 @@ public:
 
   virtual ~AcdVetoFitLibrary() {;}
   
-  /// Do the fit, return the status
+  /**
+   * @brief Fit a single channel and store the result
+   * @param result is the result of the fit
+   * @param holder is the set of histograms to be fit
+   * @param ref is an optional reference result that may be use to seed the fit
+   * @return 0 for success, a failure code otherwise  
+   **/ 
   virtual Int_t fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
 		    CalibData::AcdCalibObj* ref = 0);
 
+  /// return the fitting alogrithm
   inline FitType fitType() const { return _type; };
+
+  ///  set the fitting algoritm
   inline void setFitType(FitType type) { _type = type; };
 
-  /// return the name of the algorithm
+  /// return the name of the fitting algorithm  
   virtual const char* algorithm() const {
     static const char* names[3] = {"None","Counting","Erf"};
     return names[_type];
@@ -79,7 +88,3 @@ private:
 };
 
 #endif
-
-#ifdef AcdVetoFit_cxx
-
-#endif // #ifdef AcdVetoFit_cxx

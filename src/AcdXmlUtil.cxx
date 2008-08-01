@@ -92,8 +92,6 @@ void
 AcdXmlUtil::getEventFileType( std::string& eventFileType, int cType) {
   switch (cType) {
   case AcdCalib::DIGI:  eventFileType = "Digi";  break;
-  case AcdCalib::RECON: eventFileType = "Recon"; break;
-  case AcdCalib::MERIT: eventFileType = "Merit"; break;
   case AcdCalib::SVAC:  eventFileType = "Svac";  break;
   default:
     return;
@@ -252,7 +250,8 @@ AcdXmlUtil::writeIt(DomElement& doc,const char* fileName) {
 
 bool  
 AcdXmlUtil::writeHtml(DomElement& doc,const char* fileName) {
-  return xmlBase::Dom::writeIt(&(doc()),fileName); 
+  xmlBase::Dom::writeIt(&(doc()),fileName); 
+  return true;
 }
 
 

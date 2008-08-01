@@ -37,7 +37,7 @@ public:
   virtual ~AcdGarcGafeHits();
 
   
-  /// reset the counter
+  /// reset the counters
   void reset();
 
   /// count up all the digis
@@ -46,9 +46,7 @@ public:
   void setDigi(const AcdDigi& digi, Float_t pmtA, Float_t pmtB);
 
   /// count up all the hits
-  void setHits(const AcdRecon& recon);
-  /// count hit
-  void setHit(const AcdHit& hit);
+  void setHit(Int_t id, Float_t mipsA, Float_t mipsB);
 
   /// set the CNO mask
   inline void setCNO(const UShort_t& cno) {
@@ -116,7 +114,3 @@ private:
 };
 
 #endif
-
-#ifdef AcdGarcGafeHits_cxx
-
-#endif // #ifdef AcdGarcGafeHits_cxx

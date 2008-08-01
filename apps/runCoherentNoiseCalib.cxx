@@ -28,7 +28,7 @@ int main(int argn, char** argc) {
   if ( ! jc.checkDigi() ) return AcdJobConfig::MissingInput;
 
   /// build filler & load calibs
-  AcdCoherentNoise r(jc.digiChain(), 529, 2529, 300., jc.config() );
+  AcdCoherentNoise r(jc.digiChain(), 529, 2529, 200., jc.config() );
 
   if ( ! r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
 
