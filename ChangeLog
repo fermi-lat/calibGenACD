@@ -1,5 +1,18 @@
 ------------------------------------------------------------
 User: echarles  Thu Jul 31 17:08:24 PDT 2008
+calibGenACD/python
+
+Added Files:
+	AcdReportRun.py AcdReportUtil.py 
+Removed Files:
+	AcdHighRangeCalib.py AcdPedestalCsvToXml.py 
+	AcdROOT_FitCnoGarc.py AcdROOT_FitVetoGarc.py 
+	AcdROOT_LineFit.py AcdTileMapLookUp.py AcdXmlUtil.py 
+Log Message:
+lots of comments, removed some old files
+    *
+------------------------------------------------------------
+User: echarles  Thu Jul 31 17:08:24 PDT 2008
 calibGenACD/apps
 
 Modified Files:
