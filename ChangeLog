@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Thu Jul 31 17:08:24 PDT 2008
+calibGenACD/apps
+
+Modified Files:
+	runCarbonCalib.cxx runCnoCalib.cxx runCoherentNoiseCalib.cxx 
+	runHighRangeCalib.cxx runMeritCalib.cxx runMipCalib.cxx 
+	runRibbonCalib.cxx 
+Log Message:
+lots of comments, removed some old files
+    *
+------------------------------------------------------------
 User: echarles  Mon Jul 28 19:59:07 PDT 2008
 calibGenACD/src
 
