@@ -83,6 +83,9 @@ AcdXmlUtil::getSuffix( std::string& suffix, int calType) {
   case AcdCalibData::CNO_FIT: 
     suffix = "_cnoFit"; 
     break;
+  case AcdCalibData::MERITCALIB: 
+    suffix = "_check"; 
+    break;
   default:
     suffix = "_calib";    
   }
@@ -137,55 +140,107 @@ AcdXmlUtil::getCalibElemName( std::string& calibElemName, int calType) {
   case AcdCalibData::CNO_FIT: 
     calibElemName = "acdCnoFit"; 
     break;
+  case AcdCalibData::MERITCALIB: 
+    calibElemName = "acdCheck"; 
+    break;
   default:
     calibElemName = "calib";    
   }
 }
 
 void 
-AcdXmlUtil::getCalibTypeName( std::string& calibElemName, int calType) {
+AcdXmlUtil::getCalibTypeName( std::string& calibTreeName, int calType) {
   switch ( calType ) {
   case AcdCalibData::PED_HIGH: 
-    calibElemName = "ACD_HighPed"; 
+    calibTreeName = "ACD_HighPed"; 
     break;
   case AcdCalibData::GAIN: 
-    calibElemName = "ACD_Gain"; 
+    calibTreeName = "ACD_Gain"; 
     break;
   case AcdCalibData::VETO: 
-    calibElemName = "ACD_Veto"; 
+    calibTreeName = "ACD_Veto"; 
     break;
   case AcdCalibData::RANGE: 
-    calibElemName = "ACD_Range"; 
+    calibTreeName = "ACD_Range"; 
     break;
   case AcdCalibData::CNO: 
-    calibElemName = "ACD_Cno"; 
+    calibTreeName = "ACD_Cno"; 
     break;
   case AcdCalibData::HIGH_RANGE: 
-    calibElemName = "ACD_HighRange"; 
+    calibTreeName = "ACD_HighRange"; 
     break;
   case AcdCalibData::COHERENT_NOISE: 
-    calibElemName = "ACD_CoherentNoise"; 
+    calibTreeName = "ACD_CoherentNoise"; 
     break;
   case AcdCalibData::RIBBON: 
-    calibElemName = "ACD_Ribbon"; 
+    calibTreeName = "ACD_Ribbon"; 
     break;    
   case AcdCalibData::PEDESTAL: 
-    calibElemName = "ACD_Pedestal"; 
+    calibTreeName = "ACD_Pedestal"; 
     break;    
   case AcdCalibData::CARBON: 
-    calibElemName = "ACD_Carbon"; 
+    calibTreeName = "ACD_Carbon"; 
     break;
   case AcdCalibData::VETO_FIT: 
-    calibElemName = "ACD_VetoFit"; 
+    calibTreeName = "ACD_VetoFit"; 
     break;    
   case AcdCalibData::CNO_FIT: 
-    calibElemName = "ACD_CnoFit"; 
+    calibTreeName = "ACD_CnoFit"; 
+    break;    
+  case AcdCalibData::MERITCALIB: 
+    calibTreeName = "ACD_Check"; 
     break;    
   default:
-    calibElemName = "ACD_Calib";    
+    calibTreeName = "ACD_Calib";    
   }
 }
 
+void 
+AcdXmlUtil::getCalibTreeName( std::string& calibTreeName, int calType) {
+  switch ( calType ) {
+  case AcdCalibData::PED_HIGH: 
+    calibTreeName = "ACD_HighPed"; 
+    break;
+  case AcdCalibData::GAIN: 
+    calibTreeName = "ACD_Gain"; 
+    break;
+  case AcdCalibData::VETO: 
+    calibTreeName = "ACD_Veto"; 
+    break;
+  case AcdCalibData::RANGE: 
+    calibTreeName = "ACD_Range"; 
+    break;
+  case AcdCalibData::CNO: 
+    calibTreeName = "ACD_Cno"; 
+    break;
+  case AcdCalibData::HIGH_RANGE: 
+    calibTreeName = "ACD_HighRange"; 
+    break;
+  case AcdCalibData::COHERENT_NOISE: 
+    calibTreeName = "ACD_CoherentNoise"; 
+    break;
+  case AcdCalibData::RIBBON: 
+    calibTreeName = "ACD_Ribbon"; 
+    break;    
+  case AcdCalibData::PEDESTAL: 
+    calibTreeName = "ACD_Ped"; 
+    break;    
+  case AcdCalibData::CARBON: 
+    calibTreeName = "ACD_Carbon"; 
+    break;
+  case AcdCalibData::VETO_FIT: 
+    calibTreeName = "ACD_VetoFit"; 
+    break;    
+  case AcdCalibData::CNO_FIT: 
+    calibTreeName = "ACD_CnoFit"; 
+    break;    
+  case AcdCalibData::MERITCALIB: 
+    calibTreeName = "ACD_Check"; 
+    break;    
+  default:
+    calibTreeName = "ACD_Calib";    
+  }
+}
 
 DomElement
 AcdXmlUtil::makeDocument(const char* name){

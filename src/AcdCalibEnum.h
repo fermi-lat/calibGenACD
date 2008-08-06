@@ -22,7 +22,8 @@ namespace AcdCalib {
 		H_RIBBONS=7,         // Used for Ribbons: 16 PHA/bin
 		H_CARBON=8,          // Used for Carbon peak: 16 PHA/bin
 		H_VETO_FIT=9,        // Used for VETO and CNO settings fit: 1 PHA/bin
-		H_NHIST=10};
+		H_TREND=10,          // Used for Trending: 1 calib/bin
+		H_NHIST=11};
 
   /// Types of input data chains
   enum CHAIN{NO_CHAIN=-1,

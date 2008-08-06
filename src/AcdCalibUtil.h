@@ -14,6 +14,7 @@ class AcdCalibMap;
 class AcdPadMap;
 class TVirtualPad;
 class TH1;
+class TH2;
 
 namespace CalibData {
   class AcdCalibObj;
@@ -42,6 +43,11 @@ public :
   static Bool_t makeFitPlots(AcdCalibMap& calib,
 			     const char* filePrefix = "",
 			     const char* suffix = ".gif");
+  
+  static Bool_t makeTrendPlots(AcdHistCalibMap& hTrends,
+			       const std::vector<TH2*>& summaryHists,
+			       const char* filePrefix = "",
+			       const char* suffix = ".gif");
   
 protected:
 
@@ -72,6 +78,9 @@ protected:
 
   /// draw a single high range fit plot
   static void drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, CalibData::AcdCalibObj* res);
+
+  /// draw a single trending plot
+  static void drawTrendingPlot(TVirtualPad& vp, TH1& tData, const TH2& tRef);
  
 
   /// draw pedestal plots onto canvases
@@ -113,6 +122,10 @@ protected:
   /// draw high range fit plots onto canvases
   static AcdPadMap* drawHighRangeFits(AcdHistCalibMap& h, 
 				      AcdCalibMap& fits, const char* prefix = "");
+
+  /// draw the trend plots
+  static AcdPadMap* drawTrends(AcdHistCalibMap& h, const TH2& rh, 
+			       UInt_t idx, UInt_t nVar, const char* prefix = "");
 
 public:
 

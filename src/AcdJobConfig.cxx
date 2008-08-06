@@ -25,6 +25,7 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_optval_n(0),
    m_optval_s(0),
    m_optval_P(kFALSE),
+   m_optval_m(kFALSE),  
    m_optval_G(0),
    m_digiChain(0),
    m_svacChain(0)
@@ -66,6 +67,7 @@ void AcdJobConfig::usage() {
        << endl
        << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
        << "\t   -P                : use only periodic triggers" << endl
+       << "\t   -m                : use the mip values from the svac file" << endl
        << "\t   -G <int>          : use CAL GCR selection for a given Z" << endl
        << "\t   -p <fileName>     : use pedestals from this file" << endl
        << "\t   -H <fileName>     : use high range pedestals from this file" << endl
@@ -88,7 +90,7 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
-  char* optString = "hn:s:I:x:o:p:H:g:R:C:PG:";
+  char* optString = "hn:s:I:x:o:p:H:g:R:C:PmG:";
 
   m_outputPrefix = "test";
 
@@ -131,6 +133,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     case 'C':   // carobon peak pedestals
       m_carbonFileName = string(optarg);
       break;      
+    case 'm':   // periodic only
+      m_optval_m = kTRUE;
+      break;
     case 'P':   // periodic only
       m_optval_P = kTRUE;
       break;
@@ -183,6 +188,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   }
   if ( m_optval_P ) {
     std::cout << "Using only periodic triggers" << std::endl;
+  }
+  if ( m_optval_m ) {
+    std::cout << "Taking mip values from svac file" << std::endl;
   }
   if ( m_optval_G != 0 ) {
     std::cout << "Using CAL GCR selection for Z = " << m_optval_G << std::endl;
@@ -269,7 +277,7 @@ Bool_t AcdJobConfig::checkSvac() const {
   return kTRUE;
 }
  
-Bool_t AcdJobConfig::getFileList(const char* fileName, std::vector<std::string>& files) const {
+Bool_t AcdJobConfig::getFileList(const char* fileName, std::vector<std::string>& files) {
    std::ifstream infile(fileName);   
    if ( ! infile.good() ) return kFALSE;
    char formatLine[512];

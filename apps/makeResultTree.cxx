@@ -49,6 +49,8 @@ int main(int argn, char** argc) {
     cType = AcdCalibData::COHERENT_NOISE;
   } else if ( inName.find("_rib.") != inName.npos ) {
     cType = AcdCalibData::RIBBON;
+  } else if ( inName.find("_check.") != inName.npos ) {
+    cType = AcdCalibData::MERITCALIB;
   } else {
     std::cerr << "Could not recognize input file type for file " <<  inName << std::endl;
     return AcdJobConfig::IllegalOption;

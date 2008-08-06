@@ -35,7 +35,7 @@ CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P']),
               'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[]),
               'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[]),
               'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range']),
-              'check':('Check','runMeritCalib.exe',1,['ped','gain','highRange'])}
+              'check':('Check','runMeritCalib.exe',3,['ped','gain','highRange'])}
 
 USABLERUNTYPES = {"Tack_scan0":0,
                   "Tack_scan1":0,
@@ -56,40 +56,41 @@ USABLERUNTYPES = {"Tack_scan0":0,
                   "bkgAlbedo":0,
                   "bkgNadir":0,
                   "bkgPrescaled":0,
-                  "calibOps":1,
-                  "calibOps_eng10ps25":1,
+                  "calibOps":0,
+                  "calibOps_eng10ps25":0,
                   "conBkgNadir":0,
                   "conBkgPrescaled":0,
-                  "conSciOps":1,
-                  "conSciOps_DgnTkr":1,
-                  "conSciOps_NoCal":1,
-                  "fheCalib_evenHi":1,
-                  "fheCalib_evenLo":1,
-                  "fheCalib_oddHi":1,
-                  "fheCalib_oddLo":1,
+                  "conSciOps":0,
+                  "conSciOps_DgnTkr":0,
+                  "conSciOps_NoCal":0,
+                  "fheCalib_evenHi":0,
+                  "fheCalib_evenLo":0,
+                  "fheCalib_oddHi":0,
+                  "fheCalib_oddLo":0,
                   "filterSimple":0,
                   "filterTaper":0,
-                  "fleCalib_evenHiNeg":1,
-                  "fleCalib_evenHiPos":1,
-                  "fleCalib_evenLoNeg":1,
-                  "fleCalib_evenLoPos":1,
-                  "fleCalib_oddHiNeg":1,
-                  "fleCalib_oddHiPos":1,
-                  "fleCalib_oddLoNeg":1,
-                  "fleCalib_oddLoPos":1,
-                  "hldCalib_Hi":1,
-                  "hldCalib_Lo":1,
-                  "hldCalib_Nom":1,
-                  "lacCalib_LoNeg":1,
-                  "lacCalib_LoPos":1,
-                  "lacCalib_MidNeg":1,
-                  "lacCalib_MidPos":1,
+                  "fleCalib_evenHiNeg":0,
+                  "fleCalib_evenHiPos":0,
+                  "fleCalib_evenLoNeg":0,
+                  "fleCalib_evenLoPos":0,
+                  "fleCalib_oddHiNeg":0,
+                  "fleCalib_oddHiPos":0,
+                  "fleCalib_oddLoNeg":0,
+                  "fleCalib_oddLoPos":0,
+                  "hldCalib_Hi":0,
+                  "hldCalib_Lo":0,
+                  "hldCalib_Nom":0,
+                  "lacCalib_LoNeg":0,
+                  "lacCalib_LoPos":0,
+                  "lacCalib_MidNeg":0,
+                  "lacCalib_MidPos":0,
                   "nomSO_noSk_noCno_Lac1MeV":1,
                   "nomSO_noSk_noCno_Lac1p5MeV":1,
                   "nomSO_noSk_noCno_calLo":1,
                   "nomSO_noSk_noCno_optGccc":1,
                   "nomSO_noSk_noCno_optGccc_allEna":1,
                   "nomSciOps":1,
+                  "nomSciOps_Emin5MeV":1,
                   "nomSciOps_DgnTkr":1,
                   "nomSciOps_altCno":1,
                   "nomSciOps_noCNO":1,
@@ -98,9 +99,9 @@ USABLERUNTYPES = {"Tack_scan0":0,
                   "nomSciOps_timing":1,
                   "nomSciOps_topCno":1,
                   "nomSciOps_uldLo":1,
-                  "vetoCalib_Hi":1,
-                  "vetoCalib_Lo":1,
-                  "vetoCalib_Nom":1}
+                  "vetoCalib_Hi":0,
+                  "vetoCalib_Lo":0,
+                  "vetoCalib_Nom":0}
 
 def getDirName(calibName):
     """
@@ -220,10 +221,7 @@ def buildCalibCommand(calibName,refDict,runs,tag):
     if tag == "":
         tag = (runs[0][1])
     execName = getExeName(calibName)
-    if calibName == 'check':
-        refNameStr =""
-    else:
-        refNameStr = "-x %s"%getRefFileName(calibName,refDict)
+    refNameStr = "-x %s"%getRefFileName(calibName,refDict)
         
     theArgs = getArgs(calibName,refDict)
     runStr = makeRunString(calibName,runs,tag)
@@ -233,7 +231,8 @@ def buildCalibCommand(calibName,refDict,runs,tag):
 def buildReportCommand(calib,comment,outPrefix,tag):
     """
     """
-    reportLine = 'AcdReportUtil.py store -c "%s" -T %s %s_%s.xml'%(comment,tag,outPrefix,calib)
+    reportExec = os.path.join(CALIBGENACD,'python','AcdReportUtil.py')
+    reportLine = '%s store -c "%s" -T %s %s_%s.xml'%(reportExec,comment,tag,outPrefix,calib)
     return reportLine
 
 def getRunsFromDay(runsData,day,nRuns):
@@ -302,7 +301,7 @@ if __name__=='__main__':
     calib = sys.argv[1]
     if calib not in CALIBTYPES:
         parser.print_help()
-        print "ACTION must be one of %s"%str(CALIBTYPES.keys())
+        print "CALIB must be one of %s"%str(CALIBTYPES.keys())
         sys.exit()        
 
     (options, args) = parser.parse_args(sys.argv[2:])
@@ -327,9 +326,10 @@ if __name__=='__main__':
     (execLine,outPrefix,tag) = buildCalibCommand(calib,refDict,runs,options.Tag)
     reportLine = buildReportCommand(calib,comment,outPrefix,tag)
 
+    #print execLine
     os.system(execLine)
-    if calib <> 'check':
-        os.system(reportLine)
+    #print reportLine
+    os.system(reportLine)
 
     
 

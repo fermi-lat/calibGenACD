@@ -34,6 +34,9 @@ namespace AcdXmlUtil {
   /// Get the name of the Calibration type, ie "ACD_Pedestal", "ACD_Gain"
   void getCalibTypeName( std::string& calibTypeName, int calType);
 
+  /// Get the name of the Calibration tree, ie "ACD_Pedestal", "ACD_Gain"
+  void getCalibTreeName( std::string& calibTreeName, int calType);
+
   /// Make a DOMDocument and return the top level element node
   DomElement makeDocument(const char* topNode);
 

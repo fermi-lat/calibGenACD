@@ -21,22 +21,22 @@ Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHist
   }
 
   UInt_t nB = lowhist.GetNbinsX();
-  UInt_t hiRange(0);
+  Float_t hiRange(0);
   for ( UInt_t i(2); i <= nB; i++ ) {
-    if ( highhist.GetBinContent(i) > 10 ) {
-      hiRange = i;
+    if ( highhist.GetBinContent(i) > 0 ) {
+      hiRange = highhist.GetBinCenter(i);
       break;
     }
   }
-  UInt_t lowRange(0);
+  Float_t lowRange(0);
   for ( UInt_t j(nB); j > 0; j-- ) {
     if ( lowhist.GetBinContent(j) > 0 ) {
-     lowRange = j;
+     lowRange = lowhist.GetBinCenter(j);
      break;
     }
   }
   returnCode = CalibData::AcdCalibObj::OK;
-  result.setVals((Float_t)lowRange,(Float_t)hiRange,CalibData::AcdCalibObj::OK);
+  result.setVals(lowRange,hiRange,CalibData::AcdCalibObj::OK);
   return returnCode;
 }
 

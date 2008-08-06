@@ -88,13 +88,17 @@ Bool_t AcdCalibMap::writeOutputs(const std::string& outputPrefix,
 				 const std::string& timestamp,
 				 bool isCheckCalib ) {
   std::string suffix;
+  std::string op = outputPrefix;
+  if ( isCheckCalib ) {
+    op += "_check";
+  }
   AcdXmlUtil::getSuffix(suffix,m_desc->calibType() );
-  std::string txtFile = outputPrefix + suffix + ".txt";
-  std::string xmlFile = outputPrefix + suffix + ".xml";
-  std::string histFile = outputPrefix + suffix + ".root";
-  std::string sumFile = outputPrefix + suffix + "Pars.root";
-  std::string htmlFile = outputPrefix + suffix;
-  std::string plotFile = outputPrefix + suffix + "_";
+  std::string txtFile = op + suffix + ".txt";
+  std::string xmlFile = op + suffix + ".xml";
+  std::string histFile = op + suffix + ".root";
+  std::string sumFile = op + suffix + "Pars.root";
+  std::string htmlFile = op + suffix;
+  std::string plotFile = op + suffix + "_";
   
   if ( m_hists != 0 ) {
     if ( ! m_hists->writeHistograms( histFile.c_str() ) ) {
@@ -102,6 +106,14 @@ Bool_t AcdCalibMap::writeOutputs(const std::string& outputPrefix,
       return kFALSE;
     }
   }
+  if ( ! AcdCalibUtil::makeFitPlots(*this,plotFile.c_str()) ) {
+    std::cerr << "Failed to write fit to " << plotFile << std::endl;
+    return kFALSE;
+  }
+
+  // For check type calibrations all we want are the plots, so return
+  if ( isCheckCalib ) return kTRUE;
+
   if ( ! writeTxtFile(txtFile.c_str(),instrument.c_str(),timestamp.c_str(),algorithm.c_str()) ) {
     std::cerr << "Failed to write txt file to " << txtFile << std::endl;
     return kFALSE;
@@ -114,13 +126,10 @@ Bool_t AcdCalibMap::writeOutputs(const std::string& outputPrefix,
     std::cerr << "Failed to write summary results file to " << sumFile << std::endl;
     return kFALSE;
   }
-  if ( ! AcdCalibUtil::makeFitPlots(*this,plotFile.c_str()) ) {
-    std::cerr << "Failed to write fit to " << plotFile << std::endl;
-    return kFALSE;
-  }
+  
 
   AcdHtmlReport html(*this);
-  if ( ! html.writeHtmlReport(htmlFile.c_str(),timestamp.c_str(),isCheckCalib) ) {
+  if ( ! html.writeHtmlReport(htmlFile.c_str(),timestamp.c_str()) ) {
     std::cerr << "Failed to write html report to " << htmlFile << std::endl;
     return kFALSE;
   }

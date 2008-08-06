@@ -94,7 +94,7 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
   cout << "Number of events in the chain: " << nTotal << endl;
   cout << "Number of events used: " << last-startEvent << endl;
   cout << "Starting at event: " << startEvent << endl;
-
+  
   for (Int_t ievent= startEvent; ievent < last; ievent++ ) {
     
     Bool_t filtered(kFALSE);
@@ -173,6 +173,7 @@ AcdHistCalibMap* AcdCalibBase::bookHists(AcdCalib::HISTTYPE histType, UInt_t nBi
   case AcdCalib::H_RIBBONS: name += "RIBBONS"; break;
   case AcdCalib::H_CARBON: name += "CARBON"; break;
   case AcdCalib::H_VETO_FIT: name += "VETO_FIT"; break;  
+  case AcdCalib::H_TREND: name += "TREND"; break;  
   case AcdCalib::H_NONE:
   default:
     return 0;

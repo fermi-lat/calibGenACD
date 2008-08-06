@@ -51,17 +51,17 @@ public:
    * @param isCheckCalib is true if the calibration is a check, not a real calibration
    * @return kTRUE for success, kFALSE otherwise
    **/
-  Bool_t writeHtmlReport( const char* outputPrefix, const char* timeStamp, bool isCheckCalib = false ) const; 
+  Bool_t writeHtmlReport( const char* outputPrefix, const char* timeStamp) const; 
 
 protected:
 
   /// Make all the summary plots for the config
   Bool_t makeSummaryPlots( const char* outputPrefix, TTree* inTree, 
-			   std::list<std::string>& sumPlotsNames, bool isCheckCalib = false  ) const;
+			   std::list<std::string>& sumPlotsNames) const;
 
   /// Make all the plots showing deltas w.r.t. reference values
   Bool_t makeDeltaPlots( const char* outputPrefix, TTree* inTree, TTree* refTree,
-			 std::list<std::string>& delPlotsNames, bool isCheckCalib = false ) const;
+			 std::list<std::string>& delPlotsNames) const;
   
 
   /// Write the html header

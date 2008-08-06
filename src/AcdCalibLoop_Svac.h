@@ -30,14 +30,27 @@ class AcdCalibLoop_Svac : public AcdCalibBase {
 public :
 
   /// Standard ctor, where user provides the input data
-  AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 
-		    Int_t calGCRSelect = 0,
+  AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 		    
 		    AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdCalibLoop_Svac();  
   
   
   AcdHistCalibMap* makeRatioPlots();
+
+  /// Set the Z value for the GCR cut
+  void setGCRCalibValue(Int_t calGCRSelect){
+    m_calGCRSelect = calGCRSelect;
+  }
+
+  /// Set the flag to use the MIP values from the SVAC file
+  void setMIPFromSvacValue(Bool_t mipFromSvac) {
+    m_mipFromSvac = mipFromSvac;
+  }
+
+  /// Set up the merit calibration
+  Bool_t fillMeritCalib();
+
 
 protected:
 
@@ -77,14 +90,16 @@ protected:
   Bool_t getMipValue(UInt_t key, UInt_t range, UInt_t pha, Float_t& mips);
 
   /// Called each event to do mapping from TILE:PMT to GARC:GAFE space
-  void fillCnoData();
-
+  void fillCnoData();  
 
 private:
 
 
   /// flag for using the CAL to select a particular ion, by Z
   Int_t  m_calGCRSelect;
+
+  /// flag to use the mip values from the svac file
+  Bool_t m_mipFromSvac;
 
   /// PHA values by ID,PMT
   Int_t  m_AcdPha[604][2];
@@ -117,6 +132,9 @@ private:
   /// CNO bits
   Int_t m_GemCnoVector[12];
 
+  /// The gem conditions word
+  Int_t m_GemConditionsWord;
+
   /// Z directional cosine of best track
   Float_t m_Tkr1ZDir;
   /// Engine used to read event
@@ -127,6 +145,8 @@ private:
   /// Time stamp for event
   Double_t m_timeStamp;
 
+  /// Histograms for pedestals
+  AcdHistCalibMap* m_pedHists;
   /// Histograms for MIP peak, carbon peaks, ribbon attenuation and gain checking)
   AcdHistCalibMap* m_peakHists;
   /// Histograms for range crossover calibration checking
