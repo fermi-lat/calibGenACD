@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: echarles  Wed Aug  6 13:45:22 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibVersion.h AcdReportPlots.cxx AcdTrendCalib.cxx 
+	AcdTrendCalib.h 
+Log Message:
+tag v4r1: More massive changes to bring package up to version used to with L&eo trending.
+    *
+------------------------------------------------------------
+User: echarles  Wed Aug  6 13:45:22 PDT 2008
 calibGenACD/doc
 
 Modified Files:
