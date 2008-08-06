@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: echarles  Wed Aug  6 10:46:08 PDT 2008
+calibGenACD/apps
+
+Modified Files:
+	makeResultTree.cxx runCarbonCalib.cxx runHighRangeCalib.cxx 
+	runMeritCalib.cxx runMipCalib.cxx 
+Added Files:
+	runCalibTrend.cxx 
+Log Message:
+Added Trending stuff
+    *
+------------------------------------------------------------
 User: echarles  Thu Jul 31 17:08:26 PDT 2008
 calibGenACD/src
 
