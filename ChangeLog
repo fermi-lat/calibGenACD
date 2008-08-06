@@ -1,4 +1,20 @@
 ------------------------------------------------------------
+User: echarles  Wed Aug  6 10:46:09 PDT 2008
+calibGenACD/src
+
+Modified Files:
+	AcdCalibBase.cxx AcdCalibEnum.h AcdCalibLoop_Svac.cxx 
+	AcdCalibLoop_Svac.h AcdCalibMap.cxx AcdCalibUtil.cxx 
+	AcdCalibUtil.h AcdHtmlReport.cxx AcdHtmlReport.h 
+	AcdJobConfig.cxx AcdJobConfig.h AcdMetaCalib.h AcdRangeFit.cxx 
+	AcdReportPlots.cxx AcdReportPlots.h AcdXmlUtil.cxx 
+	AcdXmlUtil.h 
+Added Files:
+	AcdTrendCalib.cxx AcdTrendCalib.h 
+Log Message:
+Added Trending stuff
+    *
+------------------------------------------------------------
 User: echarles  Wed Aug  6 10:46:08 PDT 2008
 calibGenACD/python
 
