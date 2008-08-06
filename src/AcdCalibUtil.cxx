@@ -10,11 +10,13 @@
 
 #include "CalibData/Acd/AcdCalibObj.h"
 
+#include <TStyle.h>
 #include "TString.h"
 #include "TCanvas.h"
 #include "TLine.h"
 #include "TPad.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TMath.h"
 #include <cmath>
@@ -75,6 +77,8 @@ Bool_t AcdCalibUtil::makeFitPlots(AcdCalibMap& calib,
   case AcdCalibData::HIGH_RANGE:
     padMap = drawHighRangeFits(*hists,calib,filePrefix);
     break;
+  case AcdCalibData::MERITCALIB:
+    return kTRUE;
   default:
     return kFALSE;
   }
@@ -84,12 +88,36 @@ Bool_t AcdCalibUtil::makeFitPlots(AcdCalibMap& calib,
 
 }
 
+Bool_t AcdCalibUtil::makeTrendPlots(AcdHistCalibMap& hTrends,
+				    const std::vector<TH2*>& summaryHists,
+				    const char* filePrefix,
+				    const char* suffix) {
+  
+  TCanvas cnv;
+  for ( UInt_t i(0); i < summaryHists.size(); i++ ) {
+    AcdPadMap* pm = drawTrends(hTrends,*(summaryHists)[i],i,summaryHists.size(),filePrefix);
+    TString pf("_"); pf += summaryHists[i]->GetName();
+    saveCanvases(pm->canvasList(),pf,suffix); 
+    cnv.Clear();
+    TVirtualPad* vp = cnv.cd();    
+    vp->SetLogz();
+    gStyle->SetPalette(1);    
+    (summaryHists)[i]->Draw("colz");
+    TString plotName(filePrefix);
+    plotName += (summaryHists)[i]->GetName();
+    plotName += ".gif";
+    cnv.SaveAs(plotName);
+  }  
+  return kTRUE;
+}
+
+
 void AcdCalibUtil::saveCanvases(TList& cl, const char* filePrefix, const char* suffix) {
-  TString pr(filePrefix);
   UInt_t n = cl.GetSize();
   for ( UInt_t i(0); i < n; i++ ) {
     TCanvas* canvas = (TCanvas*)(cl.At(i));
-    TString name = pr + canvas->GetName();
+    TString name = canvas->GetName();
+    name += filePrefix;
     name += suffix;
     canvas->SaveAs(name);
   }
@@ -239,6 +267,17 @@ void AcdCalibUtil::drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, 
   hrData.Draw("e");  
   if ( fA != 0 ) fA->Draw("same");
   hxData.Draw("same");
+}
+
+void AcdCalibUtil::drawTrendingPlot(TVirtualPad& vp, TH1& tData, const TH2& tRef) {
+  vp.cd();
+  gStyle->SetOptStat(0);
+  tData.SetMaximum( tRef.GetYaxis()->GetXmax() );
+  tData.SetMinimum( tRef.GetYaxis()->GetXmin() );
+  tData.SetYTitle( tRef.GetYaxis()->GetTitle() );
+  tData.SetXTitle( "Test Phase" );
+  tData.SetMarkerStyle(8);
+  tData.Draw("p");  
 }
 
 AcdPadMap* AcdCalibUtil::drawPeds(AcdHistCalibMap& hPeds,
@@ -470,6 +509,22 @@ AcdPadMap* AcdCalibUtil::drawHighRangeFits(AcdHistCalibMap& h,
   return padMap;
 }
 
+
+AcdPadMap* AcdCalibUtil::drawTrends(AcdHistCalibMap& h, const TH2& rh, 
+				    UInt_t idx, UInt_t nVar, const char* prefix) {
+  AcdPadMap* padMap = new AcdPadMap(h.config(),prefix);
+  TList& hList = (TList&)h.histograms();
+  UInt_t n = hList.GetEntries();
+  for ( UInt_t i(0); i < n; i += nVar ) {
+    TH1* hX = (TH1*)(hList.At(i+idx));
+    if ( hX == 0 ) continue;
+    UInt_t id = hX->GetUniqueID() % 10000;
+    TVirtualPad* pad = padMap->getPad(id);
+    if ( pad == 0 ) continue;
+    drawTrendingPlot(*pad,*hX,rh);
+  }
+  return padMap; 
+}
 
 
 Float_t AcdCalibUtil::efficDivide(TH1& out, const TH1& top, const TH1& bot, Bool_t inEffic, Float_t minBot) {

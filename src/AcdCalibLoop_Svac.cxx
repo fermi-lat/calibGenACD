@@ -8,6 +8,7 @@
 #include "AcdCalibMap.h"
 #include "AcdRibbonFit.h"
 
+#include "CalibData/Acd/AcdCheck.h"
 #include "digiRootData/AcdDigi.h"
 
 #include <cassert>
@@ -16,10 +17,11 @@
 
 
 AcdCalibLoop_Svac::AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 
-				     Int_t calGCRSelect,
 				     AcdKey::Config config)
   :AcdCalibBase(t,config),
-   m_calGCRSelect(calGCRSelect),
+   m_calGCRSelect(0),
+   m_mipFromSvac(kFALSE),
+   m_pedHists(0),
    m_peakHists(0),
    m_rangeHists(0),
    m_vetoHists(0),
@@ -38,6 +40,7 @@ AcdCalibLoop_Svac::AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain,
     m_peakHists = bookHists(AcdCalib::H_GAIN,64,-0.5,1023.5);
     break;
   case AcdCalibData::MERITCALIB:
+    m_pedHists = bookHists(AcdCalib::H_RAW,100,-0.2,0.2);
     m_rangeHists = bookHists(AcdCalib::H_RANGE,100,-1.,3.,2);
     m_peakHists = bookHists(AcdCalib::H_GAIN,50,-0.0,2.5);
     m_vetoHists = bookHists(AcdCalib::H_VETO,150,-0.0,1.5,3);    
@@ -110,6 +113,9 @@ Bool_t AcdCalibLoop_Svac::attachChains() {
 
       svacChain->SetBranchAddress("GemCnoVector",&(m_GemCnoVector[0]));
       svacChain->SetBranchStatus("GemCnoVector", 1); 	 
+
+      svacChain->SetBranchAddress("GemConditionsWord",&(m_GemConditionsWord));
+      svacChain->SetBranchStatus("GemConditionsWord", 1); 	 
     }
 
     if ( calType() == AcdCalibData::CARBON ) {
@@ -257,6 +263,10 @@ void AcdCalibLoop_Svac::useEvent(Bool_t& used) {
       Float_t mipsA(0.), mipsB(0.);
       if ( ! getMipValues(id,mipsA,mipsB) ) continue;      
       m_garcGafeHits.setHit(id,(m_AcdRange[id][0] > 0 ? mipsA : 0.),(m_AcdRange[id][1] > 0 ? mipsB : 0.));
+      if ( m_GemConditionsWord == 32 ) {
+	fillHist(*m_pedHists,id,AcdDigi::A,mipsA);
+	fillHist(*m_pedHists,id,AcdDigi::B,mipsB);
+      }
       if ( m_AcdRange[id][0] == 0 ) {
 	fillHist(*m_rangeHists,id,AcdDigi::A,TMath::Log10(mipsA),0);
       } else {
@@ -373,6 +383,11 @@ Bool_t AcdCalibLoop_Svac::singleRange(UInt_t key, Int_t pha, Int_t range, Float_
 
 /// Get the MIP values
 bool AcdCalibLoop_Svac::getMipValues(UInt_t id, Float_t& mipsA, Float_t& mipsB) {
+  if ( m_mipFromSvac ) {
+    mipsA = m_AcdMips[id][0];
+    mipsB = m_AcdMips[id][1];
+    return true;
+  }
   UInt_t keyA = AcdKey::makeKey(AcdDigi::A,id);
   UInt_t keyB = AcdKey::makeKey(AcdDigi::B,id);
   if ( ! getMipValue(keyA,m_AcdRange[id][0],m_AcdPha[id][0],mipsA) ) return false;
@@ -450,6 +465,45 @@ AcdHistCalibMap* AcdCalibLoop_Svac::makeRatioPlots() {
   }
   return m_vetoHists;
 }
+
+
+
+Bool_t AcdCalibLoop_Svac::fillMeritCalib() {
+  if ( calType() != AcdCalibData::MERITCALIB) return kFALSE;
+  AcdCalibMap* mCalib = new AcdCalibMap( CalibData::AcdCheckDesc::instance() );
+  addCalibration(AcdCalibData::MERITCALIB,*mCalib);
+
+  const AcdCalibMap* pedCalib = getCalibMap( AcdCalibData::PEDESTAL );
+  if ( pedCalib == 0 ) return kFALSE;
+  const AcdCalibMap* mipCalib = getCalibMap( AcdCalibData::GAIN );
+  if ( mipCalib == 0 ) return kFALSE;  
+  const AcdCalibMap* vetoCalib = getCalibMap( AcdCalibData::VETO );
+  if ( vetoCalib == 0 ) return kFALSE;
+  const AcdCalibMap* cnoCalib = getCalibMap( AcdCalibData::CNO );
+  if ( cnoCalib == 0 ) return kFALSE;
+  const AcdCalibMap* rangeCalib = getCalibMap( AcdCalibData::RANGE );
+  if ( rangeCalib == 0 ) return kFALSE;
+
+  for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itrM = pedCalib->theMap().begin();
+	itrM != pedCalib->theMap().end(); itrM++ ) {
+    UInt_t key = itrM->first;
+    UInt_t id = AcdKey::getId(itrM->first);
+    CalibData::AcdCalibObj* check = mCalib->makeNew();
+    mCalib->add(key,*check);
+    if ( id >= 700 ) continue;
+    const CalibData::AcdCalibObj* ped = itrM->second;
+    const CalibData::AcdCalibObj* mip = mipCalib->get(key);
+    const CalibData::AcdCalibObj* veto = vetoCalib->get(key);
+    const CalibData::AcdCalibObj* cno = cnoCalib->get(key);
+    const CalibData::AcdCalibObj* range = rangeCalib->get(key);            
+    Float_t rangeDiff = range->operator[](0) - range->operator[](1);
+    check->setVals(ped->operator[](0),mip->operator[](0),
+		   veto->operator[](0),cno->operator[](0),
+		   rangeDiff,CalibData::AcdCalibObj::NOFIT);
+  }
+  return kTRUE;
+}
+
 
 
 void AcdCalibLoop_Svac::fillCnoData() {

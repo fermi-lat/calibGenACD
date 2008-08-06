@@ -13,7 +13,7 @@
 int main(int argn, char** argc) {
 
   // configure
-  AcdJobConfig jc("runVetoCalib.exe","This utility runs the veto set point calibration code");
+  AcdJobConfig jc("runHighRangeCalib.exe","This utility runs the high range calibration code");
   
   Int_t parseValue = jc.parse(argn,argc); 
   switch ( parseValue ) {

@@ -16,7 +16,7 @@ class AcdHldConfig;
 /** 
  * @class AcdMetaCalib
  *
- * @brief AcdCalibration class that loop on Digis
+ * @brief AcdCalibration class that merges input calibration to make other calibrations
  *
  * This is used for the following calibrations:
  *   - Pedestals
@@ -44,12 +44,16 @@ public :
   Bool_t readSettingsSetPointPair(const std::string& settingsFile,
 				  const std::string& setPointFile);
 
+  /// Fill the veto set point v. dac settings histograms
   Bool_t fillVetoThresholds();
 
+  /// Fill the cno set point v. dac settings histograms
   Bool_t fillCnoThresholds();
 
+  /// Fit the high range calibration histograms
   Bool_t fillHighRangeData();
 
+  /// Copy the charge scale values from the input calibration to the output calibration
   Bool_t copyPeakVals();
 
 protected:
@@ -63,11 +67,14 @@ protected:
 
 private:
 
-  // Various histograms to fill
-  AcdHistCalibMap* m_fitHists;
+  /// Histograms of set points v. dac_settings
+  AcdHistCalibMap* m_fitHists;  
+  /// Histograms of high range calibrations
   AcdHistCalibMap* m_highRangeHists;
 
+  /// Pairs of input files for veto calibration
   std::list< std::pair< AcdVetoConfig*, AcdCalibMap* > > m_vetoPoints;
+  /// Pairs of input files for cno calibration
   std::list< std::pair< AcdHldConfig*, AcdCalibMap* > >  m_cnoPoints;
       
 };

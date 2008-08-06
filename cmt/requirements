@@ -11,6 +11,7 @@ use commonRootData v*
 use digiRootData v*
 use reconRootData v*
 use xmlBase v*
+use mootCore v*
 use XMLEXT       v5r2*   IExternal
 use facilities v*
 use ROOT v* IExternal
@@ -52,4 +53,5 @@ application runCnoFitCalib ../apps/runCnoFitCalib.cxx
 application runHighRangeCalib ../apps/runHighRangeCalib.cxx
 
 application calibReport ../apps/calibReport.cxx
+application runCalibTrend ../apps/runCalibTrend.cxx
 application makeResultTree ../apps/makeResultTree.cxx

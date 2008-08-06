@@ -43,6 +43,7 @@ class TChain;
  *
  *     OPTIONS for specific jobs (will be ignored by other jobs)
  *        -P                : use only periodic triggers
+ *        -m                : use mips from SVAC file
  *        -G <int>          : use CAL GCR selection for a given Z
  *        -p <fileName>     : use pedestals from this file
  *        -R <fileName>     : use range data from this file
@@ -65,6 +66,9 @@ public :
 		    MissingInput = 3,
 		    ProccessFail = 4,
 		    OutputFail = 5 };
+
+  /// Open a text file and get the list of root files (one per line), return kTRUE for success
+  static Bool_t getFileList(const char* fileName, std::vector<std::string>& files);
 
 public :
   
@@ -115,7 +119,11 @@ public :
   inline int optval_s() const { return m_optval_s; }
   /// return the flag to use only periodic triggers
   inline Bool_t optval_P() const { return m_optval_P; }
+  /// return the flag to use the mip values from the svac file
+  inline Bool_t optval_m() const { return m_optval_m; }
+  /// return the value for Z to use in the Galatic Cosmic Ray calibration
   inline int optval_G() const { return m_optval_G; }  
+  
 
   /// return the TChain of digi trees
   inline TChain* digiChain() const { return m_digiChain;}
@@ -131,9 +139,6 @@ protected:
 
   /// Take the arguments and add the files to the input TChains, return kTRUE for success
   Bool_t makeChain( ) const;
-
-  /// Open a text file and get the list of root files (one per line), return kTRUE for success
-  Bool_t getFileList(const char* fileName, std::vector<std::string>& files) const;
  
 private:
 
@@ -158,6 +163,7 @@ private:
   int m_optval_n;
   int m_optval_s;
   Bool_t m_optval_P;
+  Bool_t m_optval_m;
   int m_optval_G;
 
   mutable TChain* m_digiChain;

@@ -28,7 +28,8 @@ int main(int argn, char** argc) {
   if ( ! jc.checkSvac() ) return AcdJobConfig::MissingInput;  
 
   // build filler & load calibs
-  AcdCalibLoop_Svac r(AcdCalibData::CARBON,jc.svacChain(),jc.optval_G(),jc.config());  
+  AcdCalibLoop_Svac r(AcdCalibData::CARBON,jc.svacChain(),jc.config());  
+  r.setGCRCalibValue(jc.optval_G());
 
   if ( ! r.readCalib(AcdCalibData::PED_HIGH,jc.pedHighFileName().c_str() ) ) return AcdJobConfig::MissingInput;
 

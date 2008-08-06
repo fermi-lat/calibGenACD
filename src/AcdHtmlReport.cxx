@@ -43,7 +43,7 @@ AcdHtmlReport::~AcdHtmlReport() {
 
 
 /// Write calibration to an xml file
-Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* timeStamp, bool isCheckCalib  ) const {
+Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* timeStamp) const {
 
 
   DomElement inElem;
@@ -62,11 +62,11 @@ Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* tim
 
   std::list<std::string> sumPlotNames;
   std::list<std::string> delPlotNames;  
-  if ( ! makeSummaryPlots(outputPrefix,inTree,sumPlotNames,isCheckCalib) ) {
+  if ( ! makeSummaryPlots(outputPrefix,inTree,sumPlotNames) ) {
     std::cerr << "Failed to make summary plots" << std::endl;
     return kFALSE;
   }
-  if ( ! makeDeltaPlots(outputPrefix,inTree,refTree,delPlotNames,isCheckCalib) ) {
+  if ( ! makeDeltaPlots(outputPrefix,inTree,refTree,delPlotNames) ) {
     std::cerr << "Failed to make delta plots" << std::endl;
     return kFALSE;  
   }
@@ -114,20 +114,20 @@ Bool_t AcdHtmlReport::writeHtmlReport( const char* outputPrefix, const char* tim
 
 ///
 Bool_t AcdHtmlReport::makeSummaryPlots( const char* outputPrefix, TTree* inTree, 
-					std::list<std::string>& sumPlotsNames, bool isCheckCalib ) const {
+					std::list<std::string>& sumPlotsNames) const {
   if ( outputPrefix == 0 || inTree == 0 ) return kFALSE;
   sumPlotsNames.clear();
-  return AcdReport::makeSummaryPlots( m_desc->calibType(), outputPrefix, inTree, sumPlotsNames, isCheckCalib);
+  return AcdReport::makeSummaryPlots( m_desc->calibType(), outputPrefix, inTree, sumPlotsNames);
 }
 
 ///
 Bool_t AcdHtmlReport::makeDeltaPlots( const char* outputPrefix, TTree* inTree, TTree* refTree,
-				      std::list<std::string>& delPlotsNames, bool isCheckCalib ) const {
+				      std::list<std::string>& delPlotsNames) const {
   if ( outputPrefix == 0 || inTree == 0 ) return kFALSE;
   delPlotsNames.clear();
   if ( refTree == 0 ) return kTRUE;
   inTree->AddFriend(refTree,"old");
-  return AcdReport::makeDeltaPlots( m_desc->calibType(), outputPrefix, inTree, delPlotsNames, isCheckCalib);
+  return AcdReport::makeDeltaPlots( m_desc->calibType(), outputPrefix, inTree, delPlotsNames);
 }
  
 Bool_t AcdHtmlReport::writeHtmlHeader( DomElement& outNode, const std::string& titleString) const {  

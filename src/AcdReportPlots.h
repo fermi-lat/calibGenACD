@@ -37,11 +37,11 @@ namespace AcdReport {
 
   /// Make summary plots for a calibration, just calls one of the functions below
   Bool_t makeSummaryPlots( AcdCalibData::CALTYPE pType, const char* outputPrefix, TTree* inTree, 
-			   std::list<std::string>& plotNames, bool isCheckCalib = false );
+			   std::list<std::string>& plotNames);
   
   /// Make delta w.r.t. reference plots for a calibration, just calls one of the functions below
   Bool_t makeDeltaPlots( AcdCalibData::CALTYPE pType, const char* outputPrefix, TTree* inTree, 
-			 std::list<std::string>& plotNames, bool isCheckCalib = false  );
+			 std::list<std::string>& plotNames);
 
   /// Make a generic 1D plot summarizing calibration values
   Bool_t makeSummaryPlot_Generic( TTree* inTree, TH1*& hist,
@@ -107,35 +107,35 @@ namespace AcdReport {
 
   /// Make the summary plots for the MIP calibration: Peak and width
   Bool_t makeSummaryPlots_Gain( TTree* inTree, const char* outputPrefix, 
-				std::list<std::string>& plotNames, bool isCheckCalib = false  );
+				std::list<std::string>& plotNames );
 
   /// Make the delta plots for the MIP calibration: Peak and width
   Bool_t makeDeltaPlots_Gain( TTree* inTree, const char* outputPrefix, 
-			      std::list<std::string>& plotNames, bool isCheckCalib = false  );
+			      std::list<std::string>& plotNames );
   
   /// Make the summary plots for the veto threshold calibration: veto turn on point
   Bool_t makeSummaryPlots_Veto( TTree* inTree, const char* outputPrefix, 
-				std::list<std::string>& plotNames, bool isCheckCalib = false );
+				std::list<std::string>& plotNames );
 
   /// Make the delta plots for the veto threshold calibration: veto turn on point
   Bool_t makeDeltaPlots_Veto( TTree* inTree, const char* outputPrefix, 
-			      std::list<std::string>& plotNames, bool isCheckCalib = false );
+			      std::list<std::string>& plotNames );
 
   /// Make the summary plots for the range crossover calibration: highest low range value, lowest high range value
   Bool_t makeSummaryPlots_Range( TTree* inTree, const char* outputPrefix, 
-				 std::list<std::string>& plotNames, bool isCheckCalib = false );
+				 std::list<std::string>& plotNames );
 
   /// Make the delta plots for the range crossover calibration: highest low range value, lowest high range value
   Bool_t makeDeltaPlots_Range( TTree* inTree, const char* outputPrefix, 
-			       std::list<std::string>& plotNames, bool isCheckCalib = false );
+			       std::list<std::string>& plotNames );
 
   /// Make the summary plots for the cno threshold calibration: cno turn on point
   Bool_t makeSummaryPlots_Cno( TTree* inTree, const char* outputPrefix, 
-			       std::list<std::string>& plotNames, bool isCheckCalib = false );
+			       std::list<std::string>& plotNames );
 
   /// Make the delta plots for the cno threshold calibration: cno turn on point
   Bool_t makeDeltaPlots_Cno( TTree* inTree, const char* outputPrefix, 
-			     std::list<std::string>& plotNames, bool isCheckCalib = false ); 
+			     std::list<std::string>& plotNames ); 
 
   /// Make the summary plots for the high range calibration: pedestal, slope, saturation value
   Bool_t makeSummaryPlots_HighRange( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames );
@@ -178,6 +178,10 @@ namespace AcdReport {
 
   /// Make the delta plots for the CNO setting calibration, slope and offset of PHA v. dac setting
   Bool_t makeDeltaPlots_CnoFit( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames );
+
+    /// Make the summary plots for the checking calibration, pedestals, mips, thresholds, range crossover
+  Bool_t makeSummaryPlots_Check( TTree* inTree, const char* outputPrefix, std::list<std::string>& plotNames );
+
 
 };
 

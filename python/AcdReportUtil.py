@@ -28,6 +28,7 @@ CALIBTYPES = {'Ped':'ped',
               'Ribbon':'ribbon',
               'HighPed':'highPed',
               'Carbon':'carbon',
+              'CoherentNoise':'coherentNoise',
               'CnoFit':'cnoFit',
               'VetoFit':'vetoFit',
               'HighRange':'highRange',
@@ -36,7 +37,7 @@ CALIBTYPES = {'Ped':'ped',
 def idFileType(inFileName):
     """
     """
-    if inName.find('_check_') >= 0:
+    if inFileName.find('_check.') >= 0:
         return "Check"
     elif inFileName.find('_ped.') >= 0:
         return "Ped"
@@ -136,7 +137,7 @@ def addStore(calib,tag,comment,report):
     inFile.close()
     os.rename(outFileName,inFileName)
 
-def setRef(calib,inFileName,tag,timeString):
+def setRef(calib,inFileName,tag,timeString,action,comment):
     """
     """
     relName = inFileName.replace(os.path.join(ACDMONROOT,calib),"")
@@ -147,7 +148,8 @@ def setRef(calib,inFileName,tag,timeString):
     inline = inFile.readline()
     while inline<>'':
         outFile.write(inline)
-        if inline.find('REF__CALIB__HOOK') >= 0:
+        hookString = "%s__%s__CALIB__HOOK"%(action.upper(),calib)
+        if inline.find(hookString) >= 0:
             print "Adding reference %s %s"%(relName[1:],tag)
             outFile.write('          <a href="%s">%s</a>\n'%(relName[1:],tag))
         inline = inFile.readline()
@@ -155,25 +157,32 @@ def setRef(calib,inFileName,tag,timeString):
     inFile.close()
     os.rename(outFileName,indexFileName)
 
-    
-    inFile = open(os.path.join(ACDMONROOT,'ref.txt'))
-    outFile = open(os.path.join(ACDMONROOT,'ref.bak'),'w')
-    inline = inFile.readline()
-    while inline<>'':
-        fields = inline.split(' ')
-        if len(fields) <> 2:
-            return None
-        if fields[0]== CALIBTYPES[calib]:
-            outFile.write("%s %s\n"%(fields[0],relName[1:].replace(".html",".xml")))
-        else:
-            outFile.write(inline)
+    if action == "ref":
+        inFile = open(os.path.join(ACDMONROOT,'ref.txt'))
+        outFile = open(os.path.join(ACDMONROOT,'ref.bak'),'w')
         inline = inFile.readline()
-    inFile.close()
-    outFile.close()
-    os.rename(os.path.join(ACDMONROOT,'ref.bak'),os.path.join(ACDMONROOT,'ref.txt'))
+        while inline<>'':
+            fields = inline.split(' ')
+            if len(fields) <> 2:
+                return None
+            if fields[0]== CALIBTYPES[calib]:
+                outFile.write("%s %s\n"%(fields[0],relName[1:].replace(".html",".xml")))
+            else:
+                outFile.write(inline)
+            inline = inFile.readline()
+        inFile.close()
+        outFile.close()
+        os.rename(os.path.join(ACDMONROOT,'ref.bak'),os.path.join(ACDMONROOT,'ref.txt'))
 
-    addUse(inFileName,"Set as reference on %s"%timeString)
-   
+    if action == "ref":
+        addUse(inFileName,"Set as reference on %s"%timeString)
+    elif action == "config":    
+        addUse(inFileName,"Added to moot on %s: %s"%(timeString,comment))
+    elif action == "offline":    
+        addUse(inFileName,"Added to offline on %s: %s"%(timeString,comment))
+    elif action == "sim":    
+        addUse(inFileName,"Added to sim on %s: %s"%(timeString,comment))
+
 
 if __name__=='__main__':
     # argument parsing
@@ -199,7 +208,7 @@ if __name__=='__main__':
         sys.exit()
 
     action = sys.argv[1]
-    actions = ['comment','use','store','ref']
+    actions = ['comment','use','store','ref','config','offline','sim']
     if action not in actions:
         parser.print_help()
         print "ACTION must be one of %s"%(str(actions))
@@ -229,8 +238,8 @@ if __name__=='__main__':
         addComment(input,options.comment)
     elif action == 'use':
         addUse(input,options.comment)
-    elif action == 'ref':
-        setRef(idFt,input,options.tag,timestring)
+    elif action in ['ref','config','offline','sim']:
+        setRef(idFt,input,options.tag,timestring,action,options.comment)
     elif action == 'store':        
         cInfo = getCalibInfo(input)
         if cInfo is None:
@@ -249,9 +258,12 @@ if __name__=='__main__':
         htmlName = input.replace('.xml','.html')
         addUse(htmlName,"stored at %s"%timestring )
         addComment(htmlName,options.comment)
+        
         acqFileName = os.path.join(ACDMONROOT,idFt,'acquire_notes.txt')
+        calibLstFileName = os.path.join(ACDMONROOT,idFt,'calibs.lst')        
         toDir = os.path.join(ACDMONROOT,idFt,options.tag)
         genInName = input.replace('.xml','*')
+
         os.mkdir(toDir)
         sysCom = "mv %s %s"%(genInName,toDir)
         os.system(sysCom)
@@ -259,6 +271,10 @@ if __name__=='__main__':
         acqFile = open(acqFileName,'a')
         acqFile.write("%s\n"%acqStr)
         acqFile.close()
+
+        calibLstFile = open(calibLstFileName,'a')        
+        calibLstFile.write("%s\n"%os.path.join(toDir,input))
+        calibLstFile.close()
         
         addStore(idFt,options.tag,options.comment,htmlName)
     
