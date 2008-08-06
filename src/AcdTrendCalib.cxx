@@ -130,6 +130,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
 
       // Loop on the values
       for ( UInt_t k(0); k < m_trendNames.size(); k++ ) {
+	if ( ! useChannel( id[j], m_channels[k] ) ) continue;
 	Float_t delta = vals[k][j] - refVals[k][j];
 	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,0.0,k);
 	m_summaryHists[k]->Fill((Float_t)i,delta);
@@ -172,14 +173,14 @@ void AcdTrendCalib::makeSummaryHists() {
     addSummaryHist("width","Trend of MIP Width","(PHA)",-200.,200.);
     break;
   case AcdCalibData::VETO:
-    addSummaryHist("veto","Trend of Veto Threshold","(PHA)",-200.,200.);
+    addSummaryHist("veto","Trend of Veto Threshold","(PHA)",-200.,200.,Tiles);
     break;
   case AcdCalibData::RANGE:
     addSummaryHist("low_max","Trend of Max Low Range PHA","(PHA)",-200.,200.);
     addSummaryHist("high_min","Trend of Min High Range PHA","(PHA)",-50.,50.);
     break;
   case AcdCalibData::CNO:
-    addSummaryHist("cno","Trend of CNO Threshold","(PHA)",-25.,25.);
+    addSummaryHist("cno","Trend of CNO Threshold","(PHA)",-25.,25.,NoSkirt);
     break;
   case AcdCalibData::HIGH_RANGE:
     addSummaryHist("pedestal","Trend of High Range Pedestal","(PHA)",-25.,25.);
@@ -201,18 +202,18 @@ void AcdTrendCalib::makeSummaryHists() {
     addSummaryHist("width","Trend of Carbon Peak Width","(PHA)",-100.,100.);
     break;
   case AcdCalibData::VETO_FIT:
-    addSummaryHist("slope","Trend of veto pha/dac slope","(PHA/dac)",-0.1,0.1);
-    addSummaryHist("offset","Trend of veto pha/dac offest","(dac)",-10.,10.);
+    addSummaryHist("slope","Trend of veto pha/dac slope","(PHA/dac)",-0.1,0.1,Tiles);
+    addSummaryHist("offset","Trend of veto pha/dac offest","(dac)",-10.,10.,Tiles);
     break;
   case AcdCalibData::CNO_FIT:
-    addSummaryHist("slope","Trend of hld pha/dac slope","(PHA/dac)",-0.1,0.1);
-    addSummaryHist("offset","Trend of pha/dac offest","(dac)",-10.,10.);
+    addSummaryHist("slope","Trend of hld pha/dac slope","(PHA/dac)",-0.1,0.1,NoSkirt);
+    addSummaryHist("offset","Trend of pha/dac offest","(dac)",-10.,10.,NoSkirt);
     break;
   case AcdCalibData::MERITCALIB:
     addSummaryHist("ped","Trend of pedestals","(mip)",-0.1,0.1);
-    addSummaryHist("mip","Trend of MIP peaks","(mip)",-1.,1.);
-    addSummaryHist("veto","Trend of veto Threshold","(mip)",-1.,1.);
-    addSummaryHist("cno","Trend of CNO Threshold","(mip)",-25.,25.);
+    addSummaryHist("mip","Trend of MIP peaks","(mip)",-1.,1.,Tiles);
+    addSummaryHist("veto","Trend of veto Threshold","(mip)",-1.,1.,Tiles);
+    addSummaryHist("cno","Trend of CNO Threshold","(mip)",-25.,25.,NoSkirt);
     addSummaryHist("range","Trend of Range Crossover Gap","log10(mip)",-2.,2.);
     break;
   default:
@@ -226,7 +227,8 @@ void AcdTrendCalib::makeSummaryHists() {
 
 }
 
-void AcdTrendCalib::addSummaryHist(const char* name, const char* title, const char* units, Float_t min, Float_t max) {
+void AcdTrendCalib::addSummaryHist(const char* name, const char* title, const char* units,
+				   Float_t min, Float_t max, ChannelSet cSet) {
   TH2F* h =  new TH2F(name,title,m_nCalib,0,(Float_t)m_nCalib,40,min,max);
   h->SetXTitle("Test Phase");
   TString yTitle("#Delta ");
@@ -235,4 +237,53 @@ void AcdTrendCalib::addSummaryHist(const char* name, const char* title, const ch
   yTitle += units;
   h->SetYTitle(yTitle);
   m_summaryHists.push_back(h);
+  m_channels.push_back(cSet);
+}
+
+
+Bool_t AcdTrendCalib::useChannel(UInt_t id, ChannelSet cSet) const {
+  if ( id >= 700 ) return kFALSE;
+  if ( id >= 500 ) {
+    // ribbons
+    switch ( cSet ) {
+    case All:
+    case Ribbons:
+      return kTRUE;
+    case Tiles:
+    case NoSkirt:
+      return kFALSE;
+    }
+  }
+  if ( id < 100 ) {
+    // top
+    switch ( cSet ) {
+    case All:
+    case Tiles:
+    case NoSkirt:
+      return kTRUE;
+    case Ribbons:
+      return kFALSE;
+    }
+  }
+  if ( (id%100) >= 20 ) {
+    // skirt
+    switch ( cSet ) {
+    case All:
+    case Tiles:
+      return kTRUE;
+    case NoSkirt:    
+    case Ribbons:
+      return kFALSE;
+    }    
+  }
+  // side, but not in skirt
+  switch ( cSet ) {
+  case All:
+  case Tiles:
+  case NoSkirt:    
+    return kTRUE;
+  case Ribbons:
+    return kFALSE;
+  }    
+  return kFALSE;
 }

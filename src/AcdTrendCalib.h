@@ -31,6 +31,13 @@ class AcdTrendCalib : public AcdCalibBase {
 
 public :
   
+  enum ChannelSet { All = 0, 
+		    Tiles = 1,
+		    NoSkirt = 2,
+		    Ribbons = 3 };
+
+public :
+  
   /// Standard ctor, where user provides the input data
   AcdTrendCalib(AcdCalibData::CALTYPE t, AcdKey::Config config = AcdKey::LAT);
   
@@ -57,30 +64,36 @@ protected:
   void makeSummaryHists();
 
   /// add a summary histogram
-  void addSummaryHist(const char* name, const char* title, const char* units, Float_t min, Float_t max);
+  void addSummaryHist(const char* name, const char* title, const char* units, Float_t min, Float_t max, ChannelSet cSet = All);
+
+  /// Check to see if we should use a channel
+  Bool_t useChannel(UInt_t id, ChannelSet cSet) const;
 
 private:
 
   /// The number of calibrations to trend
-  UInt_t                 m_nCalib;
+  UInt_t                  m_nCalib;
 
   /// The reference calibration
-  TTree*                 m_reference;
+  TTree*                  m_reference;
 
   /// The name of the file with the reference calibration
-  TString                m_refFileName;
+  TString                 m_refFileName;
 
   /// The trending calibrations
-  TChain*                m_calibs;
+  TChain*                 m_calibs;
 
   /// The names of the vars to be trended
-  std::list<std::string> m_trendNames;
+  std::list<std::string>  m_trendNames;
 
   /// The trending histograms
-  AcdHistCalibMap*       m_trendHists;
+  AcdHistCalibMap*        m_trendHists;
 
   /// The trending summary histograms
-  std::vector<TH2*>      m_summaryHists;           
+  std::vector<TH2*>       m_summaryHists;           
+
+  /// Which channels go into which summary histograms
+  std::vector<ChannelSet> m_channels;
 
       
 };
