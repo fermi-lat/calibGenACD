@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: echarles  Wed Aug  6 10:46:08 PDT 2008
+calibGenACD/python
+
+Modified Files:
+	AcdReportRun.py AcdReportUtil.py 
+Added Files:
+	AcdReportTrend.py AcdWeeklyReport.py ParseFileList.py 
+Log Message:
+Added Trending stuff
+    *
+------------------------------------------------------------
+User: echarles  Wed Aug  6 10:46:08 PDT 2008
 calibGenACD/cmt
 
 Modified Files:
