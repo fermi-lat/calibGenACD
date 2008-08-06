@@ -87,6 +87,7 @@ namespace AcdReport {
   TString cut_chan       = "id<700";
   TString cut_tile       = "id<500";
   TString cut_rib        = "id>=500 && id<700";
+  TString cut_skirt      = "id<100 || ( id < 500 && ( (id%100) < 20 ) )";
   TString cut_side_p_rib = "(id>=500 && id<700) && (((id>550)*((id%2)==0) + (id<550)*((id%4)>1) + pmt)%2) == 0";
   TString cut_side_n_rib = "(id>=500 && id<700) && (((id>550)*((id%2)==0) + (id<550)*((id%4)>1) + pmt)%2) == 1";
 
@@ -992,17 +993,17 @@ Bool_t AcdReport::makeSummaryPlots_Check( TTree* inTree, const char* outputPrefi
 				 title_ped,name_ped,units_mip,cut_chan,100,-0.2,0.2) ) return kFALSE;
   savePlot(cnv,*h1_ped,outputPrefix,plotNames);
   if ( ! makeSummaryPlot_Generic(inTree,h1_mip,name_sum+"_mip",
-				 title_mip,name_mip,units_mip,cut_chan,100,0.,2.0) ) return kFALSE;
+				 title_mip,name_mip,units_mip,cut_tile,100,0.,2.0) ) return kFALSE;
   savePlot(cnv,*h1_mip,outputPrefix,plotNames);
   plotNames.push_back(std::string("br"));
   TH1* h1_veto(0);
   TH1* h1_cno(0);
   TH1* h1_range(0);
   if ( ! makeSummaryPlot_Generic(inTree,h1_veto,name_sum+"_veto",
-				 title_veto,name_veto,units_mip,cut_chan,100,0.,2.) ) return kFALSE;
+				 title_veto,name_veto,units_mip,cut_tile,100,0.,2.) ) return kFALSE;
   savePlot(cnv,*h1_veto,outputPrefix,plotNames);
   if ( ! makeSummaryPlot_Generic(inTree,h1_cno,name_sum+"_cno",
-				 title_cno,name_cno,units_mip,cut_chan,100,0.,50.) ) return kFALSE;
+				 title_cno,name_cno,units_mip,cut_skirt,100,0.,50.) ) return kFALSE;
   savePlot(cnv,*h1_cno,outputPrefix,plotNames);
   if ( ! makeSummaryPlot_Generic(inTree,h1_range,name_sum+"_range",
 				 title_range,name_range,units_mip,cut_chan,100,-5.,5.) ) return kFALSE;

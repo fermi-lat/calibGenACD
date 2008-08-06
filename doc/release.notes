@@ -1,5 +1,8 @@
+v4r1 EAC 080714
+More massive changes to bring package up to version used to with L&eo trending.
+
 v4r0 EAC 080714
-Massive changes to bring package up to version used to calibration first light data.
+Massive changes to bring package up to version used to calibrate first light data.
 
 v3r4p1 EAC 080508
 Small changes to allow transfering the high range pedestals from a pedestal calibration to High range calibration
