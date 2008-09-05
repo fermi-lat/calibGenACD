@@ -27,8 +27,10 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_optval_P(kFALSE),
    m_optval_m(kFALSE),  
    m_optval_G(0),
+   m_madeChain(kFALSE),
    m_digiChain(0),
-   m_svacChain(0)
+   m_svacChain(0),
+   m_meritChain(0)
 {
 
 }
@@ -216,6 +218,8 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
 
 
 Bool_t AcdJobConfig::makeChain( ) const {
+  
+  if ( m_madeChain ) return kTRUE;
 
   std::vector <std::string> tokens;
   for ( std::list<std::string>::const_iterator itr = m_args.begin();
@@ -244,13 +248,20 @@ Bool_t AcdJobConfig::makeChain( ) const {
 	m_svacChain = new TChain("Output");
       }
       chain = m_svacChain;
+    } else if (token.find("merit.root") != token.npos ) {
+      if ( m_meritChain == 0 ) {
+	m_meritChain = new TChain("MeritTuple");
+      }
+      chain = m_meritChain;
     } else {
-      std::cerr << "File " << token << " not a Digi or Svac file" << std::endl;
+      std::cerr << "File " << token << " not a Digi, Svac or Merit file" << std::endl;
       return kFALSE;
     }
     chain->Add(token.c_str());
     std::cout << "   " << iFile+1 << ") " << token << std::endl;
   }
+
+  m_madeChain = kTRUE;
   return kTRUE;  
 }
  
@@ -277,6 +288,17 @@ Bool_t AcdJobConfig::checkSvac() const {
   return kTRUE;
 }
  
+Bool_t AcdJobConfig::checkMerit() const {
+  if ( ! makeChain() ) return kFALSE;
+  if ( m_meritChain == 0 ) {
+    std::cerr << "This job requires merit ROOT files as input." << std::endl
+	      << "\tuse -S <file> option to specify them." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
 Bool_t AcdJobConfig::getFileList(const char* fileName, std::vector<std::string>& files) {
    std::ifstream infile(fileName);   
    if ( ! infile.good() ) return kFALSE;

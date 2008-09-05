@@ -129,12 +129,16 @@ public :
   inline TChain* digiChain() const { return m_digiChain;}
   /// return the TChain of svac trees
   inline TChain* svacChain() const { return m_svacChain;}
+  /// return the TChain of merit trees
+  inline TChain* meritChain() const { return m_meritChain;}
 
   /// return the status of the Digi TChain
   Bool_t checkDigi() const;
   /// return the status of the Svac TChain
   Bool_t checkSvac() const;
-   
+  /// return the status of the Merit TChain
+  Bool_t checkMerit() const;
+      
 protected:
 
   /// Take the arguments and add the files to the input TChains, return kTRUE for success
@@ -166,8 +170,10 @@ private:
   Bool_t m_optval_m;
   int m_optval_G;
 
+  mutable Bool_t  m_madeChain;
   mutable TChain* m_digiChain;
   mutable TChain* m_svacChain;
+  mutable TChain* m_meritChain;
     
 };
 

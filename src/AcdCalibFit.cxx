@@ -29,7 +29,7 @@ Int_t AcdCalibFit::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder&
   return result.getStatus();
 }
 
-void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists) {
+void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists,AcdKey::ChannelSet cSet) {
 
   const AcdCalibMap* ref = results.theReference();
   for ( std::map<UInt_t,AcdCalibHistHolder>::const_iterator itr = hists.theMap().begin();
@@ -41,7 +41,13 @@ void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists) {
       theResult = results.makeNew();
     }
     CalibData::AcdCalibObj* refFit = ref ? const_cast<CalibData::AcdCalibObj*>(ref->get(key)) : 0;
-    fit(*theResult, holder,refFit);
+    if ( AcdKey::useChannel( AcdKey::getId(key), cSet ) ) {
+      fit(*theResult, holder,refFit);
+    } else {
+      if ( refFit ) {
+	theResult->update(refFit);
+      }
+    }
     results.add(key,*theResult);
   }
 }

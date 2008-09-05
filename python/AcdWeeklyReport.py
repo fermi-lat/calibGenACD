@@ -92,6 +92,7 @@ if __name__=='__main__':
                 #runString = "%s %s -w %d %s"%(execName,cType,options.week,inputTable)
                 print runString
                 os.system(runString)
+
         elif action == "trend":
             if cType <> "check":
                 runString = "%s %s"%(trendName,cType)

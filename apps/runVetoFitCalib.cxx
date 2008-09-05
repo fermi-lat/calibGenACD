@@ -52,7 +52,7 @@ int main(int argn, char** argc) {
 
   // do fits
   AcdDacFitLibrary dacFitter(AcdDacFitLibrary::Linear);
-  AcdCalibMap* vetos = r.fit(dacFitter,AcdCalibData::VETO_FIT,AcdCalib::H_VETO_FIT, jc.refFileName().c_str());
+  AcdCalibMap* vetos = r.fit(dacFitter,AcdCalibData::VETO_FIT,AcdCalib::H_VETO_FIT, jc.refFileName().c_str(), AcdKey::Tiles);
   if ( vetos == 0 ) return AcdJobConfig::ProccessFail;
   if ( ! r.copyPeakVals() ) return AcdJobConfig::ProccessFail;
 

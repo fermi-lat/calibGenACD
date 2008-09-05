@@ -3,6 +3,7 @@
 #define AcdCalibFit_h
 
 #include "Rtypes.h"
+#include "AcdKey.h"
 
 // forward declares
 class AcdHistCalibMap;
@@ -64,7 +65,7 @@ public:
    * @param results are the result of all the fits
    * @param hists are the set of all the input histograms
    **/
-  void fitAll(AcdCalibMap& results, AcdHistCalibMap& hists);
+  void fitAll(AcdCalibMap& results, AcdHistCalibMap& hists, AcdKey::ChannelSet cSet = AcdKey::All );
 
   /// return the name of the fitting algorith
   virtual const char* algorithm() const {

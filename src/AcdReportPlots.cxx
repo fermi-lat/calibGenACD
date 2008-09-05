@@ -47,6 +47,7 @@ namespace AcdReport {
   TString name_slope     = "slope";
   TString name_offset    = "offset";
   TString name_ped       = "ped";
+  TString name_ped2      = "pedestal";
   TString name_sat       = "saturation";
   TString name_mip       = "mip";
   TString name_range     = "range";
@@ -531,21 +532,15 @@ Bool_t AcdReport::makeSummaryPlots_Cno( TTree* inTree, const char* outputPrefix,
 					std::list<std::string>& plotNames ){
   TCanvas cnv;
   TH1* h1(0);
-  TH1* h1_rib(0);
   const TString& units = units_pha;
   Float_t max = 300.;
   if ( ! makeSummaryPlot_Generic(inTree,h1,name_sum,
-				 title_cno,name_cno,units,cut_chan,100,0.,max) ) return kFALSE;
-  if ( ! makeSummaryPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-				 title_cno,name_cno,units,cut_rib,100,0.,max) ) return kFALSE;
-  savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
+				 title_cno,name_cno,units,cut_skirt,100,0.,max) ) return kFALSE;
+  savePlot(cnv,*h1,outputPrefix,plotNames);
   TH2* h2(0);
-  TH2* h2_rib(0);
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2,name_sum,
-				       title_cno,name_cno,units,cut_chan,100,0.,max) ) return kFALSE;
-  if ( ! makeSummaryPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				       title_cno,name_cno,units,cut_rib,100,0.,max) ) return kFALSE;
-  savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
+				       title_cno,name_cno,units,cut_skirt,100,0.,max) ) return kFALSE;
+  savePlot(cnv,*h2,outputPrefix,plotNames);
   return kTRUE;
 }
 
@@ -553,21 +548,15 @@ Bool_t AcdReport::makeDeltaPlots_Cno( TTree* inTree, const char* outputPrefix,
 				      std::list<std::string>& plotNames ){
   TCanvas cnv;
   TH1* h1(0);
-  TH1* h1_rib(0);
   const TString& units = units_pha;
   Float_t maxDel = 300.;
   if ( ! makeDeltaPlot_Generic(inTree,h1,name_sum,
-			       title_cno,name_cno,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
-  if ( ! makeDeltaPlot_Generic(inTree,h1_rib,name_sum+"_rib",
-			       title_cno,name_cno,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
-  savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
+			       title_cno,name_cno,units,cut_skirt,100,-maxDel,maxDel) ) return kFALSE;
+  savePlot(cnv,*h1,outputPrefix,plotNames);
   TH2* h2(0);
-  TH2* h2_rib(0);
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2,name_sum,
-				     title_cno,name_cno,units,cut_chan,100,-maxDel,maxDel) ) return kFALSE;
-  if ( ! makeDeltaPlot_GenericByChan(inTree,h2_rib,name_sum+"_rib",
-				     title_cno,name_cno,units,cut_rib,100,-maxDel,maxDel) ) return kFALSE;
-  savePlots(cnv,*h2,*h2_rib,outputPrefix,plotNames);
+				     title_cno,name_cno,units,cut_skirt,100,-maxDel,maxDel) ) return kFALSE;
+  savePlot(cnv,*h2,outputPrefix,plotNames);
   return kTRUE;
 } 
  
@@ -577,7 +566,7 @@ Bool_t AcdReport::makeSummaryPlots_HighRange( TTree* inTree, const char* outputP
   TH1* h1_slp(0);
   TH1* h1_sat(0);
   if ( ! makeSummaryPlot_Generic(inTree,h1_ped,name_sum+"_ped",
-				 title_pedHigh,name_ped,units_pha,cut_chan,100,0.,1000.) ) return kFALSE;
+				 title_pedHigh,name_ped2,units_pha,cut_chan,100,0.,1000.) ) return kFALSE;
   savePlot(cnv,*h1_ped,outputPrefix,plotNames);
   if ( ! makeSummaryPlot_Generic(inTree,h1_slp,name_sum+"_slope",
 				 title_hrSlope,name_slope,units_hrSlope,cut_chan,100,0.,10.) ) return kFALSE;
@@ -590,7 +579,7 @@ Bool_t AcdReport::makeSummaryPlots_HighRange( TTree* inTree, const char* outputP
   TH2* h2_sat(0);
   plotNames.push_back(std::string("br"));
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2_ped,name_sum+"_ped",
-				       title_pedHigh,name_ped,units_pha,cut_chan,100,1.,1000.) ) return kFALSE;
+				       title_pedHigh,name_ped2,units_pha,cut_chan,100,1.,1000.) ) return kFALSE;
   savePlot(cnv,*h2_ped,outputPrefix,plotNames);
   if ( ! makeSummaryPlot_GenericByChan(inTree,h2_slp,name_sum+"_slope",
 				       title_hrSlope,name_slope,units_hrSlope,cut_chan,100,0.,10.) ) return kFALSE;
@@ -607,7 +596,7 @@ Bool_t AcdReport::makeDeltaPlots_HighRange( TTree* inTree, const char* outputPre
   TH1* h1_slp(0);
   TH1* h1_sat(0);
   if ( ! makeDeltaPlot_Generic(inTree,h1_ped,name_sum+"_ped",
-			       title_pedHigh,name_ped,units_pha,cut_chan,100,-20.,20.) ) return kFALSE;
+			       title_pedHigh,name_ped2,units_pha,cut_chan,100,-20.,20.) ) return kFALSE;
   savePlot(cnv,*h1_ped,outputPrefix,plotNames);
   if ( ! makeDeltaPlot_Generic(inTree,h1_slp,name_sum+"_slope",
 			       title_hrSlope,name_slope,units_hrSlope,cut_chan,100,-5.,5.) ) return kFALSE;
@@ -620,7 +609,7 @@ Bool_t AcdReport::makeDeltaPlots_HighRange( TTree* inTree, const char* outputPre
   TH2* h2_sat(0);
   plotNames.push_back(std::string("br"));
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2_ped,name_sum+"_ped",
-				     title_pedHigh,name_ped,units_pha,cut_chan,100,-20.,20.) ) return kFALSE;
+				     title_pedHigh,name_ped2,units_pha,cut_chan,100,-20.,20.) ) return kFALSE;
   savePlot(cnv,*h2_ped,outputPrefix,plotNames);
   if ( ! makeDeltaPlot_GenericByChan(inTree,h2_slp,name_sum+"_slope",
 				     title_hrSlope,name_slope,units_hrSlope,cut_chan,100,-5.,5.) ) return kFALSE;

@@ -26,6 +26,11 @@ class AcdKey {
 
 public:
 
+  enum ChannelSet { All = 0, 
+		    Tiles = 1,
+		    NoSkirt = 2,
+		    Ribbons = 3 };
+
   enum { nPmt = 2 } PMT;
   enum { nFace = 8 } FACE;
   enum { nRow = 5 } ROW;
@@ -35,6 +40,10 @@ public:
 	       GARC_GAFE,
 	       RIBBONS,
 	       BEAM };  
+
+  
+  /// Check to see if we should use a channel
+  static Bool_t useChannel(UInt_t id, ChannelSet cSet);
 
   static UInt_t makeId(UInt_t face, UInt_t row, UInt_t col) {
     return 100*face + 10*row + col;

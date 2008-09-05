@@ -282,16 +282,22 @@ Int_t AcdGainFitLibrary::fitLogNormal(CalibData::AcdCalibObj& result, const TH1&
 
 Int_t AcdGainFitLibrary::fitGaussP1(CalibData::AcdCalibObj& result, const TH1& hist, const CalibData::AcdCalibObj* seed) {
   
-  if ( seed == 0 ) return CalibData::AcdCalibObj::PREFIT_FAILED;
-  
-  Float_t peak = seed->operator[](0);
-  Float_t width = seed->operator[](1);
-
-  Float_t minVal = TMath::Max(50., peak - width);
-  Float_t maxVal = 4000.;
-  
+  Float_t peak(0.);
+  Float_t width(0.);
+  Float_t minVal(0.);
+  Float_t maxVal(0.);
+  if ( seed == 0 ) {
+    peak = 1.;
+    width = 0.25;
+    minVal = 0.25;
+    maxVal = 2.0;     
+  } else {    
+   peak = seed->operator[](0);
+   width = seed->operator[](1);   
+   minVal = TMath::Max(50., peak - width);
+   maxVal = 4000.;
+  }  
   Float_t norm = hist.GetMaximum();
-
       
   TF1 gaussP1("gaussP1","[0] * (TMath::Gaus(x,[1],[2]) + [3] + [4] * x )",minVal,maxVal);
   gaussP1.SetParameter(0,norm);  

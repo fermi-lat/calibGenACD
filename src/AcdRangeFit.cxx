@@ -23,14 +23,14 @@ Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHist
   UInt_t nB = lowhist.GetNbinsX();
   Float_t hiRange(0);
   for ( UInt_t i(2); i <= nB; i++ ) {
-    if ( highhist.GetBinContent(i) > 0 ) {
+    if ( highhist.GetBinContent(i) > 10 ) {
       hiRange = highhist.GetBinCenter(i);
       break;
     }
   }
   Float_t lowRange(0);
   for ( UInt_t j(nB); j > 0; j-- ) {
-    if ( lowhist.GetBinContent(j) > 0 ) {
+    if ( lowhist.GetBinContent(j) > 10 ) {
      lowRange = lowhist.GetBinCenter(j);
      break;
     }

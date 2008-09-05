@@ -35,7 +35,7 @@ CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P']),
               'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[]),
               'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[]),
               'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range']),
-              'check':('Check','runMeritCalib.exe',3,['ped','gain','highRange'])}
+              'check':('Check','runMeritCalib.exe',1,['-m','ped','gain','highRange'])}
 
 USABLERUNTYPES = {"Tack_scan0":0,
                   "Tack_scan1":0,
@@ -156,7 +156,7 @@ def getRefFileName(calibName,refDict):
     """
     return getCalibFileName(calibName,refDict[calibName])
 
-def getArgs(calibName,refDict):
+def getArgs(calibName,useDict):
     """
     """
     theArgs = ""
@@ -167,17 +167,17 @@ def getArgs(calibName,refDict):
   
     for arg in argList:
         if arg == 'ped':
-            theArgs += " -p %s"%getRefFileName(arg,refDict)
+            theArgs += " -p %s"%getRefFileName(arg,useDict)
         elif arg == 'gain':
-            theArgs += " -g %s"%getRefFileName(arg,refDict)
+            theArgs += " -g %s"%getRefFileName(arg,useDict)
         elif arg == 'range':
-            theArgs += " -R %s"%getRefFileName(arg,refDict)
+            theArgs += " -R %s"%getRefFileName(arg,useDict)
         elif arg == 'highPed':
-            theArgs += " -H %s"%getRefFileName(arg,refDict)
+            theArgs += " -H %s"%getRefFileName(arg,useDict)
         elif arg == 'carbon':
-            theArgs += " -C %s"%getRefFileName(arg,refDict)
+            theArgs += " -C %s"%getRefFileName(arg,useDict)
         elif arg == 'highRange':
-            theArgs += " -R %s"%getRefFileName(arg,refDict)
+            theArgs += " -R %s"%getRefFileName(arg,useDict)
         else:
             theArgs += " %s"%arg
     return theArgs
@@ -212,21 +212,22 @@ def makeRunString(calibName,runs,tag):
     runFile.close()
     return runStr
 
-def buildCalibCommand(calibName,refDict,runs,tag):
+def buildCalibCommand(calibName,refDict,useDict,runs,tag):
     """
     """
-    if len(runs) < 1:
-        return None
-    outprefix = "r%s"%(runs[0][0])
-    if tag == "":
-        tag = (runs[0][1])
+    if len(runs) >= 1:
+        outprefix = "r%s"%(runs[0][0])
+    elif calibName in ['cnoFit','vetoFit']:
+        outprefix = "scan_%s"%tag
+    elif calibName in ['highRange']:
+        outprefix = "hr_%s"%tag    
     execName = getExeName(calibName)
     refNameStr = "-x %s"%getRefFileName(calibName,refDict)
-        
-    theArgs = getArgs(calibName,refDict)
+    
+    theArgs = getArgs(calibName,useDict)
     runStr = makeRunString(calibName,runs,tag)
     execLine = "%s%s %s -o %s %s"%(execName,theArgs,refNameStr,outprefix,runStr)
-    return (execLine,outprefix,tag)
+    return (execLine,outprefix)
 
 def buildReportCommand(calib,comment,outPrefix,tag):
     """
@@ -239,8 +240,10 @@ def getRunsFromDay(runsData,day,nRuns):
     """
     """
     runs = []
+    tag = ""
     for aRun in runsData:
         rDay = aRun[1]
+        tag = rDay
         if rDay <> day:
             continue
         rType = aRun[4]
@@ -249,17 +252,20 @@ def getRunsFromDay(runsData,day,nRuns):
                 continue
         else:
             print "Unknown run type %s skipped"%(rType)
+        if len(runs) >= nRuns:
+            return (tag,runs)
         runs.append(aRun)
-        if len(runs) == nRuns:
-            return runs
-    print "Only found %d good runs in day %s, not %d"%(len(runs),day,nRuns)
-    return runs
+    if len(runs) < nRuns:
+        print "Only found %d good runs in day %s, not %d"%(len(runs),day,nRuns)
+    return (tag,runs)
 
 def getRunsFromWeek(runsData,week,nRuns):
     """
     """
     runs = []
+    tag = ""
     for aRun in runsData:
+        tag = aRun[1]
         rWeek = int(aRun[2],10)
         if rWeek <> week:
             continue
@@ -268,12 +274,13 @@ def getRunsFromWeek(runsData,week,nRuns):
             if USABLERUNTYPES[rType] < 1:
                 continue
         else:
-            print "Unknown run type %s skipped"%(rType)
+            print "Unknown run type %s skipped"%(rType)       
+        if len(runs) >= nRuns:
+            return (tag,runs)
         runs.append(aRun)
-        if len(runs) == nRuns:
-            return runs
-    print "Only found %d good runs in week %d, not %d"%(len(runs),week,nRuns)
-    return runs
+    if len(runs) < nRuns:
+        print "Only found %d good runs in week %d, not %d"%(len(runs),week,nRuns)
+    return (tag,runs)
         
   
 if __name__=='__main__':
@@ -311,19 +318,21 @@ if __name__=='__main__':
         sys.exit()  
 
     refDict = getRefFiles( os.path.join(ACDMONROOT,'ref.txt') )
+    useDict = getRefFiles( os.path.join(ACDMONROOT,'calib.txt') )
+
     runsTable = readRunsTable(args[0])
 
     if options.week:            
-        runs = getRunsFromWeek(runsTable,options.week,getNRuns(calib))
+        (tag,runs) = getRunsFromWeek(runsTable,options.week,getNRuns(calib))
         comment = "Data from Mission week %d"%(options.week)
     elif options.day:            
-        runs = getRunsFromDay(runsTable,options.day,getNRuns(calib))
+        (tag,runs) = getRunsFromDay(runsTable,options.day,getNRuns(calib))
         comment = "Data from %s"%(options.day)
     else:
         parser.print_help()
         sys.exit()
 
-    (execLine,outPrefix,tag) = buildCalibCommand(calib,refDict,runs,options.Tag)
+    (execLine,outPrefix) = buildCalibCommand(calib,refDict,useDict,runs,tag)
     reportLine = buildReportCommand(calib,comment,outPrefix,tag)
 
     #print execLine
