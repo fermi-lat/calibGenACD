@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep  5 15:57:35 PDT 2008
+calibGenACD/apps
+
+Added Files:
+	runNoiseCalib.cxx 
+Log Message:
+Added AcdNoiseLoop
+    *
+------------------------------------------------------------
 User: echarles  Fri Sep  5 15:57:34 PDT 2008
 calibGenACD/src
 
