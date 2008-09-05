@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep  5 15:57:50 PDT 2008
+calibGenACD/python
+
+Modified Files:
+	AcdReportRun.py AcdReportUtil.py AcdWeeklyReport.py 
+Log Message:
+lots of cleanup
+    *
+------------------------------------------------------------
 User: echarles  Fri Sep  5 15:57:49 PDT 2008
 calibGenACD/cmt
 
