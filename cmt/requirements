@@ -55,3 +55,5 @@ application runHighRangeCalib ../apps/runHighRangeCalib.cxx
 application calibReport ../apps/calibReport.cxx
 application runCalibTrend ../apps/runCalibTrend.cxx
 application makeResultTree ../apps/makeResultTree.cxx
+application runEfficCalib ../apps/runEfficCalib.cxx
+application runNoiseCalib ../apps/runNoiseCalib.cxx

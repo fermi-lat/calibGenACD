@@ -37,7 +37,7 @@ int main(int argn, char** argc) {
   // do fits
   r.makeRatioPlots();
   AcdCnoFitLibrary cnoFitter(AcdCnoFitLibrary::Counting);
-  AcdCalibMap* cnos = r.fit(cnoFitter,AcdCalibData::CNO,AcdCalib::H_CNO,jc.refFileName().c_str());
+  AcdCalibMap* cnos = r.fit(cnoFitter,AcdCalibData::CNO,AcdCalib::H_CNO,jc.refFileName().c_str(),AcdKey::NoSkirt);
   if ( cnos == 0 ) return AcdJobConfig::ProccessFail;
 
   // output

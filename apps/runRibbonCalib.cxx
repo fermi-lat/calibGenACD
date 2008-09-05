@@ -37,7 +37,7 @@ int main(int argn, char** argc) {
 
   // do fits
   AcdRibbonFitLibrary ribFitter(AcdGainFitLibrary::GaussP1);
-  AcdCalibMap* ribs = r.fit(ribFitter,AcdCalibData::RIBBON,AcdCalib::H_RIBBONS, jc.refFileName().c_str());
+  AcdCalibMap* ribs = r.fit(ribFitter,AcdCalibData::RIBBON,AcdCalib::H_RIBBONS, jc.refFileName().c_str(),AcdKey::Ribbons);
   if ( ribs == 0 ) return AcdJobConfig::ProccessFail;
 
   // output

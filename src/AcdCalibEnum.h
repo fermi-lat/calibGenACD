@@ -29,7 +29,8 @@ namespace AcdCalib {
   enum CHAIN{NO_CHAIN=-1,
 	     DIGI=0,
 	     SVAC=1,
-	     NCHAIN=2};
+	     MERIT=2,
+	     NCHAIN=3};
 
 };
 

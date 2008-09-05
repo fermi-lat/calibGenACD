@@ -1,6 +1,55 @@
 #define AcdKey_calibGenACD_cxx
 #include "AcdKey.h"
 
+
+
+Bool_t AcdKey::useChannel(UInt_t id, ChannelSet cSet) {
+  if ( id >= 700 ) return kFALSE;
+  if ( id >= 500 ) {
+    // ribbons
+    switch ( cSet ) {
+    case All:
+    case Ribbons:
+      return kTRUE;
+    case Tiles:
+    case NoSkirt:
+      return kFALSE;
+    }
+  }
+  if ( id < 100 ) {
+    // top
+    switch ( cSet ) {
+    case All:
+    case Tiles:
+    case NoSkirt:
+      return kTRUE;
+    case Ribbons:
+      return kFALSE;
+    }
+  }
+  if ( (id%100) >= 20 ) {
+    // skirt
+    switch ( cSet ) {
+    case All:
+    case Tiles:
+      return kTRUE;
+    case NoSkirt:    
+    case Ribbons:
+      return kFALSE;
+    }    
+  }
+  // side, but not in skirt
+  switch ( cSet ) {
+  case All:
+  case Tiles:
+  case NoSkirt:    
+    return kTRUE;
+  case Ribbons:
+    return kFALSE;
+  }    
+  return kFALSE;
+}
+
 std::list<Int_t>& AcdKey::acdIdList() {
   static std::list<Int_t> theAcdIdList;
   if ( theAcdIdList.size() == 0 ) {

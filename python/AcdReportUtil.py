@@ -157,9 +157,9 @@ def setRef(calib,inFileName,tag,timeString,action,comment):
     inFile.close()
     os.rename(outFileName,indexFileName)
 
-    if action == "ref":
-        inFile = open(os.path.join(ACDMONROOT,'ref.txt'))
-        outFile = open(os.path.join(ACDMONROOT,'ref.bak'),'w')
+    if action in ['ref','calib']:
+        inFile = open(os.path.join(ACDMONROOT,"%s.txt"%action))
+        outFile = open(os.path.join(ACDMONROOT,"%s.bak"%action),'w')
         inline = inFile.readline()
         while inline<>'':
             fields = inline.split(' ')
@@ -172,10 +172,12 @@ def setRef(calib,inFileName,tag,timeString,action,comment):
             inline = inFile.readline()
         inFile.close()
         outFile.close()
-        os.rename(os.path.join(ACDMONROOT,'ref.bak'),os.path.join(ACDMONROOT,'ref.txt'))
+        os.rename(os.path.join(ACDMONROOT,"%s.bak"%action),os.path.join(ACDMONROOT,"%s.txt"%action))
 
     if action == "ref":
         addUse(inFileName,"Set as reference on %s"%timeString)
+    elif action == "calib":
+        addUse(inFileName,"Set to use in making calibration on %s"%timeString)
     elif action == "config":    
         addUse(inFileName,"Added to moot on %s: %s"%(timeString,comment))
     elif action == "offline":    
@@ -208,7 +210,7 @@ if __name__=='__main__':
         sys.exit()
 
     action = sys.argv[1]
-    actions = ['comment','use','store','ref','config','offline','sim']
+    actions = ['comment','use','store','ref','config','calib','offline','sim']
     if action not in actions:
         parser.print_help()
         print "ACTION must be one of %s"%(str(actions))
@@ -238,7 +240,7 @@ if __name__=='__main__':
         addComment(input,options.comment)
     elif action == 'use':
         addUse(input,options.comment)
-    elif action in ['ref','config','offline','sim']:
+    elif action in ['ref','calib','config','offline','sim']:
         setRef(idFt,input,options.tag,timestring,action,options.comment)
     elif action == 'store':        
         cInfo = getCalibInfo(input)

@@ -49,7 +49,7 @@ int main(int argn, char** argc) {
   AcdCalibMap* peds = r.fit(pedFitter,AcdCalibData::PEDESTAL,AcdCalib::H_RAW);
   if ( peds == 0 ) return AcdJobConfig::ProccessFail;
 
-  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::P3);
+  AcdGainFitLibrary gainFitter(&CalibData::AcdGainFitDesc::instance(),AcdGainFitLibrary::GaussP1);
   AcdCalibMap* gains = r.fit(gainFitter,AcdCalibData::GAIN,AcdCalib::H_GAIN);
   if ( gains == 0 ) return AcdJobConfig::ProccessFail;
   

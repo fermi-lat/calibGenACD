@@ -214,7 +214,7 @@ public :
 
   ///  fit all the histograms
   AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
-		   const char* referenceFile = 0);
+		   const char* referenceFile = 0, AcdKey::ChannelSet cSet = AcdKey::All);
 
 protected:
 

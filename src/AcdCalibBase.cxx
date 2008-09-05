@@ -287,7 +287,7 @@ const TChain* AcdCalibBase::getChain(AcdCalib::CHAIN chain) const {
 
 
 AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
-			       const char* referenceFile) {   
+			       const char* referenceFile, AcdKey::ChannelSet cSet) {   
 
   AcdHistCalibMap* hists = getHistMap(hType);
   if ( hists == 0 ) return 0;
@@ -310,7 +310,7 @@ AcdCalibMap* AcdCalibBase::fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType,
     }
     result->setReference(*ref);
   }
-  fitter.fitAll(*result,*hists);
+  fitter.fitAll(*result,*hists,cSet);
   result->setHists(*hists);
   giveInfoToCalib(*result);
   return result;
