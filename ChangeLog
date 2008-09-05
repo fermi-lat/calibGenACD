@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri Sep  5 15:57:02 PDT 2008
+calibGenACD/src
+
+Added Files:
+	AcdEfficLoop.cxx AcdEfficLoop.h 
+Log Message:
+Added AcdEfficLoop
+    *
+------------------------------------------------------------
 User: ecephas  Fri Aug 15 14:42:37 PDT 2008
 GlastRelease-scons/calibGenACD
 
