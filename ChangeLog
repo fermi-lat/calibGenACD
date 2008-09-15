@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+TAG
+Tag name: v4r1p2, operation: mov
+Package: calibGenACD
+User: glastrm  Mon Sep 15 11:30:29 2008
+Files:
+  calibGenACD/SConscript  1.2
+
+    *
+------------------------------------------------------------
 User: glastrm  Mon Sep 15 11:30:23 PDT 2008
 calibGenACD
 
