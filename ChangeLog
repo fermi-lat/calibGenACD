@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: heather  Mon Sep 15 09:56:58 PDT 2008
+calibGenACD/cmt
+
+Modified Files:
+      Tag: v4r1-patches
+	requirements 
+Log Message:
+compiler patch for windows
+    *
+------------------------------------------------------------
 TAG
 Tag name: v4r1-patches, operation: add
 Package: calibGenACD
