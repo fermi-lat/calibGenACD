@@ -1,3 +1,6 @@
+v4r1p1 HMK 080915
+Minor patch for windows so the compiler can fine the right version of TMath::Max
+
 v4r1 EAC 080714
 More massive changes to bring package up to version used to with L&eo trending.
 
