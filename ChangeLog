@@ -1,4 +1,25 @@
 ------------------------------------------------------------
+User: ecephas  Mon Nov  3 07:55:18 PST 2008
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	calibGenACDLib.py 
+Log Message:
+Added the following libraries:
+
+     env.Tool('xmlBaseLib')
+     env.Tool('AcdDigiLib')
+     env.Tool('mootCoreLib')
+     env.Tool('calibUtilLib')
+     env.Tool('digiRootDataLib')
+     env.Tool('addLibrary', library = env['rootLibs'])
+     env.Tool('reconRootDataLib')
+     env.Tool('addLibrary', library = env['rootGuiLibs'])
+
+
+
+    *
+------------------------------------------------------------
 User: ecephas  Mon Nov  3 07:52:16 PST 2008
 GlastRelease-scons/calibGenACD
 
