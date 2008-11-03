@@ -1,4 +1,35 @@
 ------------------------------------------------------------
+User: ecephas  Mon Nov  3 07:52:16 PST 2008
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	SConscript 
+Log Message:
+Made some formatting changes to "progEnv.Tool('registerObjects',...)" statement to:
+
+progEnv.Tool('registerObjects', package = 'calibGenACD', libraries = [calibGenACD],
+              binaries  = [runPedestal,
+                           runMipCalib,
+                           runRangeCalib,
+                           runVetoCalib,
+                           runCnoCalib,
+                           runCoherentNoiseCalib,
+                           runCarbonCalib,
+                           runRibbonCalib,
+                           runMeritCalib,
+                           runHighPed,
+                           runVetoFitCalib,
+                           runCnoFitCalib,
+                           runHighRangeCalib,
+                           calibReport,
+                           runCalibTrend,
+                           makeResultTree,
+                           runEfficCalib,
+                           runNoiseCalib],
+              includes = listFiles(['calibGenACD/*.h']))
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-04-01-03, operation: add
 Package: calibGenACD
