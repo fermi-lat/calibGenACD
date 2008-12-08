@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: ecephas  Mon Dec  8 13:40:15 PST 2008
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	SConscript 
+Log Message:
+Check in SConscript for calibGenACD v4r1p3 (for branch-tag, GlastReleasev15r49) 
+    *
+------------------------------------------------------------
 User: ecephas  Mon Nov  3 07:55:18 PST 2008
 GlastRelease-scons/calibGenACD
 
