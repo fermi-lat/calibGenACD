@@ -29,8 +29,8 @@ runHighRangeCalib = progEnv.Program('runHighRangeCalib',['apps/runHighRangeCalib
 calibReport = progEnv.Program('calibReport',['apps/calibReport.cxx'])
 runCalibTrend = progEnv.Program('runCalibTrend',['apps/runCalibTrend.cxx'])
 makeResultTree = progEnv.Program('makeResultTree',['apps/makeResultTree.cxx'])
-runEfficCalib = progEnv.Program('runEfficCalib',['apps/runEfficCalib.cxx'])
-runNoiseCalib = progEnv.Program('runNoiseCalib',['apps/runNoiseCalib.cxx'])
+# runEfficCalib = progEnv.Program('runEfficCalib',['apps/runEfficCalib.cxx'])
+# runNoiseCalib = progEnv.Program('runNoiseCalib',['apps/runNoiseCalib.cxx'])
 
 
 progEnv.Tool('registerObjects', package = 'calibGenACD', libraries = [calibGenACD],
@@ -49,7 +49,8 @@ progEnv.Tool('registerObjects', package = 'calibGenACD', libraries = [calibGenAC
                           runHighRangeCalib,
                           calibReport,
                           runCalibTrend,
-                          makeResultTree,
-                          runEfficCalib,
-                          runNoiseCalib],
+                          makeResultTree],
              includes = listFiles(['calibGenACD/*.h']))
+
+
+
