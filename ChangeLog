@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 TAG
+Tag name: calibGenACD-04-01-03, operation: add
+Package: calibGenACD
+User: ecephas  Mon Dec  8 16:08:44 2008
+Files:
+  calibGenACD/calibGenACDLib.py  1.2
+  calibGenACD/calibGenACDLib.py  1.2
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: calibGenACD-04-01-03, operation: mov
 Package: calibGenACD
 User: glast  Mon Dec  8 14:41:28 2008
