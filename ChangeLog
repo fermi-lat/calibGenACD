@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+TAG
+Tag name: calibGenACD-04-01-03, operation: mov
+Package: calibGenACD
+User: glastrm  Thu Jan 22 16:31:45 2009
+Files:
+  calibGenACD/SConscript  1.6
+  calibGenACD/SConscript  1.6
+  calibGenACD/SConscript  1.6
+  calibGenACD/calibGenACDLib.py  1.2
+
+    *
+------------------------------------------------------------
 User: ecephas  Thu Jan 22 16:07:24 PST 2009
 GlastRelease-scons/calibGenACD
 
