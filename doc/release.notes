@@ -1,3 +1,7 @@
+/** @file release.notes
+ Package calibGenACD
+ * EOH *
+
 v4r1 EAC 080714
 More massive changes to bring package up to version used to with L&eo trending.
 
@@ -106,3 +110,4 @@ Assuming all ACD tiles are installed around full LAT, the code uses
 reconstructed muon direction to correct energy deposited in the ACD tiles.
 Note the code assumes the data is NOT zero suppressed, it also assumes 
 pedestal lies between 0 and 400 ACD counts.
+*/
