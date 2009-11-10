@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jrb  Tue Nov 10 15:11:59 PST 2009
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	.cvsignore SConscript calibGenACDLib.py 
+Log Message:
+
+    *
+------------------------------------------------------------
 User: heather  Wed Jul  1 09:35:51 PDT 2009
 calibGenACD/doc
 
