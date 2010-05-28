@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Fri May 28 00:55:37 PDT 2010
+calibGenACD/python
+
+Modified Files:
+	ParseFileList.py 
+Log Message:
+new version of ParseFileList.py
+    *
+------------------------------------------------------------
 TAG
 Tag name: calibGenACD-04-01-04, operation: add
 Package: calibGenACD
