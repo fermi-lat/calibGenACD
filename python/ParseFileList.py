@@ -20,6 +20,22 @@ import time
 from optparse import OptionParser
 from py_mootCore import MootQuery, vectorOfConstitInfo, ConstitInfo
 
+DATACATBIN = "/afs/slac/g/glast/ground/bin/datacat"
+
+def getDateStamp():
+    """
+    """
+    return time.strftime("%y%m%d")
+
+def callDatacat(group,dateStamp):
+    """
+    """
+    dataCatList = "%s_%s.list"%(group,dateStamp)
+    dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Level1/LPA/ > %s"%(DATACATBIN,group,dataCatList)
+    print "Calling datacat for group %s on %s"%(group,dateStamp)
+    os.system(dataCatLine)
+    return dataCatList
+
 def configInfo(metTime,mq):
     """
     """
@@ -57,6 +73,8 @@ def utcDayAndWeek(metTime):
 def parseNames(inFileName):
     """
     """
+    outFileName = inFileName.replace("list","table")
+    outFile = open(outFileName,'w')
     mq = MootQuery(None)
     inFile = open(inFileName)
     inline = inFile.readline()
@@ -65,16 +83,17 @@ def parseNames(inFileName):
         runNum = inline[w+2:w+12]
         (uDay,mWeek) = utcDayAndWeek(runNum)
         (configName,configKey) = configInfo(runNum,mq)
-        print "%s %s %03d %-4d %s %s"%(runNum,uDay,mWeek,configKey,configName,inline.strip())
+        outFile.write("%s %s %03d %-4d %s %s\n"%(runNum,uDay,mWeek,configKey,configName,inline.strip()))
         inline = inFile.readline()
     inFile.close()
+    outFile.close()
     return None
 
 
 if __name__=='__main__':
     # argument parsing
 
-    usage = 'ParseFileList.py input'
+    usage = 'ParseFileList.py type'
     parser = OptionParser(usage)
 
     if len(sys.argv) == 1 or sys.argv[1] == '-h':
@@ -83,15 +102,16 @@ if __name__=='__main__':
 
     (options, args) = parser.parse_args(sys.argv[1:])
 
-    if len(args) <> 1:
+    if len(args) < 1:
         parser.print_help()
         sys.exit()        
 
-    input = args[0]
+    dateStamp = getDateStamp()
 
-    # Latch the time
-    parseNames(input)
+    for group in args:
+        dataCatList = callDatacat(group,dateStamp)       
+        #Latch the time
+        parseNames(dataCatList)
 
-    #fmxKeys(int(input))
     
     
