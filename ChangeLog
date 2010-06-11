@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jrb  Thu Jun 10 17:41:12 PDT 2010
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	SConscript 
+Log Message:
+updates for SCons build
+    *
+------------------------------------------------------------
 User: echarles  Fri May 28 00:55:37 PDT 2010
 calibGenACD/python
 
