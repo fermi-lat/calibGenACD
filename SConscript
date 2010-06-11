@@ -8,7 +8,7 @@ Import('packages')
 progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
 
-libEnv.Tool('calibGenACDLib', depsOnly = 1)
+libEnv.Tool('addLinkDeps', package='calibGenACD', toBuild='shared')
 calibGenACD = libEnv.SharedLibrary('calibGenACD',  listFiles(['src/*.cxx']))
 
 progEnv.Tool('calibGenACDLib')
