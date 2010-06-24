@@ -15,6 +15,7 @@
 #include <time.h>
 #include <TROOT.h>
 #include <TPluginManager.h>
+#include <TApplication.h>
 
 #include "TChain.h"
 
@@ -32,7 +33,7 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_svacChain(0),
    m_meritChain(0)
 {
-
+  
 }
 
 AcdJobConfig::~AcdJobConfig() 
@@ -71,6 +72,7 @@ void AcdJobConfig::usage() {
        << "\t   -P                : use only periodic triggers" << endl
        << "\t   -m                : use the mip values from the svac file" << endl
        << "\t   -G <int>          : use CAL GCR selection for a given Z" << endl
+       << "\t   -i <fileName>     : use input histograms" << endl
        << "\t   -p <fileName>     : use pedestals from this file" << endl
        << "\t   -H <fileName>     : use high range pedestals from this file" << endl
        << "\t   -g <fileName>     : use gains from this file" << endl
@@ -81,9 +83,6 @@ void AcdJobConfig::usage() {
   
 Int_t AcdJobConfig::parse(int argn, char** argc) {
 
-  // init XROOTD for kicks
-  gROOT->GetPluginManager()->AddHandler("TSystem", "^root", "TXNetSystem","Netx");
-  
   using std::cout;
   using std::cerr;
   using std::endl;
@@ -92,7 +91,7 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
-  char* optString = "hn:s:I:x:o:p:H:g:R:C:PmG:";
+  char* optString = "hn:s:I:i:x:o:p:H:g:R:C:PmG:";
 
   m_outputPrefix = "test";
 
@@ -119,6 +118,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
       break;
     case 'o':   //  output
       m_outputPrefix = string(optarg);
+      break;
+    case 'i':   // Input histograms
+      m_inFileName = string(optarg);
       break;
     case 'p':   // Pedestals
       m_pedFileName = string(optarg);
@@ -197,6 +199,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   if ( m_optval_G != 0 ) {
     std::cout << "Using CAL GCR selection for Z = " << m_optval_G << std::endl;
   }
+  if ( m_inFileName != "" ) {
+    std::cout << "Input file: " << m_inFileName << std::endl;
+  }
   if ( m_pedFileName != "" ) {
     std::cout << "pedestal file: " << m_pedFileName << std::endl;
   }
@@ -212,6 +217,11 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   if ( m_carbonFileName != "" ) {   
     std::cout << "carbon file: " << m_carbonFileName << std::endl;
   }
+
+  static TApplication* theApp = new TApplication("runMipCalib.exe",&argn,argc);
+  // init XROOTD for kicks
+  gROOT->GetPluginManager()->AddHandler("TSystem", "^root", "TXNetSystem","Netx");
+  
 
   return Success;
 }

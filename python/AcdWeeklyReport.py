@@ -26,17 +26,18 @@ CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
 CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P'],'digi'),
               'gain':('ElecGain','runMipCalib.exe',5,['ped'],'svac'),
               'veto':('ThreshVeto','runVetoCalib.exe',1,['ped'],'digi'),
-              'range':('Range','runRangeCalib.exe',1,['ped','highPed'],'digi'),
+              'range':('Range','runRangeCalib.exe',5,['ped','highPed'],'digi'),
               'cno':('ThreshHigh','runCnoCalib.exe',1,['highPed'],'digi'),
               'coherentNoise':('CoherentNoise','runCoherentNoiseCalib.exe',1,['-P','ped'],'digi'),
-              'ribbon':('Ribbon','runRibbonCalib.exe',5,['ped'],'svac'),
-              'highPed':('HighPed','runHighPed.exe',1,['-s 1000'],'meta'),
-              'carbon':('Carbon','runCarbonCalib.exe',60,['-G 6','highPed'],'svac'),
-              'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[],'meta'),
-              'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[],'meta'),
-              'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range'],'meta'),
-              'check':('Check','runMeritCalib.exe',5,['ped','gain','highRange'],'svac')}
+              'ribbon':('Ribbon','runRibbonCalib.exe',5,['ped'],'svac')}              
+#              'highPed':('HighPed','runHighPed.exe',1,['-s 1000'],'meta'),
+#              'carbon':('Carbon','runCarbonCalib.exe',60,['-G 6','highPed'],'svac'),
+#              'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[],'meta'),
+#              'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[],'meta'),
+#              'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range'],'meta'),
+#              'check':('Check','runMeritCalib.exe',5,['ped','gain','highRange'],'svac')}
 
+#CALIBTYPES = {'gain':('ElecGain','runMipCalib.exe',5,['ped'],'svac')}
   
 if __name__=='__main__':
     # argument parsing

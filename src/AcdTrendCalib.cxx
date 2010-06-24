@@ -27,6 +27,7 @@ using std::string;
 AcdTrendCalib::AcdTrendCalib(AcdCalibData::CALTYPE t, AcdKey::Config config)
   :AcdCalibBase(t,config),
    m_nCalib(0),
+   m_nInputs(0),
    m_reference(0),
    m_calibs(0),
    m_trendHists(0) {
@@ -41,6 +42,7 @@ Bool_t AcdTrendCalib::readCalib(const std::string& calibXmlFile, Bool_t isRef) {
   TString rootFileName(calibXmlFile.c_str());
   rootFileName.ReplaceAll(".xml","Pars.root");
   std::string treeName;
+  static const std::string noneString("none");
   AcdXmlUtil::getCalibTreeName(treeName,calType());
   if ( isRef ) {
     if ( m_reference != 0 ) {
@@ -64,6 +66,9 @@ Bool_t AcdTrendCalib::readCalib(const std::string& calibXmlFile, Bool_t isRef) {
     }    
     m_reference = t;
     m_refFileName = rootFileName;
+  } else if ( calibXmlFile == noneString ) {    
+    m_indexMap[m_nCalib] = -1;
+    m_nCalib++;
   } else {
     //if ( rootFileName ==  m_refFileName ) return kTRUE;
     if ( m_calibs == 0 ) {
@@ -73,6 +78,8 @@ Bool_t AcdTrendCalib::readCalib(const std::string& calibXmlFile, Bool_t isRef) {
       std::cerr << "Failed to add file " << rootFileName << " to chain" << std::endl;
       return kFALSE;
     }
+    m_indexMap[m_nCalib] = m_nInputs;
+    m_nInputs++;
     m_nCalib++;
   }
   return kTRUE; 
@@ -117,7 +124,10 @@ Bool_t AcdTrendCalib::fillHistograms() {
   
   // Loop on the calibs
   for ( UInt_t i(0); i < m_nCalib; i++) {
-    m_calibs->GetEntry(i);
+
+    Int_t input = m_indexMap[i];
+    if ( input < 0 ) continue;
+    m_calibs->GetEntry(input);
     
     // Loop on the channels
     for ( UInt_t j(0); j < 216; j++ ) {
@@ -132,7 +142,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
       for ( UInt_t k(0); k < m_trendNames.size(); k++ ) {
 	if ( ! AcdKey::useChannel( id[j], m_channels[k] ) ) continue;
 	Float_t delta = vals[k][j] - refVals[k][j];
-	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,0.0,k);
+	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,1.0,k);
 	m_summaryHists[k]->Fill((Float_t)i,delta);
       }
     }    

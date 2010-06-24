@@ -96,6 +96,8 @@ public :
   /// return the name of the reference calibration file (-x)
   inline const std::string& refFileName() const { return m_refFileName; }
 
+  /// return the name of the input histogram file (-i)
+  inline const std::string& inFileName() const { return m_inFileName; }
   /// return the name of the pedestal calibration file (-p)
   inline const std::string& pedFileName() const { return m_pedFileName; }
   /// return the name of the gain calibration file (-g)
@@ -155,6 +157,7 @@ private:
 
   std::string m_refFileName;
 
+  std::string m_inFileName;
   std::string m_pedFileName;
   std::string m_gainFileName;
   std::string m_rangeFileName;

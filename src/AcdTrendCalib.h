@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
+#include <map>
 
 // Root includes
 #include <TString.h>
@@ -65,6 +66,12 @@ private:
 
   /// The number of calibrations to trend
   UInt_t                  m_nCalib;
+
+  /// The number of input files
+  Int_t                   m_nInputs;
+
+  /// Map between calibration phase an input file
+  std::map<UInt_t,Int_t>  m_indexMap;
 
   /// The reference calibration
   TTree*                  m_reference;

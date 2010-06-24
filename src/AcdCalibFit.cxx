@@ -32,6 +32,9 @@ Int_t AcdCalibFit::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder&
 void AcdCalibFit::fitAll(AcdCalibMap& results, AcdHistCalibMap& hists,AcdKey::ChannelSet cSet) {
 
   const AcdCalibMap* ref = results.theReference();
+
+  std::cout << "Fitting All " << ref << std::endl;
+
   for ( std::map<UInt_t,AcdCalibHistHolder>::const_iterator itr = hists.theMap().begin();
 	itr != hists.theMap().end(); itr++ ) {
     UInt_t key = itr->first;

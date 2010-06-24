@@ -20,10 +20,10 @@ class AcdCalibVersion {
 public:
 
   static const char* fmtVersion() {
-    return "v3r1";
+    return "v3r2";
   }
   static const char* dtdVersion() {
-    return "v3r1";
+    return "v3r2";
   }
   
 public:

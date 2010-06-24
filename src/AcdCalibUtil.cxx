@@ -238,11 +238,13 @@ void AcdCalibUtil::drawVetoFitPlot(TVirtualPad& vp, TH1& hVeto, CalibData::AcdCa
   hVeto.SetMinimum(25.);
   hVeto.SetMaximum(75.);  
   TF1* fA = hVeto.GetFunction("pol1");
-  fA->SetLineColor(2);
   hVeto.Draw("e");  
-  fA->Draw("same");
+  if ( fA != 0 ) {
+    fA->SetLineColor(2);
+    fA->Draw("same");
+  }
   if ( res != 0 ) {
-    float peak = res->operator[](2);
+    float peak = res->operator[](0);
     for ( unsigned i(0); i < nomSettings.size(); i++ ) {
       TLine lx(nomSettings[i]*peak,25.,nomSettings[i]*peak,75.);
       lx.SetLineColor(7);

@@ -32,7 +32,7 @@ AcdMetaCalib::AcdMetaCalib(AcdCalibData::CALTYPE t, AcdKey::Config config)
    m_highRangeHists(0){
   switch ( t ) {
   case AcdCalibData::VETO_FIT:
-    m_fitHists = bookHists(AcdCalib::H_VETO_FIT,500,0.,500.);
+    m_fitHists = bookHists(AcdCalib::H_VETO_FIT,750,0.,750.);
     break;
   case AcdCalibData::CNO_FIT:
     m_fitHists = bookHists(AcdCalib::H_VETO_FIT,400,0.,400);    

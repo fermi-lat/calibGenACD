@@ -12,7 +12,7 @@
 
 
 Int_t AcdCarbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHistHolder& holder,
-			       CalibData::AcdCalibObj* /* ref */) {
+			       CalibData::AcdCalibObj* ref) {
 
   TH1& hist = const_cast<TH1&>(*(holder.getHist(0)));
  
@@ -30,7 +30,7 @@ Int_t AcdCarbonFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHis
     returnCode = fallback(result,hist);
     break;
   case Gauss:
-    returnCode = fitGauss(result,hist);
+    returnCode = fitGauss(result,hist,ref);
     break;
   }  
   return returnCode;
@@ -62,32 +62,52 @@ Int_t AcdCarbonFitLibrary::fallback(CalibData::AcdCalibObj& result, const TH1& h
   return CalibData::AcdCalibObj::OK;
 }
 
-Int_t AcdCarbonFitLibrary::fitGauss(CalibData::AcdCalibObj& result, const TH1& hist) {
+Int_t AcdCarbonFitLibrary::fitGauss(CalibData::AcdCalibObj& result, const TH1& hist, const CalibData::AcdCalibObj* seed) {
 
   Int_t ped, min, peak, halfMax;
   Int_t rebin(4);
-  Int_t status = AcdGainFitLibrary::extractFeatures(hist,rebin,ped,min,peak,halfMax);
+  Int_t status(0);
 
   TH1& theHist = const_cast<TH1&>(hist);
 
-  if ( status != 0 ) return status;
-  Float_t peakValue = hist.GetBinCenter(rebin*peak);
-  Float_t minValue = hist.GetBinCenter(rebin*min);
-  Float_t endValue = hist.GetBinCenter(rebin*halfMax);
-  Double_t integ = hist.Integral((Int_t)minValue,(Int_t)endValue);
+  Float_t valAtMax(0.);
+  Float_t peakValue(0.);
+  Float_t minValue(0.);
+  Float_t endValue(0.);
+  Float_t width(0.);
+
+  if ( seed == 0 ) {
+    status = AcdGainFitLibrary::extractFeatures(hist,rebin,ped,min,peak,halfMax);
+    if ( status != 0 ) return status;
+    valAtMax = hist.GetBinContent(rebin*peak);
+    peakValue = hist.GetBinCenter(rebin*peak);
+    minValue = hist.GetBinCenter(rebin*min);
+    endValue = hist.GetBinCenter(rebin*halfMax);
+    width = 0.5*(endValue-minValue);
+  } else {
+    peakValue = seed->operator[](0);
+    width = seed->operator[](1);
+    valAtMax = hist.GetMaximum();
+    std::cout << "Using ref " << peakValue << ' ' << width << std::endl;
+    minValue = TMath::Max(20., peakValue - width);
+    minValue = TMath::Min(minValue, 0.5* peakValue);
+    endValue = TMath::Min(3*peakValue, 1400.);
+  }
 
   TF1 gauss("gauss","[0] * TMath::Gaus(x,[1],[2])",minValue,endValue);
-  gauss.SetParameter(0,integ);
+  gauss.SetParameter(0,valAtMax);
   gauss.SetParameter(1,peakValue);
-  gauss.SetParLimits(1,minValue,endValue);
-  gauss.SetParameter(2,endValue-minValue);
+  gauss.SetParLimits(1,0.5*peakValue,2.*peakValue);
+  gauss.SetParameter(2,width);
+  gauss.SetParLimits(2,0.2*width,2*width);
+
 
   status = theHist.Fit(&gauss,"","",minValue,endValue); //applies polynomial fit
   // if ( status != 0 ) return fallback(result,hist);
   if ( status != 0 ) return status;
   
   peakValue = gauss.GetParameter(1);
-  Double_t width = gauss.GetParameter(2);
+  width = gauss.GetParameter(2);
   result.setVals(peakValue,width,(CalibData::AcdCalibObj::STATUS)status);
   return status;
 }

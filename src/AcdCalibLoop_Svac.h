@@ -32,6 +32,10 @@ public :
   /// Standard ctor, where user provides the input data
   AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain, 		    
 		    AcdKey::Config config = AcdKey::LAT);
+
+  /// Special ctor, where user provides the input file with histograms
+  AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, const char* fileName, 		    
+		    AcdKey::Config config = AcdKey::LAT);
   
   virtual ~AcdCalibLoop_Svac();  
   

@@ -57,6 +57,27 @@ AcdCalibLoop_Svac::AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, TChain* svacChain,
   }
 }
 
+AcdCalibLoop_Svac:: AcdCalibLoop_Svac(AcdCalibData::CALTYPE t, const char* fileName, 		    
+				      AcdKey::Config config)
+  :AcdCalibBase(t,config),
+   m_calGCRSelect(0),
+   m_mipFromSvac(kFALSE),
+   m_pedHists(0),
+   m_peakHists(0),
+   m_rangeHists(0),
+   m_vetoHists(0),
+   m_cnoHists(0){
+
+  /// Special ctor, where user provides the input file with histograms  
+  switch ( t ) {
+  case AcdCalibData::CARBON:
+    m_peakHists = readHistMap(AcdCalib::H_GAIN,fileName);
+    break;
+  }
+}
+  
+
+
 
 AcdCalibLoop_Svac::~AcdCalibLoop_Svac() 
 {
