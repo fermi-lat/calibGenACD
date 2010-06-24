@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: echarles  Thu Jun 24 16:52:42 PDT 2010
+calibGenACD/src
+
+Modified Files:
+	AcdCalibFit.cxx AcdCalibLoop_Svac.cxx AcdCalibLoop_Svac.h 
+	AcdCalibUtil.cxx AcdCalibVersion.h AcdCarbonFit.cxx 
+	AcdCarbonFit.h AcdEfficLoop.cxx AcdEfficLoop.h AcdGainFit.cxx 
+	AcdJobConfig.cxx AcdJobConfig.h AcdMetaCalib.cxx 
+	AcdRangeFit.cxx AcdTrendCalib.cxx AcdTrendCalib.h 
+Log Message:
+updates
+    *
+------------------------------------------------------------
 User: echarles  Thu Jun 24 16:52:41 PDT 2010
 calibGenACD/python
 
