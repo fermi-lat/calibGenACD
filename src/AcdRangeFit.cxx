@@ -30,7 +30,7 @@ Int_t AcdRangeFitLibrary::fit(CalibData::AcdCalibObj& result, const AcdCalibHist
   }
   Float_t lowRange(0);
   for ( UInt_t j(nB); j > 0; j-- ) {
-    if ( lowhist.GetBinContent(j) > 10 ) {
+    if ( lowhist.GetBinContent(j) > 5 ) {
      lowRange = lowhist.GetBinCenter(j);
      break;
     }

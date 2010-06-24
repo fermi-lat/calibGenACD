@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <TApplication.h>
 
 #include "../src/AcdJobConfig.h"
 
@@ -11,7 +12,7 @@
 
 
 int main(int argn, char** argc) {
-
+  
   // configure
   AcdJobConfig jc("runMipCalib.exe","This utility runs the MIP calibration code on SVAC files");
 

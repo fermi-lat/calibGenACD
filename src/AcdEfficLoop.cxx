@@ -15,6 +15,12 @@ AcdEfficLoop::AcdEfficLoop(AcdCalibData::CALTYPE t,
    b_FswDGNState(0),
    b_TkrNumTracks(0),
    b_CTBTKRGamProb(0),
+   b_CTBCALGamProb(0),
+   b_CTBCPFGamProb(0),
+   b_CTBClassLevel(0),
+   b_CTBBestEnergyProb(0),
+   b_CTBBestLogEnergy(0),
+   b_CTBCORE(0),
    b_CalEnergyRaw(0),
    b_CalCsIRLn(0),   
    b_Tkr1SSDVeto(0),
@@ -48,20 +54,26 @@ TFile* AcdEfficLoop::makeOutput(const char* fileName) {
   m_fout = new TFile(fileName,"RECREATE");
   m_tout = new TTree("AcdEffic","ACD Efficiency measurement");
 
-  m_tout->Branch("CTBTKRGamProb",&m_CTBTKRGamProb,"CTBTKRGamProb/F");
-  m_tout->Branch("Tkr1SSDVeto",&m_Tkr1SSDVeto,"Tkr1SSDVeto/F");
-  m_tout->Branch("CalEnergyRaw",&m_CalEnergyRaw,"CalEnergyRaw/F");
-  m_tout->Branch("CalMIPRatio",&m_CalMIPRatio,"CalMIPRatio/F");
-  m_tout->Branch("CalCsIRLn",&m_CalCsIRLn,"CalCsIRLn/F");
-  m_tout->Branch("Tkr1NumHits",&m_Tkr1NumHits,"Tkr1NumHits/I");
-  m_tout->Branch("Tkr1KalEne",&m_Tkr1KalEne,"Tkr1KalEne/F");
-  m_tout->Branch("xAcd",&m_xAcd,"xAcd/F");
-  m_tout->Branch("yAcd",&m_yAcd,"yAcd/F");
-  m_tout->Branch("zAcd",&m_zAcd,"zAcd/F");
+  m_tout->Branch("CTBTKRGamProb",&m_CTBTKRGamProb,"CTBTKRGamProb/D");
+  m_tout->Branch("CTBCALGamProb",&m_CTBCALGamProb,"CTBCALGamProb/D");
+  m_tout->Branch("CTBCPFGamProb",&m_CTBCPFGamProb,"CTBCPFGamProb/D");
+  m_tout->Branch("CTBBestLogEnergy",&m_CTBBestLogEnergy,"CTBBestLogEnergy/D");
+  m_tout->Branch("CTBBestEnergyProb",&m_CTBBestEnergyProb,"CTBBestEnergyProb/D");
+  m_tout->Branch("CTBCORE",&m_CTBCORE,"CTBCORE/D");
+  m_tout->Branch("CTBClassLevel",&m_CTBClassLevel,"CTBClassLevel/I");
+  m_tout->Branch("Tkr1SSDVeto",&m_Tkr1SSDVeto,"Tkr1SSDVeto/D");
+  m_tout->Branch("CalEnergyRaw",&m_CalEnergyRaw,"CalEnergyRaw/D");
+  m_tout->Branch("CalMIPRatio",&m_CalMIPRatio,"CalMIPRatio/D");
+  m_tout->Branch("CalCsIRLn",&m_CalCsIRLn,"CalCsIRLn/D");
+  m_tout->Branch("Tkr1NumHits",&m_Tkr1NumHits,"Tkr1NumHits/D");
+  m_tout->Branch("Tkr1KalEne",&m_Tkr1KalEne,"Tkr1KalEne/D");
+  m_tout->Branch("xAcd",&m_xAcd,"xAcd/D");
+  m_tout->Branch("yAcd",&m_yAcd,"yAcd/D");
+  m_tout->Branch("zAcd",&m_zAcd,"zAcd/D");
   m_tout->Branch("acdFace",&m_acdFace,"acdFace/I");
-  m_tout->Branch("mipsPocaA",&m_mipsPocaA,"mipsPocaA/F");
-  m_tout->Branch("mipsPocaB",&m_mipsPocaB,"mipsPocaB/F");
-  m_tout->Branch("actDist",&m_actDist,"actDist/F");
+  m_tout->Branch("mipsPocaA",&m_mipsPocaA,"mipsPocaA/D");
+  m_tout->Branch("mipsPocaB",&m_mipsPocaB,"mipsPocaB/D");
+  m_tout->Branch("actDist",&m_actDist,"actDist/D");
   m_tout->Branch("actDistID",&m_actDistID,"actDistID/I");
   return m_fout;
 }
@@ -81,17 +93,24 @@ Bool_t AcdEfficLoop::attachChains() {
     return kFALSE;
   }
 
-  meritChain->SetBranchAddress("CTBTKRGamProb",&m_CTBTKRGamProb);
-  meritChain->SetBranchAddress("Tkr1SSDVeto",&m_Tkr1SSDVeto);
-  meritChain->SetBranchAddress("CalEnergyRaw",&m_CalEnergyRaw);
-  meritChain->SetBranchAddress("CalMIPRatio",&m_CalMIPRatio);
-  meritChain->SetBranchAddress("CalCsIRLn",&m_CalCsIRLn);
+  meritChain->SetBranchAddress("CTBTKRGamProb",&m_CTBTKRGamProb_in);
+  meritChain->SetBranchAddress("CTBCALGamProb",&m_CTBCALGamProb_in);
+  meritChain->SetBranchAddress("CTBCPFGamProb",&m_CTBCPFGamProb_in);
+  meritChain->SetBranchAddress("CTBBestEnergyProb",&m_CTBBestEnergyProb_in);
+  meritChain->SetBranchAddress("CTBBestLogEnergy",&m_CTBBestLogEnergy_in);
+  meritChain->SetBranchAddress("CTBCORE",&m_CTBCORE_in);
+  meritChain->SetBranchAddress("CTBClassLevel",&m_CTBClassLevel_in);
+
+  meritChain->SetBranchAddress("Tkr1SSDVeto",&m_Tkr1SSDVeto_in);
+  meritChain->SetBranchAddress("CalEnergyRaw",&m_CalEnergyRaw_in);
+  meritChain->SetBranchAddress("CalMIPRatio",&m_CalMIPRatio_in);
+  meritChain->SetBranchAddress("CalCsIRLn",&m_CalCsIRLn_in);
 
   svacChain->SetBranchAddress("EvtTime",&m_timeStamp);
   svacChain->SetBranchAddress("FswDGNState",&m_FswDGNState);
   svacChain->SetBranchAddress("TkrNumTracks",&m_TkrNumTracks);
-  svacChain->SetBranchAddress("Tkr1KalEne",&m_Tkr1KalEne);
-  svacChain->SetBranchAddress("Tkr1NumHits",&m_Tkr1NumHits);
+  svacChain->SetBranchAddress("Tkr1KalEne",&m_Tkr1KalEne_in);
+  svacChain->SetBranchAddress("Tkr1NumHits",&m_Tkr1NumHits_in);
   svacChain->SetBranchAddress("AcdMips",&(m_AcdMips[0][0]));
   svacChain->SetBranchAddress("AcdTkrPointX",&(m_AcdTkrPointX[0]));
   svacChain->SetBranchAddress("AcdTkrPointY",&(m_AcdTkrPointY[0]));
@@ -147,6 +166,13 @@ void AcdEfficLoop::useEvent(Bool_t& used) {
   b_CalMIPRatio->GetEntry(m_idx);
   b_CalCsIRLn->GetEntry(m_idx);
   b_CTBTKRGamProb->GetEntry(m_idx);	
+  b_CTBCALGamProb->GetEntry(m_idx);	
+  b_CTBCPFGamProb->GetEntry(m_idx);	
+  b_CTBBestEnergyProb->GetEntry(m_idx);	
+  b_CTBBestLogEnergy->GetEntry(m_idx);	
+  b_CTBCORE->GetEntry(m_idx);	
+  b_CTBClassLevel->GetEntry(m_idx);	
+
   b_Tkr1SSDVeto->GetEntry(m_idx);
   b_Tkr1KalEne->GetEntry(m_idx);
   b_Tkr1NumHits->GetEntry(m_idx);  
@@ -160,6 +186,20 @@ void AcdEfficLoop::useEvent(Bool_t& used) {
   b_AcdPocaDoca->GetEntry(m_idx); 
   b_AcdPocaTileID->GetEntry(m_idx); 
   
+  m_CTBTKRGamProb = m_CTBTKRGamProb_in;
+  m_CTBCALGamProb = m_CTBCALGamProb_in;
+  m_CTBCPFGamProb = m_CTBCPFGamProb_in;
+  m_CTBClassLevel = m_CTBClassLevel_in;
+  m_CTBBestEnergyProb = m_CTBBestEnergyProb_in;
+  m_CTBBestLogEnergy = m_CTBBestLogEnergy_in;
+  m_CTBCORE = m_CTBCORE_in;  
+  m_CalMIPRatio = m_CalMIPRatio_in;  
+  m_CalEnergyRaw = m_CalEnergyRaw_in;
+  m_CalCsIRLn = m_CalCsIRLn_in;
+  m_Tkr1SSDVeto = m_Tkr1SSDVeto_in;
+  m_Tkr1KalEne = m_Tkr1KalEne_in;
+  m_Tkr1NumHits = m_Tkr1NumHits_in;
+
   m_xAcd = m_AcdTkrPointX[0];
   m_yAcd = m_AcdTkrPointY[0];
   m_zAcd = m_AcdTkrPointZ[0];
@@ -188,6 +228,19 @@ Bool_t AcdEfficLoop::getBranches() {
 
   b_CTBTKRGamProb = meritChain->GetBranch("CTBTKRGamProb");
   if ( b_CTBTKRGamProb == 0 ) return kFALSE;
+  b_CTBCALGamProb = meritChain->GetBranch("CTBCALGamProb");
+  if ( b_CTBCALGamProb == 0 ) return kFALSE;
+  b_CTBCPFGamProb = meritChain->GetBranch("CTBCPFGamProb");
+  if ( b_CTBCPFGamProb == 0 ) return kFALSE;
+  b_CTBBestLogEnergy = meritChain->GetBranch("CTBBestLogEnergy");
+  if ( b_CTBBestLogEnergy == 0 ) return kFALSE;
+  b_CTBBestEnergyProb = meritChain->GetBranch("CTBBestEnergyProb");
+  if ( b_CTBBestEnergyProb == 0 ) return kFALSE;
+  b_CTBCORE = meritChain->GetBranch("CTBCORE");
+  if ( b_CTBCORE == 0 ) return kFALSE;
+  b_CTBClassLevel = meritChain->GetBranch("CTBClassLevel");
+  if ( b_CTBClassLevel == 0 ) return kFALSE;
+
   b_Tkr1SSDVeto = meritChain->GetBranch("Tkr1SSDVeto");
   if ( b_Tkr1SSDVeto == 0 ) return kFALSE;
   b_CalEnergyRaw = meritChain->GetBranch("CalEnergyRaw");

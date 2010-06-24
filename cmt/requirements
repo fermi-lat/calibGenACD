@@ -12,7 +12,7 @@ use digiRootData v*
 use reconRootData v*
 use xmlBase v*
 use mootCore v*
-use XMLEXT       v5r2*   IExternal
+use XMLEXT v*   IExternal
 use facilities v*
 use ROOT v* IExternal
 use GlastPolicy v*
@@ -27,7 +27,7 @@ library calibGenACD *.cxx ${calibGenACD_headers}
 #=============================================================
 private
 
-macro_append ROOT_linkopts " -lMinuit -lHist -lGpad -lGraf -lTree -lTreePlayer" \
+macro_append ROOT_linkopts " -lMinuit -lTreePlayer" \
               WIN32 " ${ROOT_PATH}\lib\libGpad.lib ${ROOT_PATH}\lib\libGraf.lib ${ROOT_PATH}\lib\libHist.lib ${ROOT_PATH}\lib\libMinuit.lib ${ROOT_PATH}\lib\libTree.lib ${ROOT_PATH}\lib\libTreePlayer.lib "
 
 
@@ -35,25 +35,25 @@ apply_pattern use_facilities_symbols
 
 macro_prepend calibgenacd_linkopts " -lcalibGenACD
 
-#macro calibgenacd_linkopts "$(ROOT_linkopts) $(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts)" 
+macro calibgenacd_linkopts "$(mcRootData_linkopts) $(digiRootData_linkopts) $(reconRootData_linkopts) $(ROOT_linkopts)" 
 
 
-application runPedestal ../apps/runPedestal.cxx
+#application runPedestal ../apps/runPedestal.cxx
 application runMipCalib ../apps/runMipCalib.cxx
-application runRangeCalib ../apps/runRangeCalib.cxx
-application runVetoCalib ../apps/runVetoCalib.cxx
-application runCnoCalib ../apps/runCnoCalib.cxx
-application runCoherentNoiseCalib ../apps/runCoherentNoiseCalib.cxx
-application runCarbonCalib ../apps/runCarbonCalib.cxx
-application runRibbonCalib ../apps/runRibbonCalib.cxx
-application runMeritCalib ../apps/runMeritCalib.cxx
-application runHighPed ../apps/runHighPed.cxx
-application runVetoFitCalib ../apps/runVetoFitCalib.cxx
-application runCnoFitCalib ../apps/runCnoFitCalib.cxx
-application runHighRangeCalib ../apps/runHighRangeCalib.cxx
+#application runRangeCalib ../apps/runRangeCalib.cxx
+#application runVetoCalib ../apps/runVetoCalib.cxx
+#application runCnoCalib ../apps/runCnoCalib.cxx
+#application runCoherentNoiseCalib ../apps/runCoherentNoiseCalib.cxx
+#application runCarbonCalib ../apps/runCarbonCalib.cxx
+#application runRibbonCalib ../apps/runRibbonCalib.cxx
+#application runMeritCalib ../apps/runMeritCalib.cxx
+#application runHighPed ../apps/runHighPed.cxx
+#application runVetoFitCalib ../apps/runVetoFitCalib.cxx
+#application runCnoFitCalib ../apps/runCnoFitCalib.cxx
+#application runHighRangeCalib ../apps/runHighRangeCalib.cxx
 
-application calibReport ../apps/calibReport.cxx
-application runCalibTrend ../apps/runCalibTrend.cxx
-application makeResultTree ../apps/makeResultTree.cxx
-application runEfficCalib ../apps/runEfficCalib.cxx
-application runNoiseCalib ../apps/runNoiseCalib.cxx
+#application calibReport ../apps/calibReport.cxx
+#application runCalibTrend ../apps/runCalibTrend.cxx
+#application makeResultTree ../apps/makeResultTree.cxx
+#application runEfficCalib ../apps/runEfficCalib.cxx
+#application runNoiseCalib ../apps/runNoiseCalib.cxx

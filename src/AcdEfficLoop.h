@@ -66,37 +66,80 @@ private:
   TBranch* b_TkrNumTracks;
 
   /// Gamma prob, assigned by TKR
-  Float_t m_CTBTKRGamProb;
+  Float_t m_CTBTKRGamProb_in;
+  Double_t m_CTBTKRGamProb;
   /// Branch for CTBTKRGamProb
   TBranch* b_CTBTKRGamProb;
 
+  /// Gamma prob, assigned by CAL
+  Float_t m_CTBCALGamProb_in;
+  Double_t m_CTBCALGamProb;
+  /// Branch for CTBTKRGamProb
+  TBranch* b_CTBCALGamProb;
+
+  /// Gamma prob, assigned by ACD/CPF
+  Float_t m_CTBCPFGamProb_in;
+  Double_t m_CTBCPFGamProb;
+  /// Branch for CTBTKRGamProb
+  TBranch* b_CTBCPFGamProb;
+
+  /// CTBClassLevel
+  Float_t m_CTBClassLevel_in;
+  Int_t m_CTBClassLevel;
+  /// Branch for CTBTKRGamProb
+  TBranch* b_CTBClassLevel;
+
+  /// CTBBestEnergyProb
+  Float_t m_CTBBestEnergyProb_in;
+  Double_t m_CTBBestEnergyProb;
+  /// branch for CTBBestEnergyProb
+  TBranch* b_CTBBestEnergyProb;
+
+  /// CTBBestEnergy
+  Float_t m_CTBBestLogEnergy_in;
+  Double_t m_CTBBestLogEnergy;
+  /// branch for CTBBestEnergy
+  TBranch* b_CTBBestLogEnergy;
+
+  /// CTBCORE
+  Float_t m_CTBCORE_in;
+  Double_t m_CTBCORE;
+  /// branch for CTBCORE
+  TBranch* b_CTBCORE;
+
   /// Ratio to MIP energy
-  Float_t m_CalMIPRatio;
+  Float_t m_CalMIPRatio_in;
+  Double_t m_CalMIPRatio;
   /// Branch for CalEnergyRaw
   TBranch* b_CalMIPRatio;
 
   /// Energy in CAL, used to flag events that missed the CAL
-  Float_t m_CalEnergyRaw;
+  Float_t m_CalEnergyRaw_in;
+  Double_t m_CalEnergyRaw;
   /// Branch for CalEnergyRaw
   TBranch* b_CalEnergyRaw;
 
   /// Number of rad lengths in CAL, used to flag events that clipped the CAL
-  Float_t m_CalCsIRLn;
+  Float_t m_CalCsIRLn_in;
+  Double_t m_CalCsIRLn;
   /// Branch for CalCsIRLn
   TBranch* b_CalCsIRLn;
 
   /// Number of tracker layers with hits above start of track
-  Float_t m_Tkr1SSDVeto;
+  Float_t m_Tkr1SSDVeto_in;
+  Double_t m_Tkr1SSDVeto;
   /// Branch for Tkr1SSDVeto
   TBranch* b_Tkr1SSDVeto;
 
   /// Kalman filter energy for best track
-  Float_t m_Tkr1KalEne;  
+  Float_t m_Tkr1KalEne_in;  
+  Double_t m_Tkr1KalEne;
   /// Branch for Tkr1KalEne
   TBranch* b_Tkr1KalEne;
   
-  /// Number o fthis on the best track
-  Int_t m_Tkr1NumHits;
+  /// Number of fthis on the best track
+  Int_t m_Tkr1NumHits_in;
+  Double_t m_Tkr1NumHits;
   /// Branch for Tkr1NumHits
   TBranch* b_Tkr1NumHits;
   
@@ -141,25 +184,25 @@ private:
   TBranch* b_timeStamp;
 
   /// Global Position X of where track crosses ACD
-  Float_t m_xAcd;
+  Double_t m_xAcd;
 
   /// Global Position Y of where track crosses ACD
-  Float_t m_yAcd;
+  Double_t m_yAcd;
 
   /// Global Position Z of where track crosses ACD
-  Float_t m_zAcd;
+  Double_t m_zAcd;
 
   /// Face where crosses ACD
   Int_t m_acdFace;
 
   /// Number of mips for PMT A for tile or ribbon with best act dist
-  Float_t m_mipsPocaA;
+  Double_t m_mipsPocaA;
 
   /// Number of mips for PMT B for tile or ribbon with best act dist
-  Float_t m_mipsPocaB;
+  Double_t m_mipsPocaB;
 
   /// Large Active Distance 
-  Float_t m_actDist;
+  Double_t m_actDist;
 
   /// ID of tile/ribbon with POCA
   Int_t m_actDistID;

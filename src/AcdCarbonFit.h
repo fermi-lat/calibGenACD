@@ -84,7 +84,7 @@ public:
   /// Extract various feature, can be used as seed for various other fits
   Int_t fallback(CalibData::AcdCalibObj& result, const TH1& hist);  
   /// Fit peak to a gaussian
-  Int_t fitGauss(CalibData::AcdCalibObj& result, const TH1& hist);
+  Int_t fitGauss(CalibData::AcdCalibObj& result, const TH1& hist, const CalibData::AcdCalibObj* seed);
 
 private:
 
