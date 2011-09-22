@@ -1,5 +1,118 @@
 ------------------------------------------------------------
 TAG
+Tag name: GlastRelease-17-35-24-gr05, operation: add
+Package: calibGenACD
+User: heather  Thu Sep 22 10:22:44 2011
+Files:
+  calibGenACD/calibGenACDLib.py  1.3
+  calibGenACD/.cvsignore  1.3
+  calibGenACD/ChangeLog  1.278
+  calibGenACD/SConscript  1.8
+  calibGenACD/apps/runNoiseCalib.cxx  1.1
+  calibGenACD/apps/runCnoFitCalib.cxx  1.2
+  calibGenACD/apps/makeResultTree.cxx  1.2
+  calibGenACD/apps/runCnoCalib.cxx  1.6
+  calibGenACD/apps/runCalibTrend.cxx  1.1
+  calibGenACD/apps/runHighPed.cxx  1.1
+  calibGenACD/apps/runPedestal.cxx  1.10
+  calibGenACD/apps/calibReport.cxx  1.1
+  calibGenACD/apps/runCoherentNoiseCalib.cxx  1.3
+  calibGenACD/apps/runRangeCalib.cxx  1.2
+  calibGenACD/apps/runVetoCalib.cxx  1.10
+  calibGenACD/apps/runMipCalib.cxx  1.4
+  calibGenACD/apps/runRibbonCalib.cxx  1.5
+  calibGenACD/apps/runVetoFitCalib.cxx  1.2
+  calibGenACD/apps/runHighRangeCalib.cxx  1.3
+  calibGenACD/apps/runEfficCalib.cxx  1.1
+  calibGenACD/apps/runCarbonCalib.cxx  1.4
+  calibGenACD/apps/runMeritCalib.cxx  1.10
+  calibGenACD/calibGenACD/.cvsignore  1.1
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.47
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.35
+  calibGenACD/python/.cvsignore  1.1
+  calibGenACD/python/AcdReportTrend.py  1.1
+  calibGenACD/python/AcdReportUtil.py  1.3
+  calibGenACD/python/ParseFileList.py  1.1
+  calibGenACD/python/AcdWeeklyReport.py  1.2
+  calibGenACD/python/AcdReportRun.py  1.3
+  calibGenACD/src/AcdRibbonFit.cxx  1.4
+  calibGenACD/src/AcdPedestalFit.cxx  1.7
+  calibGenACD/src/AcdCnoFit.cxx  1.5
+  calibGenACD/src/AcdMetaCalib.cxx  1.1
+  calibGenACD/src/AcdPedestalFit.h  1.10
+  calibGenACD/src/AcdPadMap.cxx  1.6
+  calibGenACD/src/AcdHighRangeFit.h  1.3
+  calibGenACD/src/DomElement.cxx  1.1
+  calibGenACD/src/AcdCnoFit.h  1.6
+  calibGenACD/src/AcdHistCalibMap.cxx  1.11
+  calibGenACD/src/AcdEfficLoop.h  1.1
+  calibGenACD/src/DomElement.h  1.3
+  calibGenACD/src/AcdNoiseLoop.h  1.1
+  calibGenACD/src/AcdVetoConfig.cxx  1.1
+  calibGenACD/src/AcdDacFit.h  1.2
+  calibGenACD/src/AcdVetoConfig.h  1.2
+  calibGenACD/src/AcdCalibLoop_Svac.cxx  1.9
+  calibGenACD/src/AcdHldConfig.h  1.2
+  calibGenACD/src/AcdCoherentNoiseFit.h  1.8
+  calibGenACD/src/AcdVetoFit.h  1.8
+  calibGenACD/src/AcdGarcGafeHits.h  1.7
+  calibGenACD/src/AcdNoiseLoop.cxx  1.1
+  calibGenACD/src/AcdJobConfig.cxx  1.12
+  calibGenACD/src/AcdReportPlots.h  1.3
+  calibGenACD/src/AcdHighRangeFit.cxx  1.3
+  calibGenACD/src/AcdKey.cxx  1.3
+  calibGenACD/src/AcdCoherentNoiseFit.cxx  1.8
+  calibGenACD/src/mainpage.h  1.3
+  calibGenACD/src/AcdHtmlReport.cxx  1.3
+  calibGenACD/src/AcdCalibBase.h  1.21
+  calibGenACD/src/AcdXmlUtil.cxx  1.6
+  calibGenACD/src/AcdJobConfig.h  1.12
+  calibGenACD/src/AcdCalibEnum.h  1.9
+  calibGenACD/src/AcdRangeFit.cxx  1.7
+  calibGenACD/src/AcdMetaCalib.h  1.3
+  calibGenACD/src/AcdCarbonFit.cxx  1.3
+  calibGenACD/src/AcdHldConfig.cxx  1.1
+  calibGenACD/src/AcdCalibMap.cxx  1.17
+  calibGenACD/src/AcdPadMap.h  1.6
+  calibGenACD/src/AcdCalibBase.cxx  1.25
+  calibGenACD/src/AcdHtmlReport.h  1.3
+  calibGenACD/src/AcdCoherentNoise.cxx  1.9
+  calibGenACD/src/AcdCalibUtil.cxx  1.21
+  calibGenACD/src/AcdGarcGafeHits.cxx  1.5
+  calibGenACD/src/AcdTrendCalib.h  1.3
+  calibGenACD/src/AcdReportPlots.cxx  1.5
+  calibGenACD/src/AcdCalibLoop_Svac.h  1.9
+  calibGenACD/src/AcdDacFit.cxx  1.1
+  calibGenACD/src/AcdEfficLoop.cxx  1.1
+  calibGenACD/src/AcdXmlUtil.h  1.6
+  calibGenACD/src/AcdCalibVersion.cxx  1.2
+  calibGenACD/src/AcdCalibFit.h  1.6
+  calibGenACD/src/AcdTrendCalib.cxx  1.3
+  calibGenACD/src/AcdCoherentNoise.h  1.8
+  calibGenACD/src/AcdCalibFit.cxx  1.5
+  calibGenACD/src/AcdHistCalibMap.h  1.10
+  calibGenACD/src/AcdCalibLoop_Digi.cxx  1.6
+  calibGenACD/src/AcdCalibLoop_Digi.h  1.7
+  calibGenACD/src/AcdRibbonFit.h  1.3
+  calibGenACD/src/AcdGainFit.h  1.13
+  calibGenACD/src/AcdCarbonFit.h  1.3
+  calibGenACD/src/AcdRangeFit.h  1.6
+  calibGenACD/src/AcdCalibMap.h  1.13
+  calibGenACD/src/.cvsignore  1.1.1.1
+  calibGenACD/src/AcdKey.h  1.3
+  calibGenACD/src/AcdCalibUtil.h  1.13
+  calibGenACD/src/AcdCalibVersion.h  1.8
+  calibGenACD/src/AcdGainFit.cxx  1.12
+  calibGenACD/src/AcdVetoFit.cxx  1.7
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: GlastRelease-17-35-24-gr04, operation: add
 Package: calibGenACD
 User: heather  Wed Sep  7 14:59:14 2011
