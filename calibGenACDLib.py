@@ -12,6 +12,7 @@ def generate(env, **kw):
     env.Tool('commonRootDataLib')
     env.Tool('addLibrary', library = env['rootLibs'])
     env.Tool('addLibrary', library = env['rootGuiLibs'])
+    env.Tool('addLibrary', library = env['minuitLibs'])
     env.Tool('addLibrary', library = env['xercesLibs'])
 def exists(env):
     return 1;
