@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jrb  Sat Jan 14 14:54:29 PST 2012
+GlastRelease-scons/calibGenACD
+
+Modified Files:
+	calibGenACDLib.py 
+Log Message:
+need minuit libs
+    *
+------------------------------------------------------------
 TAG
 Tag name: GlastRelease-17-35-24-gr17, operation: add
 Package: calibGenACD
