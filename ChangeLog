@@ -2,6 +2,16 @@
 TAG
 Tag name: GlastRelease-17-35-24-rp05, operation: add
 Package: calibGenACD
+User: heather  Tue Apr 17 12:12:38 2012
+Files:
+  calibGenACD/xml/.cvsignore  1.1.1.1
+  calibGenACD/xml/ifile.dtd  1.1.1.1
+
+    *
+------------------------------------------------------------
+TAG
+Tag name: GlastRelease-17-35-24-rp05, operation: add
+Package: calibGenACD
 User: heather  Tue Apr 17 12:12:30 2012
 Files:
   calibGenACD/calibGenACDLib.py  1.3
