@@ -127,6 +127,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
   // Get the ref vals
   m_reference->GetEntry(0);
   
+
   // Loop on the calibs
   for ( UInt_t i(0); i < m_nCalib; i++) {
 
@@ -138,9 +139,14 @@ Bool_t AcdTrendCalib::fillHistograms() {
     for ( UInt_t j(0); j < 216; j++ ) {
       if ( id[j] >= 700 ) continue;
       if ( pmt[j] > 1 ) continue;
-      if ( id[j] != id_ref[j] ) {
-	std::cerr << "Id numbers do no match " << i << ' ' << j << ' ' <<  id[j] << ' ' << id_ref[j] << std::endl;
-	return kFALSE;
+
+      
+      int offset = (i > 161 && j > 108)? 1 : 0;
+
+      if ( id[j] != id_ref[j+offset] ) {
+	std::cerr << "Id numbers do no match " << i << ' ' << j << ' ' <<  id[j] << ' ' << id_ref[j] << std::endl << "Luckily (hopefully), Eric, Dave, and Terri fixed it."<< std::endl ;
+	// return kFALSE;
+	continue;
       }
 
       // Loop on the values
@@ -149,15 +155,15 @@ Bool_t AcdTrendCalib::fillHistograms() {
 	Float_t delta = 0.;
 	Float_t error = 1.;
 	if (  k >= nAbs ) {
-	  delta = vals[k-nAbs][j] - refVals[k-nAbs][j];
-	  if ( refVals[k-nAbs][j] > 0.5 ) {
-	    delta /= float(refVals[k-nAbs][j]);
+	  delta = vals[k-nAbs][j] - refVals[k-nAbs][j+offset];
+	  if ( refVals[k-nAbs][j+offset] > 0.5 ) {
+	    delta /= float(refVals[k-nAbs][j+offset]);
 	  } else {
 	    delta = 0.;
 	  }
 	  error = 0.01;
 	} else {
-	  delta = vals[k][j] - refVals[k][j];
+	  delta = vals[k][j] - refVals[k][j+offset];
 	}
 	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,error,k);
 	m_summaryHists[k]->Fill((Float_t)i,delta);
