@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: echarles  Mon Aug  6 18:09:13 PDT 2012
+calibGenACD/src
+
+Modified Files:
+	AcdTrendCalib.cxx 
+Log Message:
+Fix offset problem in trending
+    *
+------------------------------------------------------------
 TAG
 Tag name: GlastRelease-20-04-01, operation: add
 Package: calibGenACD
