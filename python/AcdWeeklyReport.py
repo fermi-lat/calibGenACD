@@ -21,7 +21,9 @@ from optparse import OptionParser
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
 CALIBGENACD = os.getenv("CALIBGENACDROOT")
-CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
+#CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
+CALIBGENACDBINDIR = os.path.join(os.getenv('RELEASE'),'bin',os.getenv('SCONS_TOTAL'))
+
 
 CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P'],'digi'),
               'gain':('ElecGain','runMipCalib.exe',5,['ped'],'svac'),
@@ -89,14 +91,15 @@ if __name__=='__main__':
                 sys.exit()
 
             if inputTable <> "":
-                runString = "bsub -q xxl -o AcdReport_%s%d.log %s %s -w %d %s"%(cType,options.week,execName,cType,options.week,inputTable)
-                #runString = "%s %s -w %d %s"%(execName,cType,options.week,inputTable)
+#                runString = "bsub -q xxl -o AcdReport_%s%d.log %s %s -w %d %s"%(cType,options.week,execName,cType,options.week,inputTable)
+                runString = "%s %s -w %d %s"%(execName,cType,options.week,inputTable)
                 print runString
-                os.system(runString)
+ #               os.system(runString)
 
         elif action == "trend":
             if cType <> "check":
                 runString = "%s %s"%(trendName,cType)
-                os.system(runString)
+#                os.system(runString)
+                print runString
 
 
