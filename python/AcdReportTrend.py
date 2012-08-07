@@ -21,21 +21,23 @@ from optparse import OptionParser
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
 CALIBGENACD = os.getenv("CALIBGENACDROOT")
-CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
+#CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
+CALIBGENACDBINDIR = os.path.join(os.getenv('RELEASE'),'bin',os.getenv('SCONS_TOTAL'))
 
-CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P']),
-              'gain':('ElecGain','runMipCalib.exe',5,['ped']),
-              'veto':('ThreshVeto','runVetoCalib.exe',1,['ped']),
-              'range':('Range','runRangeCalib.exe',1,['ped','highPed']),
-              'cno':('ThreshHigh','runCnoCalib.exe',1,['highPed']),
-              'coherentNoise':('CoherentNoise','runCoherentNoiseCalib.exe',1,['-P','ped']),
-              'ribbon':('Ribbon','runRibbonCalib.exe',5,['ped']),
-              'highPed':('HighPed','runHighPed.exe',1,['-s 1000']),
-              'carbon':('Carbon','runCarbonCalib.exe',60,['-G 6','highPed']),
-              'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[]),
-              'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[]),
-              'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range']),
-              'check':('Check','runMeritCalib.exe',5,['ped','gain','highRange'])}
+
+CALIBTYPES = {'ped':('Ped','runPedestal',1,['-P']),
+              'gain':('ElecGain','runMipCalib',5,['ped']),
+              'veto':('ThreshVeto','runVetoCalib',1,['ped']),
+              'range':('Range','runRangeCalib',1,['ped','highPed']),
+              'cno':('ThreshHigh','runCnoCalib',1,['highPed']),
+              'coherentNoise':('CoherentNoise','runCoherentNoiseCalib',1,['-P','ped']),
+              'ribbon':('Ribbon','runRibbonCalib',5,['ped']),
+              'highPed':('HighPed','runHighPed',1,['-s 1000']),
+              'carbon':('Carbon','runCarbonCalib',60,['-G 6','highPed']),
+              'cnoFit':('CnoFit','runCnoFitCalib',0,[]),
+              'vetoFit':('VetoFit','runVetoFitCalib',0,[]),
+              'highRange':('HighRange','runHighRangeCalib',0,['ped','gain','highPed','carbon','range']),
+              'check':('Check','runMeritCalib',5,['ped','gain','highRange'])}
 
 def getDirName(calibName):
     """
@@ -74,7 +76,7 @@ def buildTrendCommand(calibName,refDict):
     """
     """
     outPrefStr = "-o trend"
-    execName = os.path.join(CALIBGENACDBINDIR,"runCalibTrend.exe")
+    execName = os.path.join(CALIBGENACDBINDIR,"runCalibTrend")
     refNameStr = "-x %s"%getRefFileName(calibName,refDict)
     calibDirName = getDirName(calibName)
     inputName = os.path.join(ACDMONROOT,calibDirName,"calibs.lst");
@@ -112,9 +114,9 @@ if __name__=='__main__':
     print execLine
     os.system(execLine)
 
-    toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
-    sysCom = "mv trend_%s* %s"%(calib,toDir)
-    os.system(sysCom)
+#    toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
+#    sysCom = "mv trend_%s* %s"%(calib,toDir)
+#    os.system(sysCom)
 
         
 

@@ -157,7 +157,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
 	if (  k >= nAbs ) {
 	  delta = vals[k-nAbs][j] - refVals[k-nAbs][j+offset];
 	  if ( refVals[k-nAbs][j+offset] > 0.5 ) {
-	    delta /= float(refVals[k-nAbs][j+offset]);
+//	    delta /= float(refVals[k-nAbs][j+offset]);
 	  } else {
 	    delta = 0.;
 	  }
