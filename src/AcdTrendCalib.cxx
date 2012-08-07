@@ -113,8 +113,13 @@ Bool_t AcdTrendCalib::fillHistograms() {
   m_calibs->SetBranchAddress("pmt",(pmt));
 
   UInt_t iVal(0);
+  UInt_t nAbs(0);
   for ( std::list<std::string>::const_iterator itr = m_trendNames.begin();
 	itr != m_trendNames.end(); itr++, iVal++ ) {
+    if ( itr->find("Rel") == 0 ) {
+      nAbs += 1;
+      continue;
+    }
     m_reference->SetBranchAddress(itr->c_str(),(refVals[iVal]));
     m_calibs->SetBranchAddress(itr->c_str(),(vals[iVal]));
   }
@@ -141,8 +146,20 @@ Bool_t AcdTrendCalib::fillHistograms() {
       // Loop on the values
       for ( UInt_t k(0); k < m_trendNames.size(); k++ ) {
 	if ( ! AcdKey::useChannel( id[j], m_channels[k] ) ) continue;
-	Float_t delta = vals[k][j] - refVals[k][j];
-	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,1.0,k);
+	Float_t delta = 0.;
+	Float_t error = 1.;
+	if (  k >= nAbs ) {
+	  delta = vals[k-nAbs][j] - refVals[k-nAbs][j];
+	  if ( refVals[k-nAbs][j] > 0.5 ) {
+	    delta /= float(refVals[k-nAbs][j]);
+	  } else {
+	    delta = 0.;
+	  }
+	  error = 0.01;
+	} else {
+	  delta = vals[k][j] - refVals[k][j];
+	}
+	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,error,k);
 	m_summaryHists[k]->Fill((Float_t)i,delta);
       }
     }    
@@ -156,6 +173,7 @@ Bool_t AcdTrendCalib::writeOutputs(const std::string& outputPrefix, const std::s
   std::string suffix;
   AcdXmlUtil::getSuffix(suffix, calType() );  
   std::string histFile = outputPrefix + suffix + ".root";
+  std::string histSummaryFile = outputPrefix + suffix + "_summary.root";
   std::string plotFile = outputPrefix + suffix + "_";
 
   if ( ! AcdCalibUtil::makeTrendPlots(*m_trendHists,m_summaryHists,plotFile.c_str()) ) {
@@ -167,6 +185,19 @@ Bool_t AcdTrendCalib::writeOutputs(const std::string& outputPrefix, const std::s
     std::cerr << "Failed to write histograms to " << histFile << std::endl;
     return kFALSE;
   }
+
+  TFile* fSummary = TFile::Open(histSummaryFile.c_str(),"CREATE");
+  if ( fSummary == 0 || fSummary->IsZombie() ) {
+    std::cerr << "Failed to write summary histograms to " << histSummaryFile  << std::endl;
+    return kFALSE;    
+  }
+  for ( std::vector<TH2*>::iterator itr = m_summaryHists.begin(); 
+	itr != m_summaryHists.end(); itr++ ) {
+    (*itr)->Write();
+  }
+  fSummary->Close();
+  delete fSummary;
+
   return kTRUE;
 }
 
@@ -181,6 +212,8 @@ void AcdTrendCalib::makeSummaryHists() {
   case AcdCalibData::GAIN:
     addSummaryHist("peak","Trend of MIP Peak","(PHA)",-400.,400.);
     addSummaryHist("width","Trend of MIP Width","(PHA)",-200.,200.);
+    addSummaryHist("RelPeak","Trend of Relative MIP Peak","(PHA)",-0.50,0.50);
+    addSummaryHist("RelWidth","Trend of Relative MIP Width","(PHA)",-0.50,0.50);
     break;
   case AcdCalibData::VETO:
     addSummaryHist("veto","Trend of Veto Threshold","(PHA)",-200.,200.,AcdKey::Tiles);
