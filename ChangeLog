@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: damgreen  Tue Aug  7 10:53:45 PDT 2012
+calibGenACD/src
+
+Modified Files:
+	AcdTrendCalib.cxx 
+Log Message:
+Changed relative trending to absolute trending
+    *
+------------------------------------------------------------
+User: damgreen  Tue Aug  7 10:53:45 PDT 2012
 calibGenACD/python
 
 Modified Files:
