@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: brandt  Mon Aug  6 19:12:31 PDT 2012
+calibGenACD/src
+
+Modified Files:
+	AcdTrendCalib.cxx 
+Log Message:
+Fixed check on PMT vs reference index offset for i>161, j>108
+    *
+------------------------------------------------------------
 User: echarles  Mon Aug  6 18:09:13 PDT 2012
 calibGenACD/src
 
