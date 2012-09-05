@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: brandt  Wed Sep  5 12:27:29 PDT 2012
+calibGenACD/src
+
+Modified Files:
+	AcdCalibUtil.cxx AcdCalibUtil.h AcdHtmlReport.cxx 
+	AcdReportPlots.cxx 
+Log Message:
+Plot as png... everywhere...
+    *
+------------------------------------------------------------
 User: brandt  Wed Sep  5 12:26:29 PDT 2012
 calibGenACD/python
 
