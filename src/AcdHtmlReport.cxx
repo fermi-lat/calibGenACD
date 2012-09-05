@@ -214,7 +214,8 @@ Bool_t AcdHtmlReport::writeSummaryPlots( DomElement& outNode,
   xmlBase::Dom::makeChildNodeWithContent(&(outNode()),"h3","Summary Plots");
   for ( std::list<std::string>::const_iterator itr = sumPlotsNames.begin();
 	itr != sumPlotsNames.end(); itr++ ) {
-    if ( itr->find(".gif") == itr->npos ) {
+    //if ( itr->find(".gif") == itr->npos ) {
+    if ( itr->find(".png") == itr->npos ) {
       xmlBase::Dom::makeChildNode(&(outNode()),itr->c_str());
       continue;
     }
@@ -232,7 +233,8 @@ Bool_t AcdHtmlReport::writeDeltaPlots( DomElement& outNode,
   xmlBase::Dom::makeChildNodeWithContent(&(outNode()),"h3","Plots with respect to reference calibration");
   for ( std::list<std::string>::const_iterator itr = delPlotsNames.begin();
 	itr != delPlotsNames.end(); itr++ ) {
-    if ( itr->find(".gif") == itr->npos ) {
+    //if ( itr->find(".gif") == itr->npos ) {
+    if ( itr->find(".png") == itr->npos ) {
       DOMElement* img = xmlBase::Dom::makeChildNode(&(outNode()),itr->c_str());
       continue;
     }
