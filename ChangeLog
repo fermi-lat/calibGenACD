@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: brandt  Wed Sep  5 12:25:47 PDT 2012
+calibGenACD/python
+
+Modified Files:
+	AcdReportRun.py 
+Log Message:
+Plot as png... everywhere...
+    *
+------------------------------------------------------------
 TAG
 Tag name: GlastRelease-20-05-00, operation: add
 Package: calibGenACD
