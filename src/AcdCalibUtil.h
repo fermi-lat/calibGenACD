@@ -42,17 +42,17 @@ public :
   
   static Bool_t makeFitPlots(AcdCalibMap& calib,
 			     const char* filePrefix = "",
-			     const char* suffix = ".gif");
+			     const char* suffix = ".png");
   
   static Bool_t makeTrendPlots(AcdHistCalibMap& hTrends,
 			       const std::vector<TH2*>& summaryHists,
 			       const char* filePrefix = "",
-			       const char* suffix = ".gif");
+			       const char* suffix = ".png");
   
 protected:
 
   /// save a list of canvases to files
-  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".gif");
+  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".png");
 
   /// draw a single pedestal plot.
   static void drawPedPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res);

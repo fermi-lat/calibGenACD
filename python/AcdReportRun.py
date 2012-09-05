@@ -20,9 +20,14 @@ import time
 from optparse import OptionParser
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
-CALIBGENACD = os.getenv("CALIBGENACDROOT")
+CALIBGENACD = os.path.join(os.getenv("RELEASE"), 'calibGenACD')
+CALIBGENACDBINDIR = os.path.join(os.getenv("RELEASE"), 'bin', "%s-Optimized"%(os.getenv("SCONS_VARIANT")))
+#CALIBGENACD = os.getenv("CALIBGENACDROOT")
 #CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
-CALIBGENACDBINDIR = os.path.join(os.getenv('RELEASE'),'bin',os.getenv('SCONS_TOTAL'))
+
+os.system("echo $CALIBUTILROOT")
+os.environ['CALIBUTILROOT'] = os.path.join(os.getenv("PARENT"), 'calibUtil')
+os.system("echo $CALIBUTILROOT")
 
 CALIBTYPES = {'ped':('Ped','runPedestal',1,['-P']),
               'gain':('ElecGain','runMipCalib',5,['ped']),
@@ -337,9 +342,11 @@ if __name__=='__main__':
     (execLine,outPrefix) = buildCalibCommand(calib,refDict,useDict,runs,tag)
     reportLine = buildReportCommand(calib,comment,outPrefix,tag)
 
+    #os.system("echo $CALIBUTILROOT")
+
     print execLine
     os.system(execLine)
-    #print reportLine
+    print reportLine
     os.system(reportLine)
 
     

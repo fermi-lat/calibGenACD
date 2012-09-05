@@ -20,10 +20,12 @@ import time
 from optparse import OptionParser
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
-CALIBGENACD = os.getenv("CALIBGENACDROOT")
+CALIBGENACD = os.path.join(os.getenv("RELEASE"), 'calibGenACD')
+CALIBGENACDBINDIR = os.path.join(os.getenv("RELEASE"), 'bin', "%s-Optimized"%(os.getenv("SCONS_VARIANT")))
+#CALIBGENACD = os.getenv("CALIBGENACDROOT")
 #CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
-CALIBGENACDBINDIR = os.path.join(os.getenv('RELEASE'),'bin',os.getenv('SCONS_TOTAL'))
 
+os.environ['CALIBUTILROOT'] = os.path.join(os.getenv("PARENT"), 'calibUtil')
 
 CALIBTYPES = {'ped':('Ped','runPedestal',1,['-P']),
               'gain':('ElecGain','runMipCalib',5,['ped']),
@@ -114,10 +116,6 @@ if __name__=='__main__':
     print execLine
     os.system(execLine)
 
-#    toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
-#    sysCom = "mv trend_%s* %s"%(calib,toDir)
-#    os.system(sysCom)
-
-        
-
-
+    toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
+    sysCom = "mv trend_%s* %s"%(calib,toDir)
+    os.system(sysCom)
