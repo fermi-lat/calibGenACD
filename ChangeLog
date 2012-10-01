@@ -1,4 +1,47 @@
 ------------------------------------------------------------
+TAG
+Tag name: GlastRelease-20-05-01, operation: add
+Package: calibGenACD
+User: heather  Mon Oct  1 08:50:25 2012
+Files:
+  calibGenACD/calibGenACDLib.py  1.4
+  calibGenACD/.cvsignore  1.3
+  calibGenACD/ChangeLog  1.370
+  calibGenACD/SConscript  1.12
+  calibGenACD/apps/runNoiseCalib.cxx  1.1
+  calibGenACD/apps/runCnoFitCalib.cxx  1.2
+  calibGenACD/apps/makeResultTree.cxx  1.2
+  calibGenACD/apps/runCnoCalib.cxx  1.6
+  calibGenACD/apps/runCalibTrend.cxx  1.1
+  calibGenACD/apps/runHighPed.cxx  1.1
+  calibGenACD/apps/runPedestal.cxx  1.10
+  calibGenACD/apps/calibReport.cxx  1.1
+  calibGenACD/apps/runCoherentNoiseCalib.cxx  1.3
+  calibGenACD/apps/runRangeCalib.cxx  1.2
+  calibGenACD/apps/runVetoCalib.cxx  1.10
+  calibGenACD/apps/runMipCalib.cxx  1.5
+  calibGenACD/apps/runRibbonCalib.cxx  1.5
+  calibGenACD/apps/runVetoFitCalib.cxx  1.2
+  calibGenACD/apps/runHighRangeCalib.cxx  1.3
+  calibGenACD/apps/runEfficCalib.cxx  1.1
+  calibGenACD/apps/runCarbonCalib.cxx  1.4
+  calibGenACD/apps/runMeritCalib.cxx  1.10
+  calibGenACD/calibGenACD/.cvsignore  1.1
+  calibGenACD/cmt/.cvsignore  1.1.1.1
+  calibGenACD/cmt/requirements  1.51
+  calibGenACD/cmt/GlastRelease.env  1.1.1.1
+  calibGenACD/doc/.cvsignore  1.1.1.1
+  calibGenACD/doc/release.notes  1.37
+  calibGenACD/python/.cvsignore  1.1
+  calibGenACD/python/AcdReportTrend.py  1.1
+  calibGenACD/python/AcdReportUtil.py  1.3
+  calibGenACD/python/ParseFileList.py  1.2
+  calibGenACD/python/AcdWeeklyReport.py  1.3
+  calibGenACD/python/AcdReportRun.py  1.4
+  calibGenACD/python/ParseFileListNew.py  1.1
+
+    *
+------------------------------------------------------------
 User: brandt  Wed Sep  5 12:27:29 PDT 2012
 calibGenACD/src
 
