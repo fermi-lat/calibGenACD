@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: echarles  Thu Feb 13 19:29:01 PST 2014
+calibGenACD/src
+
+Modified Files:
+	AcdCalibEnum.h AcdJobConfig.cxx AcdJobConfig.h 
+Added Files:
+	AcdCalibLoop_Linked.cxx AcdCalibLoop_Linked.h 
+	AcdCalibLoop_OVL.cxx AcdCalibLoop_OVL.h 
+Log Message:
+    *
+------------------------------------------------------------
 User: echarles  Thu Feb 13 19:29:00 PST 2014
 calibGenACD/apps
 
