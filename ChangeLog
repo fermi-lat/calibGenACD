@@ -1,4 +1,12 @@
 ------------------------------------------------------------
+User: echarles  Thu Feb 13 19:28:59 PST 2014
+calibGenACD
+
+Modified Files:
+	SConscript calibGenACDLib.py 
+Log Message:
+    *
+------------------------------------------------------------
 TAG
 Tag name: GlastRelease-20-09-06, operation: add
 Package: calibGenACD
