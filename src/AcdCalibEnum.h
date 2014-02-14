@@ -30,7 +30,9 @@ namespace AcdCalib {
 	     DIGI=0,
 	     SVAC=1,
 	     MERIT=2,
-	     NCHAIN=3};
+	     RECON=3,
+	     OVERLAY=4,	    
+	     NCHAIN=5};
 
 };
 

@@ -34,6 +34,9 @@ if baseEnv['PLATFORM'] != "win32":
   calibReport = progEnv.Program('calibReport',['apps/calibReport.cxx'])
   runCalibTrend = progEnv.Program('runCalibTrend',['apps/runCalibTrend.cxx'])
   makeResultTree=progEnv.Program('makeResultTree',['apps/makeResultTree.cxx'])
+
+  runOverlayCalib = progEnv.Program('runOverlayCalib',['apps/runOverlayCalib.cxx'])
+  runOverlayPedestal = progEnv.Program('runOverlayPedestal',['apps/runOverlayPedestal.cxx'])
   # runEfficCalib= progEnv.Program('runEfficCalib',['apps/runEfficCalib.cxx'])
   # runNoiseCalib= progEnv.Program('runNoiseCalib',['apps/runNoiseCalib.cxx'])
 
@@ -55,7 +58,9 @@ if baseEnv['PLATFORM'] != "win32":
                               [runHighRangeCalib, progEnv],
                               [calibReport, progEnv],
                               [runCalibTrend, progEnv],
-                              [makeResultTree, progEnv] ],
+                              [makeResultTree, progEnv],
+                              [runOverlayCalib, progEnv],
+                              [runOverlayPedestal, progEnv] ],
                includes = listFiles(['calibGenACD/*.h']))
     
 

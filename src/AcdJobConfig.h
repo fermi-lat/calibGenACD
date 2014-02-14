@@ -44,7 +44,10 @@ class TChain;
  *     OPTIONS for specific jobs (will be ignored by other jobs)
  *        -P                : use only periodic triggers
  *        -m                : use mips from SVAC file
+ *        -1                : use only tiles with hits in only one PMT
+ *        -2                : use only tiles with signals in both PMTs
  *        -G <int>          : use CAL GCR selection for a given Z
+ *        -d <int>          : use only events with GemDeltaEventTime > value
  *        -p <fileName>     : use pedestals from this file
  *        -R <fileName>     : use range data from this file
  *        -g <fileName>     : use gains from this file
@@ -108,6 +111,8 @@ public :
   inline const std::string& pedHighFileName() const { return m_pedHighFileName; } 
   /// return the name of the carbon peak calibration file (-C)
   inline const std::string& carbonFileName() const { return m_carbonFileName; } 
+  /// return the name of the high range calibration file (-z)
+  inline const std::string& highRangeFileName() const { return m_highRangeFileName; } 
 
   /// return the input arguments after the options have been stripped off
   inline const std::list<std::string>& theArgs() const { return m_args; }
@@ -123,8 +128,14 @@ public :
   inline Bool_t optval_P() const { return m_optval_P; }
   /// return the flag to use the mip values from the svac file
   inline Bool_t optval_m() const { return m_optval_m; }
+  /// return the flag to use only tiles with signals in only one PMT
+  inline Bool_t optval_1() const { return m_optval_1; }
+  /// return the flag to use only tiles with signals in both PMTs
+  inline Bool_t optval_2() const { return m_optval_2; }
   /// return the value for Z to use in the Galatic Cosmic Ray calibration
   inline int optval_G() const { return m_optval_G; }  
+  /// return the value to use for the GemDeltaEventTime cut
+  inline int optval_d() const { return m_optval_d; }  
   
 
   /// return the TChain of digi trees
@@ -133,6 +144,10 @@ public :
   inline TChain* svacChain() const { return m_svacChain;}
   /// return the TChain of merit trees
   inline TChain* meritChain() const { return m_meritChain;}
+  /// return the TChain of recon trees
+  inline TChain* reconChain() const { return m_reconChain;}
+  /// return the TChain of overlay trees
+  inline TChain* ovlChain() const { return m_ovlChain;}
 
   /// return the status of the Digi TChain
   Bool_t checkDigi() const;
@@ -140,6 +155,10 @@ public :
   Bool_t checkSvac() const;
   /// return the status of the Merit TChain
   Bool_t checkMerit() const;
+  /// return the status of the Recon TChain
+  Bool_t checkRecon() const;
+  /// return the status of the Overlay TChain
+  Bool_t checkOverlay() const;
       
 protected:
 
@@ -163,6 +182,7 @@ private:
   std::string m_rangeFileName;
   std::string m_pedHighFileName;
   std::string m_carbonFileName;
+  std::string m_highRangeFileName;
   
   std::list<std::string> m_args;
 
@@ -171,12 +191,17 @@ private:
   int m_optval_s;
   Bool_t m_optval_P;
   Bool_t m_optval_m;
+  Bool_t m_optval_1;
+  Bool_t m_optval_2;
   int m_optval_G;
+  int m_optval_d;
 
   mutable Bool_t  m_madeChain;
   mutable TChain* m_digiChain;
   mutable TChain* m_svacChain;
   mutable TChain* m_meritChain;
+  mutable TChain* m_reconChain;
+  mutable TChain* m_ovlChain;
     
 };
 

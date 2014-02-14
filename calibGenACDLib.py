@@ -7,6 +7,7 @@ def generate(env, **kw):
     #env.Tool('AcdDigiLib')
     #env.Tool('mootCoreLib')
     env.Tool('calibUtilLib')
+    env.Tool('overlayRootDataLib')
     env.Tool('reconRootDataLib')
     env.Tool('digiRootDataLib')
     env.Tool('commonRootDataLib')
