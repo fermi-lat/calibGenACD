@@ -25,7 +25,7 @@ class TChain;
  * @brief AcdCalibration class that trends calibrations results
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdTrendCalib.h,v 1.4 2010/06/24 23:52:42 echarles Exp $
  */
 
 class AcdTrendCalib : public AcdCalibBase {

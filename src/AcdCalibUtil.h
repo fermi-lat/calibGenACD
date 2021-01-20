@@ -26,7 +26,7 @@ namespace CalibData {
  * @brief Various tools to make nice plots of calibration curves
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibUtil.h,v 1.14 2012/09/05 19:27:29 brandt Exp $
  */
 
 class AcdCalibUtil {
@@ -42,17 +42,20 @@ public :
   
   static Bool_t makeFitPlots(AcdCalibMap& calib,
 			     const char* filePrefix = "",
-			     const char* suffix = ".gif");
+			     const char* suffix = ".png");
+//			     const char* suffix = ".pdf");
   
   static Bool_t makeTrendPlots(AcdHistCalibMap& hTrends,
 			       const std::vector<TH2*>& summaryHists,
 			       const char* filePrefix = "",
-			       const char* suffix = ".gif");
+     			       const char* suffix = ".png");
+  //			       const char* suffix = ".pdf");
   
 protected:
 
   /// save a list of canvases to files
-  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".gif");
+  //  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".pdf");
+  static void saveCanvases(TList& cl, const char* filePrefix = "", const char* suffix = ".png");
 
   /// draw a single pedestal plot.
   static void drawPedPlot(TVirtualPad& vp, TH1& hist, CalibData::AcdCalibObj* res);

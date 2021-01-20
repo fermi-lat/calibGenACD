@@ -84,8 +84,51 @@ AcdCalibBase::~AcdCalibBase()
   //}  
 }
 
+void AcdCalibBase::go_list(std::vector<int> EvtRecon ) {
+//  ofstream outfile;
+//  outfile.open("out.txt");
+
+  int nTotal = EvtRecon.size();
+  int last = EvtRecon.back();
+  
+  m_eventStats.setRange(EvtRecon.front(),last);
+  cout << "Number of events in the chain: " << nTotal << endl;
+  cout << "Number of events used: " << EvtRecon.size() << endl;
+  cout << "Starting at event: " << EvtRecon.front() << endl;
+
+  for (vector<int>::iterator nRecon = EvtRecon.begin() ; nRecon != EvtRecon.end(); ++nRecon){
+    Bool_t filtered(kFALSE);
+    Int_t runId, evtId;
+    Double_t timeStamp;
+    Int_t ievent = *nRecon;
+
+    Bool_t ok = readEvent(ievent,filtered, runId, evtId,timeStamp);
+
+    if ( !ok ) {
+      cout << "Failed to read event " << ievent << " aborting" << endl;
+      break;
+    }
+
+    Bool_t used(kFALSE);
+    if ( !filtered ) {
+//      std::cout << "Event " << ievent << std::endl;
+//      useEvent(used,outfile,ievent);
+      useEvent(used);
+    }
+    m_eventStats.logEvent(ievent,used,filtered,runId,evtId,timeStamp);
+
+  }
+
+  m_eventStats.lastEvent();
+
+  cout << endl;
+
+}
 
 void AcdCalibBase::go(int numEvents, int startEvent) {
+
+//  ofstream outfile;
+//  outfile.open("out.txt");
 
   int nTotal = getTotalEvents();
   int last = numEvents < 1 ? nTotal : TMath::Min(numEvents+startEvent,nTotal);
@@ -109,6 +152,8 @@ void AcdCalibBase::go(int numEvents, int startEvent) {
 
     Bool_t used(kFALSE);
     if ( !filtered ) {
+//      std::cout << "Event " << ievent << std::endl;
+//      useEvent(used,outfile,ievent);
       useEvent(used);
     }
     

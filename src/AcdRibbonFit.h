@@ -27,7 +27,7 @@ class AcdHistCalibMap;
  * Calibration parameters are ratios relative to central segment
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdRibbonFit.h,v 1.3 2008/08/01 00:08:26 echarles Exp $
  */
 
 class AcdRibbonFitLibrary : public AcdGainFitLibrary {

@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 // forward declares
 class AcdHistCalibMap;
@@ -29,7 +30,7 @@ class TChain;
  * @brief Holder to keep track of events we have processed
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
  */
 
 
@@ -160,7 +161,7 @@ private :
  * then at the end of the event loop, do some fitting.
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
  */
 
 
@@ -212,6 +213,8 @@ public :
   ///  run the event loop
   void go(int numEvents = 0, int startEvent = 0);
 
+  void go_list(std::vector<int> EvtRecon);
+
   ///  fit all the histograms
   AcdCalibMap* fit(AcdCalibFit& fitter, AcdCalibData::CALTYPE cType, AcdCalib::HISTTYPE hType, 
 		   const char* referenceFile = 0, AcdKey::ChannelSet cSet = AcdKey::All);
@@ -252,6 +255,7 @@ protected:
   }
   
   ///  try to use an event for an calibration
+//  virtual void useEvent(Bool_t& /*used*/, std::ofstream& /*outfile*/, int /*ievent*/) {;}
   virtual void useEvent(Bool_t& /*used*/) {;}
 
 private:

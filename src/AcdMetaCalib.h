@@ -28,7 +28,7 @@ class AcdHldConfig;
  *   - Comparing GEM data to ACD hitmap
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdMetaCalib.h,v 1.3 2008/08/06 17:46:09 echarles Exp $
  */
 
 class AcdMetaCalib : public AcdCalibBase {

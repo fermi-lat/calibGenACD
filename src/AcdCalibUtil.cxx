@@ -105,7 +105,9 @@ Bool_t AcdCalibUtil::makeTrendPlots(AcdHistCalibMap& hTrends,
     (summaryHists)[i]->Draw("colz");
     TString plotName(filePrefix);
     plotName += (summaryHists)[i]->GetName();
-    plotName += ".gif";
+    //plotName += ".gif";
+    plotName += ".png";
+    //plotName += ".pdf";
     cnv.SaveAs(plotName);
   }  
   return kTRUE;

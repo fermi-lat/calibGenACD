@@ -93,7 +93,8 @@ namespace AcdReport {
   TString cut_side_n_rib = "(id>=500 && id<700) && (((id>550)*((id%2)==0) + (id<550)*((id%4)>1) + pmt)%2) == 1";
 
   // Other
-  TString gif_suffix = ".gif";
+  TString gif_suffix = ".png";
+  //  TString gif_suffix = ".pdf";
 
 }
 
@@ -105,7 +106,7 @@ void AcdReport::savePlot(TCanvas& c, TH1& plot, const char* outputPrefix, std::l
   gifName += "_"; 
   gifName += plot.GetName();
   gifName += gif_suffix;
-  c.SaveAs(gifName.c_str());
+  c.Update(); c.SaveAs(gifName.c_str());
   plotNames.push_back(gifName);
 }
 
@@ -119,7 +120,7 @@ void AcdReport::savePlots(TCanvas& c, TH1& plot1, TH1& plot2, const char* output
   gifName += "_"; 
   gifName += plot1.GetName();
   gifName += gif_suffix;
-  c.SaveAs(gifName.c_str());
+  c.Update(); c.SaveAs(gifName.c_str());
   plotNames.push_back(gifName);
 }
 
@@ -737,14 +738,18 @@ Bool_t AcdReport::makeSummaryPlots_Ribbon( TTree* inTree, const char* outputPref
   h6_2d->SetXTitle("log10(Relative Signal)");  h6_2d->SetYTitle("Ribbon Number");
   h6_2d->SetMarkerStyle(6); h6_2d->SetMarkerColor(6);   
   TCanvas cnv;
-  std::string plot1DName(outputPrefix+name_sum+"_1d.gif");
-  std::string plot2DName(outputPrefix+name_sum+"_2d.gif");
+  //std::string plot1DName(outputPrefix+name_sum+"_1d.gif");
+  //std::string plot2DName(outputPrefix+name_sum+"_2d.gif");
+  std::string plot1DName(outputPrefix+name_sum+"_1d.png");
+  std::string plot2DName(outputPrefix+name_sum+"_2d.png");
+  //std::string plot1DName(outputPrefix+name_sum+"_1d.pdf");
+  //std::string plot2DName(outputPrefix+name_sum+"_2d.pdf");
   h0_1d->Draw(); h1_1d->Draw("same"); h2_1d->Draw("same"); 
   h4_1d->Draw("same"); h5_1d->Draw("same"); h6_1d->Draw("same"); 
-  cnv.SaveAs(plot1DName.c_str());
+  cnv.Update(); cnv.SaveAs(plot1DName.c_str());
   h0_2d->Draw(); h1_2d->Draw("same"); h2_2d->Draw("same"); 
   h4_2d->Draw("same"); h5_2d->Draw("same"); h6_2d->Draw("same"); 
-  cnv.SaveAs(plot2DName.c_str());
+  cnv.Update(); cnv.SaveAs(plot2DName.c_str());
   plotNames.push_back(plot1DName);
   plotNames.push_back(plot2DName);  
   return kTRUE;
@@ -807,14 +812,18 @@ Bool_t AcdReport::makeDeltaPlots_Ribbon( TTree* inTree, const char* outputPrefix
   h6_2d->SetYTitle("#Delta log10(Relative Signal)");  h6_2d->SetXTitle("Ribbon Number");
   h6_2d->SetMarkerStyle(6); h6_2d->SetMarkerColor(6);   
   TCanvas cnv;
-  std::string plot1DName(outputPrefix+name_sum+"_1d.gif");
-  std::string plot2DName(outputPrefix+name_sum+"_2d.gif");
+  //std::string plot1DName(outputPrefix+name_sum+"_1d.gif");
+  //std::string plot2DName(outputPrefix+name_sum+"_2d.gif");
+  std::string plot1DName(outputPrefix+name_sum+"_1d.png");
+  std::string plot2DName(outputPrefix+name_sum+"_2d.png");
+  //std::string plot1DName(outputPrefix+name_sum+"_1d.pdf");
+  //std::string plot2DName(outputPrefix+name_sum+"_2d.pdf");
   h0_1d->Draw(); h1_1d->Draw("same"); h2_1d->Draw("same"); 
   h4_1d->Draw("same"); h5_1d->Draw("same"); h6_1d->Draw("same"); 
-  cnv.SaveAs(plot1DName.c_str());
+  cnv.Update(); cnv.SaveAs(plot1DName.c_str());
   h0_2d->Draw(); h1_2d->Draw("same"); h2_2d->Draw("same"); 
   h4_2d->Draw("same"); h5_2d->Draw("same"); h6_2d->Draw("same"); 
-  cnv.SaveAs(plot2DName.c_str());
+  cnv.Update(); cnv.SaveAs(plot2DName.c_str());
   plotNames.push_back(plot1DName);
   plotNames.push_back(plot2DName);  
   return kTRUE;

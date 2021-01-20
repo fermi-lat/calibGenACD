@@ -317,9 +317,11 @@ Int_t AcdGainFitLibrary::fitGaussP1(CalibData::AcdCalibObj& result, const TH1& h
   TF1 gaussP1("gaussP1","[0] * (TMath::Gaus(x,[1],[2]) + [3] + [4] * x )",minVal,maxVal);
   gaussP1.SetParameter(0,norm);  
   gaussP1.SetParameter(1,peak);
+  // gaussP1.SetParLimits(1,0.85*peak,1.15*peak);
   gaussP1.SetParLimits(1,0.5*peak,3*peak);
   gaussP1.SetParameter(2,width);
-  gaussP1.SetParLimits(2,50.,2*width);
+  gaussP1.SetParLimits(2,0.85*width,1.15*width);
+  // gaussP1.SetParLimits(2,50.,2*width);
   gaussP1.SetParameter(3,0.2);  
   gaussP1.SetParLimits(3,0.,1.0);
   gaussP1.SetParameter(4,0.);

@@ -23,7 +23,7 @@ class AcdHistCalibMap;
  *      Accuracy depends mainly on good seed value (NOT implemented)
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdVetoFit.h,v 1.8 2008/08/01 00:08:26 echarles Exp $
  */
 
 class AcdVetoFitLibrary : public  AcdCalibFit{
