@@ -10,9 +10,9 @@
 __facility__ = "calibGenACD"
 __abstract__ = "Extracts the DAC to PHA set point relationship of ACD veto"
 __author__    = "E. Charles"
-__date__      = "$Date$"
-__version__   = "$Revision$, $Author$"
-__release__   = "$Name$"
+__date__      = "$Date: 2010/06/24 23:52:41 $"
+__version__   = "$Revision: 1.1 $, $Author: echarles $"
+__release__   = "$Name:  $"
 
 #import LATTE.copyright_SLAC
 import os, sys
@@ -30,11 +30,27 @@ def getDateStamp():
 def callDatacat(group,dateStamp):
     """
     """
-    dataCatList = "%s_%s.list"%(group,dateStamp)
-    dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Level1/LPA/ > %s"%(DATACATBIN,group,dataCatList)
-    print "Calling datacat for group %s on %s"%(group,dateStamp)
-    os.system(dataCatLine)
-    return dataCatList
+
+    if group == 'RECON':
+      dataCatList = "%s_%s.list"%(group,dateStamp)
+#      dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Reprocess/P300/ > %s"%(DATACATBIN,group,dataCatList)
+      dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Level1/LPA/ > %s"%(DATACATBIN,group,dataCatList)
+      print "Calling datacat for group %s on %s"%(group,dateStamp)
+      os.system(dataCatLine)
+      return dataCatList
+    elif group == 'MERIT':
+      dataCatList = "%s_%s.list"%(group,dateStamp)
+#      dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Reprocess/P301/ > %s"%(DATACATBIN,group,dataCatList)
+      dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Level1/LPA/ > %s"%(DATACATBIN,group,dataCatList)
+      print "Calling datacat for group %s on %s"%(group,dateStamp)
+      os.system(dataCatLine)
+      return dataCatList
+    else: 
+      dataCatList = "%s_%s.list"%(group,dateStamp)
+      dataCatLine = "%s find --sort nMetStart --group %s /Data/Flight/Level1/LPA/ > %s"%(DATACATBIN,group,dataCatList)
+      print "Calling datacat for group %s on %s"%(group,dateStamp)
+      os.system(dataCatLine)
+      return dataCatList
 
 def configInfo(metTime,mq):
     """
