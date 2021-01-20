@@ -2,9 +2,11 @@
  Package calibGenACD
  * EOH *
 
+ calibGenACD-05-00-00 20-Jan-2021    HF: Unknown; tagging current HEAD (pre-pass 8 status of the ACD monitoring code)
  calibGenACD-04-01-06 10-May-2012    jrb no-op SConscript for Windows - no need to build there
  calibGenACD-04-01-05 14-Jan-2012    jrb minor SCons fix: pick up minuit libs
  calibGenACD-04-01-04 11-Nov-2009    jrb Updates for SCons
+
 v4r1 EAC 080714
 More massive changes to bring package up to version used to with L&eo trending.
 

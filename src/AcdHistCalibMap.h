@@ -23,7 +23,7 @@ class TFile;
  * @brief Group a bunch of histograms
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdHistCalibMap.h,v 1.10 2008/08/01 00:08:25 echarles Exp $
  */
 
 class  AcdCalibHistHolder {
@@ -49,7 +49,7 @@ private:
  *    1000 * pmt + 100*face + 10*row + col
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdHistCalibMap.h,v 1.10 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdHistCalibMap {

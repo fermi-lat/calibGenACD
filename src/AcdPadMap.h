@@ -24,7 +24,7 @@ class TVirtualPad;
  * @brief A simple tool to assoicate tile ids with TPads 
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdPadMap.h,v 1.6 2008/07/29 02:59:07 echarles Exp $
  */
 
 

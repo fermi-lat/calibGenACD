@@ -19,7 +19,7 @@ class TH2;
  * @brief Functions to make summary plots for calibrations and calibration trending
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdReportPlots.h,v 1.3 2008/08/06 17:46:09 echarles Exp $
  **/
 
 namespace AcdReport {

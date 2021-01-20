@@ -5,7 +5,7 @@
  * @brief Data for ACD calibrations
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibEnum.h,v 1.10 2014/02/14 03:29:00 echarles Exp $
  **/
 
 namespace AcdCalib {
@@ -30,7 +30,9 @@ namespace AcdCalib {
 	     DIGI=0,
 	     SVAC=1,
 	     MERIT=2,
-	     NCHAIN=3};
+	     RECON=3,
+	     OVERLAY=4,	    
+	     NCHAIN=5};
 
 };
 

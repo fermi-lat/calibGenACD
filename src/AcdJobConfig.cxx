@@ -27,11 +27,16 @@ AcdJobConfig::AcdJobConfig(const char* appName, const char* desc)
    m_optval_s(0),
    m_optval_P(kFALSE),
    m_optval_m(kFALSE),  
+   m_optval_1(kFALSE),
+   m_optval_2(kFALSE),
    m_optval_G(0),
+   m_optval_d(0),
    m_madeChain(kFALSE),
    m_digiChain(0),
    m_svacChain(0),
-   m_meritChain(0)
+   m_meritChain(0),
+   m_reconChain(0),
+   m_ovlChain(0)
 {
   
 }
@@ -40,6 +45,9 @@ AcdJobConfig::~AcdJobConfig()
 {
   delete m_digiChain;
   delete m_svacChain; 
+  delete m_reconChain;
+  delete m_meritChain;
+  delete m_ovlChain;
 }
 
 void AcdJobConfig::usage() {
@@ -71,13 +79,17 @@ void AcdJobConfig::usage() {
        << "\tOPTIONS for specific jobs (will be ignored by other jobs)"  << endl
        << "\t   -P                : use only periodic triggers" << endl
        << "\t   -m                : use the mip values from the svac file" << endl
+       << "\t   -1                : use only tiles with signals in only 1 PMT" << endl
+       << "\t   -2                : use only tiles with signals in both PMTs" << endl
        << "\t   -G <int>          : use CAL GCR selection for a given Z" << endl
+       << "\t   -d <int>          : use use only events with GemDeltaEventTime > value" << endl
        << "\t   -i <fileName>     : use input histograms" << endl
        << "\t   -p <fileName>     : use pedestals from this file" << endl
        << "\t   -H <fileName>     : use high range pedestals from this file" << endl
        << "\t   -g <fileName>     : use gains from this file" << endl
        << "\t   -R <fileName>     : use range data from this file" << endl
        << "\t   -C <fileName>     : use carbon peak data from this file" << endl
+       << "\t   -z <fileName>     : use high range calib from this file" << endl
        << endl;
 }
   
@@ -91,7 +103,7 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
-  char* optString = "hn:s:I:i:x:o:p:H:g:R:C:PmG:";
+  char* optString = "hn:s:I:i:x:o:p:H:g:R:C:Pm12G:d:z:";
 
   m_outputPrefix = "test";
 
@@ -134,8 +146,11 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     case 'R':   // Ranges
       m_rangeFileName = string(optarg);
       break;
-    case 'C':   // carobon peak pedestals
+    case 'C':   // carbon peak pedestals
       m_carbonFileName = string(optarg);
+      break;      
+    case 'z':   // high range calibration
+      m_highRangeFileName = string(optarg);
       break;      
     case 'm':   // periodic only
       m_optval_m = kTRUE;
@@ -143,8 +158,17 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
     case 'P':   // periodic only
       m_optval_P = kTRUE;
       break;
+    case '1':   // require that only one PMT have a signal in tiles
+      m_optval_1 = kTRUE;
+      break;
+    case '2':   // require signals in both PMTs in tiles
+      m_optval_2 = kTRUE;
+      break;
     case 'G':   // use CAL GCR selection
       m_optval_G = strtoul( optarg, &endPtr, 0 );
+      break;
+    case 'd':   // use GemDeltaEventTime cut
+      m_optval_d = strtoul( optarg, &endPtr, 0 );
       break;
     case '?':
       usage();
@@ -196,8 +220,17 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   if ( m_optval_m ) {
     std::cout << "Taking mip values from svac file" << std::endl;
   }
+  if ( m_optval_1 ) {
+    std::cout << "Taking only signals with only one PMT in tiles" << std::endl;
+  }
+  if ( m_optval_2 ) {
+    std::cout << "Requiring signals in both PMTs for tiles" << std::endl;
+  }
   if ( m_optval_G != 0 ) {
     std::cout << "Using CAL GCR selection for Z = " << m_optval_G << std::endl;
+  }
+  if ( m_optval_d != 0 ) {
+    std::cout << "Using GemDeltaEventTime cut d = " << m_optval_d << std::endl;
   }
   if ( m_inFileName != "" ) {
     std::cout << "Input file: " << m_inFileName << std::endl;
@@ -216,6 +249,9 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   }
   if ( m_carbonFileName != "" ) {   
     std::cout << "carbon file: " << m_carbonFileName << std::endl;
+  }
+  if ( m_highRangeFileName != "" ) {   
+    std::cout << "highRange file: " << m_highRangeFileName << std::endl;
   }
 
   static TApplication* theApp = new TApplication("runMipCalib.exe",&argn,argc);
@@ -237,7 +273,7 @@ Bool_t AcdJobConfig::makeChain( ) const {
     const std::string fileString = *itr;
     if ( fileString.find(".txt") != fileString.npos ||
 	 fileString.find(".lst") != fileString.npos ) {
-      if ( ! getFileList(fileString.c_str(),tokens) ) return kFALSE;
+      if ( ! getFileList(fileString.c_str(),tokens) ) return kFALSE; 
     } else {
       tokens.push_back(fileString);
     }
@@ -263,8 +299,18 @@ Bool_t AcdJobConfig::makeChain( ) const {
 	m_meritChain = new TChain("MeritTuple");
       }
       chain = m_meritChain;
+    } else if (token.find("recon.root") != token.npos ) {
+      if ( m_reconChain == 0 ) {
+	m_reconChain = new TChain("Recon");
+      }
+      chain = m_reconChain;
+    } else if (token.find("Overlay") != token.npos ) {
+      if ( m_ovlChain == 0 ) {
+	m_ovlChain = new TChain("Overlay");
+      }
+      chain = m_ovlChain;      
     } else {
-      std::cerr << "File " << token << " not a Digi, Svac or Merit file" << std::endl;
+      std::cerr << "File " << token << " not a Recognized file" << std::endl;
       return kFALSE;
     }
     chain->Add(token.c_str());
@@ -280,7 +326,6 @@ Bool_t AcdJobConfig::checkDigi() const {
   if ( ! makeChain() ) return kFALSE;
   if ( m_digiChain == 0 ) {
     std::cerr << "This job requires digi ROOT files as input." << std::endl
-	      << "\tuse -d <file> option to specify them." << std::endl
 	      << std::endl;
     return kFALSE;
   }
@@ -291,7 +336,6 @@ Bool_t AcdJobConfig::checkSvac() const {
   if ( ! makeChain() ) return kFALSE;
   if ( m_svacChain == 0 ) {
     std::cerr << "This job requires svac ROOT files as input." << std::endl
-	      << "\tuse -S <file> option to specify them." << std::endl
 	      << std::endl;
     return kFALSE;
   }
@@ -302,12 +346,32 @@ Bool_t AcdJobConfig::checkMerit() const {
   if ( ! makeChain() ) return kFALSE;
   if ( m_meritChain == 0 ) {
     std::cerr << "This job requires merit ROOT files as input." << std::endl
-	      << "\tuse -S <file> option to specify them." << std::endl
 	      << std::endl;
     return kFALSE;
   }
   return kTRUE;
 }
+
+Bool_t AcdJobConfig::checkRecon() const {
+  if ( ! makeChain() ) return kFALSE;
+  if ( m_reconChain == 0 ) {
+    std::cerr << "This job requires recon ROOT files as input." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
+Bool_t AcdJobConfig::checkOverlay() const {
+  if ( ! makeChain() ) return kFALSE;
+  if ( m_ovlChain == 0 ) {
+    std::cerr << "This job requires overlay ROOT files as input." << std::endl
+	      << std::endl;
+    return kFALSE;
+  }
+  return kTRUE;
+}
+
 
 Bool_t AcdJobConfig::getFileList(const char* fileName, std::vector<std::string>& files) {
    std::ifstream infile(fileName);   

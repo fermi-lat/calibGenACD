@@ -10,9 +10,9 @@
 __facility__ = "calibGenACD"
 __abstract__ = "Extracts the DAC to PHA set point relationship of ACD veto"
 __author__    = "E. Charles"
-__date__      = "$Date$"
-__version__   = "$Revision$, $Author$"
-__release__   = "$Name$"
+__date__      = "$Date: 2010/06/24 23:52:41 $"
+__version__   = "$Revision: 1.1 $, $Author: echarles $"
+__release__   = "$Name:  $"
 
 #import LATTE.copyright_SLAC
 import os, sys

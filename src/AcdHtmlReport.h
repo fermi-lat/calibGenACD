@@ -30,7 +30,7 @@ class AcdCalibMap;
  *   http://www.slac.stanford.edu/exp/glast/acd/calib_reports/index.html
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdHtmlReport.h,v 1.3 2008/08/06 17:46:09 echarles Exp $
  */
 
 

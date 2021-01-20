@@ -23,7 +23,7 @@ class DigiEvent;
  * So this takes care of that.
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCoherentNoise.h,v 1.8 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdBinDataMap {
@@ -65,7 +65,7 @@ private:
  * Those profile plots are then fit to extract the coherent noise parameters
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCoherentNoise.h,v 1.8 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdCoherentNoise : public AcdCalibBase {

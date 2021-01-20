@@ -15,7 +15,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  * @brief wrapper for DOMElement, Needed to protect CINT (i think)
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/DomElement.h,v 1.3 2008/07/29 02:59:07 echarles Exp $
  */
 
 

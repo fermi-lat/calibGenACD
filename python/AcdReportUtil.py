@@ -10,9 +10,9 @@
 __facility__ = "calibGenACD"
 __abstract__ = "Extracts the DAC to PHA set point relationship of ACD veto"
 __author__    = "E. Charles"
-__date__      = "$Date$"
-__version__   = "$Revision$, $Author$"
-__release__   = "$Name$"
+__date__      = "$Date: 2008/09/05 22:57:49 $"
+__version__   = "$Revision: 1.3 $, $Author: echarles $"
+__release__   = "$Name:  $"
 
 import os, sys
 import time
