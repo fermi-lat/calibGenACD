@@ -119,4 +119,4 @@ if __name__=='__main__':
 
     toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
     sysCom = "mv trend_%s* %s"%(calib,toDir)
-#HF    os.system(sysCom)
+    os.system(sysCom)
