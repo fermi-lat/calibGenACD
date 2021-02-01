@@ -12,7 +12,7 @@
  *
  * @brief The register values for the LAT ACD HLD thresholds (aka CNO)
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdHldConfig.h,v 1.2 2008/08/01 00:08:25 echarles Exp $
  */
 
 

@@ -30,7 +30,7 @@ class AcdHistCalibMap;
  *    - Fit peak region to a gaussian
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCarbonFit.h,v 1.4 2010/06/24 23:52:42 echarles Exp $
  */
 
 

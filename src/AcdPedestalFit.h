@@ -29,7 +29,7 @@ class AcdHistCalibMap;
  *    - Find the Mean of the distribution
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdPedestalFit.h,v 1.10 2008/08/01 00:08:26 echarles Exp $
  */
 
 

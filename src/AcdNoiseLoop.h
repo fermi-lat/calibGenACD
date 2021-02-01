@@ -22,7 +22,7 @@ class TBranch;
  * This is used for the following calibrations:
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdNoiseLoop.h,v 1.1 2008/09/05 22:57:34 echarles Exp $
  */
 
 class AcdNoiseLoop : public AcdCalibBase {

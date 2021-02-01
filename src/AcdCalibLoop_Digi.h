@@ -27,7 +27,7 @@ class DigiEvent;
  *   - Range crossover
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibLoop_Digi.h,v 1.7 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdCalibLoop_Digi : public AcdCalibBase {

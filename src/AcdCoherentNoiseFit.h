@@ -27,7 +27,7 @@ class AcdHistCalibMap;
  *      Success depends mainly on good seed value
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCoherentNoiseFit.h,v 1.8 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdCoherentNoiseFitLibrary : public AcdCalibFit {

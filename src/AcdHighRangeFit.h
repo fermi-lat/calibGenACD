@@ -27,7 +27,7 @@ class AcdHistCalibMap;
  *      Fit is fully constrained by using 2 points and saturation == 2000 pha counts
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdHighRangeFit.h,v 1.3 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdHighRangeFitLibrary : public AcdCalibFit {

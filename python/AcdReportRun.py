@@ -10,9 +10,9 @@
 __facility__ = "calibGenACD"
 __abstract__ = "Extracts the DAC to PHA set point relationship of ACD veto"
 __author__    = "E. Charles"
-__date__      = "$Date$"
-__version__   = "$Revision$, $Author$"
-__release__   = "$Name$"
+__date__      = "$Date: 2012/09/05 19:25:46 $"
+__version__   = "$Revision: 1.6 $, $Author: brandt $"
+__release__   = "$Name:  $"
 
 #import LATTE.copyright_SLAC
 import os, sys
@@ -20,22 +20,28 @@ import time
 from optparse import OptionParser
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
-CALIBGENACD = os.getenv("CALIBGENACDROOT")
-CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
+CALIBGENACD = os.path.join(os.getenv("RELEASE"), 'calibGenACD')
+CALIBGENACDBINDIR = os.path.join(os.getenv("RELEASE"), 'bin', "%s-Optimized"%(os.getenv("SCONS_VARIANT")))
+#CALIBGENACD = os.getenv("CALIBGENACDROOT")
+#CALIBGENACDBINDIR = os.path.join(CALIBGENACD,os.getenv('CMTCONFIG'))
 
-CALIBTYPES = {'ped':('Ped','runPedestal.exe',1,['-P']),
-              'gain':('ElecGain','runMipCalib.exe',5,['ped']),
-              'veto':('ThreshVeto','runVetoCalib.exe',1,['ped']),
-              'range':('Range','runRangeCalib.exe',5,['ped','highPed']),
-              'cno':('ThreshHigh','runCnoCalib.exe',1,['highPed']),
-              'coherentNoise':('CoherentNoise','runCoherentNoiseCalib.exe',1,['-P','ped']),
-              'ribbon':('Ribbon','runRibbonCalib.exe',5,['ped']),
-              'highPed':('HighPed','runHighPed.exe',1,['-s 1000']),
-              'carbon':('Carbon','runCarbonCalib.exe',60,['-G 6','highPed']),
-              'cnoFit':('CnoFit','runCnoFitCalib.exe',0,[]),
-              'vetoFit':('VetoFit','runVetoFitCalib.exe',0,[]),
-              'highRange':('HighRange','runHighRangeCalib.exe',0,['ped','gain','highPed','carbon','range']),
-              'check':('Check','runMeritCalib.exe',1,['-m','ped','gain','highRange'])}
+os.system("echo $CALIBUTILROOT")
+os.environ['CALIBUTILROOT'] = os.path.join(os.getenv("PARENT"), 'calibUtil')
+os.system("echo $CALIBUTILROOT")
+
+CALIBTYPES = {'ped':('Ped','runPedestal',1,['-P']),
+              'gain':('ElecGain','runMipCalib',5,['ped']),
+              'veto':('ThreshVeto','runVetoCalib',1,['ped']),
+              'range':('Range','runRangeCalib',5,['ped','highPed']),
+              'cno':('ThreshHigh','runCnoCalib',1,['highPed']),
+              'coherentNoise':('CoherentNoise','runCoherentNoiseCalib',1,['-P','ped']),
+              'ribbon':('Ribbon','runRibbonCalib',5,['ped']),
+              'highPed':('HighPed','runHighPed',1,['-s 1000']),
+              'carbon':('Carbon','runCarbonCalib',60,['-G 6','highPed']),
+              'cnoFit':('CnoFit','runCnoFitCalib',0,[]),
+              'vetoFit':('VetoFit','runVetoFitCalib',0,[]),
+              'highRange':('HighRange','runHighRangeCalib',0,['ped','gain','highPed','carbon','range']),
+              'check':('Check','runMeritCalib',1,['-m','ped','gain','highRange'])}
 
 USABLERUNTYPES = {"Tack_scan0":0,
                   "Tack_scan1":0,
@@ -228,6 +234,7 @@ def buildCalibCommand(calibName,refDict,useDict,runs,tag):
     theArgs = getArgs(calibName,useDict)
     runStr = makeRunString(calibName,runs,tag)
     execLine = "%s%s %s -o %s %s"%(execName,theArgs,refNameStr,outprefix,runStr)
+#    execLine = "%s%s %s -o %s %s -e eventList.txt"%(execName,theArgs,refNameStr,outprefix,runStr)
     return (execLine,outprefix)
 
 def buildReportCommand(calib,comment,outPrefix,tag):
@@ -267,6 +274,7 @@ def getRunsFromWeek(runsData,week,nRuns):
     tag = ""
     for aRun in runsData:
         tag = aRun[1]
+#        print tag
         rWeek = int(aRun[2],10)
         if rWeek <> week:
             continue
@@ -314,32 +322,61 @@ if __name__=='__main__':
 
     (options, args) = parser.parse_args(sys.argv[2:])
 
-    if len(args) <> 1:
-        parser.print_help()
-        sys.exit()  
+#    print args
+
+#    if len(args) <> 1:
+#        parser.print_help()
+#        sys.exit()  
 
     refDict = getRefFiles( os.path.join(ACDMONROOT,'ref.txt') )
-    useDict = getRefFiles( os.path.join(ACDMONROOT,'calib.txt') )
+    useDict = getRefFiles( os.path.join(ACDMONROOT,'calib.new.txt') )
 
-    runsTable = readRunsTable(args[0])
+    if len(args) > 1:
+      runsTableDigi = readRunsTable(args[0])
+      runsTableRecon = readRunsTable(args[1])
 
-    if options.week:            
-        (tag,runs) = getRunsFromWeek(runsTable,options.week,getNRuns(calib))
-        comment = "Data from Mission week %d"%(options.week)
-    elif options.day:            
-        (tag,runs) = getRunsFromDay(runsTable,options.day,getNRuns(calib))
-        comment = "Data from %s"%(options.day)
+      if options.week:            
+          (tag,runsDigi) = getRunsFromWeek(runsTableDigi,options.week,getNRuns(calib))
+          (tag,runsRecon) = getRunsFromWeek(runsTableRecon,options.week,getNRuns(calib))
+          comment = "Data from Mission week %d"%(options.week)
+      elif options.day:            
+          (tag,runsDigi) = getRunsFromDay(runsTableDigi,options.day,getNRuns(calib))
+          (tag,runsRecon) = getRunsFromDay(runsTableRecon,options.day,getNRuns(calib))
+          comment = "Data from %s"%(options.day)
+      else:
+          parser.print_help()
+          sys.exit()
+
+      runs = runsDigi + runsRecon
+
+      (execLine,outPrefix) = buildCalibCommand(calib,refDict,useDict,runs,tag)
+      reportLine = buildReportCommand(calib,comment,outPrefix,tag)
+
+
+
     else:
-        parser.print_help()
-        sys.exit()
+      runsTable = readRunsTable(args[0])
 
+      if options.week:            
+          (tag,runs) = getRunsFromWeek(runsTable,options.week,getNRuns(calib))
+          comment = "Data from Mission week %d"%(options.week)
+      elif options.day:            
+          (tag,runs) = getRunsFromDay(runsTable,options.day,getNRuns(calib))
+          comment = "Data from %s"%(options.day)
+      else:
+          parser.print_help()
+          sys.exit()
+    
     (execLine,outPrefix) = buildCalibCommand(calib,refDict,useDict,runs,tag)
     reportLine = buildReportCommand(calib,comment,outPrefix,tag)
 
-    #print execLine
+    #os.system("echo $CALIBUTILROOT")
+
+    print execLine
     os.system(execLine)
-    #print reportLine
+    print reportLine
     os.system(reportLine)
+
 
     
 

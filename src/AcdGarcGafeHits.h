@@ -17,7 +17,7 @@ class AcdId;
  * @brief Tool to sort and count hits by GARC and GAFE
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdGarcGafeHits.h,v 1.7 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdGarcGafeHits {

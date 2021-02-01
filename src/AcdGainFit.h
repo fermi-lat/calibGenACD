@@ -39,7 +39,7 @@ class AcdHistCalibMap;
  *    - Fit to a Gaussian and a line.  Slow, requires good seed
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdGainFit.h,v 1.13 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdGainFitLibrary : public AcdCalibFit {

@@ -13,7 +13,7 @@
  * @brief The register values for the LAT ACD veto thresholds
  *
  * @author Eric Charles
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdVetoConfig.h,v 1.2 2008/08/01 00:08:26 echarles Exp $
  */
 
 
