@@ -283,6 +283,7 @@ void AcdCalibUtil::drawTrendingPlot(TVirtualPad& vp, TH1& tData, const TH2& tRef
   tData.SetYTitle( tRef.GetYaxis()->GetTitle() );
   tData.SetXTitle( "Test Phase" );
   tData.SetMarkerStyle(6);
+  tData.SetMarkerColor(kBlue)
   tData.Draw("p");  
 }
 
