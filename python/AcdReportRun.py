@@ -328,7 +328,8 @@ if __name__=='__main__':
 #        parser.print_help()
 #        sys.exit()  
 
-    refDict = getRefFiles( os.path.join(ACDMONROOT,'ref.txt') )
+#    refDict = getRefFiles( os.path.join(ACDMONROOT,'ref.txt') )
+    refDict = getRefFiles( os.path.join(ACDMONROOT,'ref.new.txt') )
     useDict = getRefFiles( os.path.join(ACDMONROOT,'calib.new.txt') )
 
     if len(args) > 1:
