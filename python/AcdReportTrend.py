@@ -118,5 +118,11 @@ if __name__=='__main__':
     os.system(execLine)
 
     toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
+    
+    sysCom = "mkdir -p %s/plots_before_$(date \"+%%y%m%%d\" ) "%toDir
+    os.system(sysCom)
+    sysCom = "mv %s/trend_*  %s/plots_before_$(date \"+%%y%m%%d\" ) "%(toDir, toDir)
+    os.system(sysCom)
+
     sysCom = "mv trend_%s* %s"%(calib,toDir)
     os.system(sysCom)
