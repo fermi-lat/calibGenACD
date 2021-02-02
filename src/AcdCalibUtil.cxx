@@ -98,7 +98,7 @@ Bool_t AcdCalibUtil::makeTrendPlots(AcdHistCalibMap& hTrends,
     AcdPadMap* pm = drawTrends(hTrends,*(summaryHists)[i],i,summaryHists.size(),filePrefix);
     TString pf("_"); pf += summaryHists[i]->GetName();
       //saveCanvases(pm->canvasList(),pf,suffix);
-    saveCanvases(pm->canvasList(),pf,"pdf");
+    saveCanvases(pm->canvasList(),pf,".pdf");
     cnv.Clear();
     TVirtualPad* vp = cnv.cd();    
     vp->SetLogz();
