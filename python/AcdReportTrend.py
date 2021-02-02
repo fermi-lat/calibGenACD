@@ -18,7 +18,7 @@ __release__   = "$Name:  $"
 import os, sys
 import time
 from optparse import OptionParser
-from datetime import today
+import datetime
 
 ACDMONROOT = os.path.join(os.getenv("LATMonRoot"),'ACD','FLIGHT')
 CALIBGENACD = os.path.join(os.getenv("RELEASE"), 'calibGenACD')
@@ -120,7 +120,7 @@ if __name__=='__main__':
 
     toDir = os.path.join(ACDMONROOT,getDirName(calib),"trend")
     
-    todayString = date.today().strftime("%y%m%d")
+    todayString = datetime.date.today().strftime("%y%m%d")
     saveDir = os.path.join( toDir, "plots_before_%s" % todayString )
     
     sysCom = "mkdir -p %s" % saveDir
