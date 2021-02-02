@@ -222,8 +222,8 @@ void AcdTrendCalib::makeSummaryHists() {
   case AcdCalibData::GAIN:
     addSummaryHist("peak","Trend of MIP Peak","(PHA)",-400.,400.);
     addSummaryHist("width","Trend of MIP Width","(PHA)",-200.,200.);
-    addSummaryHist("RelPeak","Trend of Relative MIP Peak","(PHA)",-0.50,0.50);
-    addSummaryHist("RelWidth","Trend of Relative MIP Width","(PHA)",-0.50,0.50);
+    addSummaryHist("RelPeak","Trend of MIP Peak (relative to reference)","",-0.50,0.50);
+    addSummaryHist("RelWidth","Trend of MIP Width (relative to reference)","",-0.50,0.50);
     break;
   case AcdCalibData::VETO:
     addSummaryHist("veto","Trend of Veto Threshold","(PHA)",-200.,200.,AcdKey::Tiles);
