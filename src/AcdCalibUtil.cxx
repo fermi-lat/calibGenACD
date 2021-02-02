@@ -276,12 +276,13 @@ void AcdCalibUtil::drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, 
 
 void AcdCalibUtil::drawTrendingPlot(TVirtualPad& vp, TH1& tData, const TH2& tRef) {
   vp.cd();
+  vp.SetGrid(kTRUE);
   gStyle->SetOptStat(0);
   tData.SetMaximum( tRef.GetYaxis()->GetXmax() );
   tData.SetMinimum( tRef.GetYaxis()->GetXmin() );
   tData.SetYTitle( tRef.GetYaxis()->GetTitle() );
   tData.SetXTitle( "Test Phase" );
-  tData.SetMarkerStyle(8);
+  tData.SetMarkerStyle(6);
   tData.Draw("p");  
 }
 
