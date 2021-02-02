@@ -76,7 +76,7 @@ namespace AcdReport {
   TString title_range    = "Range Crossover";
   TString title_mip      = "MIP peak";
 
-  TString units_rel      = " - 1";
+  TString units_rel      = " ";
   TString units_pha      = "(PHA)";
   TString units_mip      = "(mip)";
   TString units_decay    = "(ticks)";
