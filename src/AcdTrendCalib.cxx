@@ -98,8 +98,11 @@ Bool_t AcdTrendCalib::fillHistograms() {
 
   UInt_t id_ref[216];
   UInt_t pmt_ref[216];
+  UInt_t status_ref[216];
   UInt_t id[216];
   UInt_t pmt[216];
+  UInt_t status[216];
+
 
   Float_t refVals[10][216];
   Float_t vals[10][216];
@@ -108,9 +111,11 @@ Bool_t AcdTrendCalib::fillHistograms() {
   m_calibs->SetBranchStatus("*",1);
 
   m_reference->SetBranchAddress("id",(id_ref));
-  m_reference->SetBranchAddress("pmt",(pmt_ref));  
+  m_reference->SetBranchAddress("pmt",(pmt_ref));
+  m_reference->SetBranchAddress("status",(status_ref));
   m_calibs->SetBranchAddress("id",(id));
   m_calibs->SetBranchAddress("pmt",(pmt));
+  m_calibs->SetBranchAddress("status",(status));
 
   UInt_t iVal(0);
   UInt_t nAbs(0);
@@ -139,6 +144,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
     for ( UInt_t j(0); j < 216; j++ ) {
       if ( id[j] >= 700 ) continue;
       if ( pmt[j] > 1 ) continue;
+      if ( status[j] != 0 ) || (status_ref[j] != 0) continue;
 
 //    if (i < 161) continue;
       
