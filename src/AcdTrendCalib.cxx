@@ -98,10 +98,10 @@ Bool_t AcdTrendCalib::fillHistograms() {
 
   UInt_t id_ref[216];
   UInt_t pmt_ref[216];
-  UInt_t status_ref[216];
+  Int_t status_ref[216];
   UInt_t id[216];
   UInt_t pmt[216];
-  UInt_t status[216];
+  Int_t status[216];
 
 
   Float_t refVals[10][216];
