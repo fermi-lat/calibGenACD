@@ -144,7 +144,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
     for ( UInt_t j(0); j < 216; j++ ) {
       if ( id[j] >= 700 ) continue;
       if ( pmt[j] > 1 ) continue;
-      if ( status[j] != 0 ) || (status_ref[j] != 0) continue;
+      if (( status[j] != 0 ) || (status_ref[j] != 0)) continue;
 
 //    if (i < 161) continue;
       
