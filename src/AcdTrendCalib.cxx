@@ -121,7 +121,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
   UInt_t nAbs(0);
   for ( std::list<std::string>::const_iterator itr = m_trendNames.begin();
 	itr != m_trendNames.end(); itr++, iVal++ ) {
-    if ( itr->find("Rel") == 0 ) {
+    if ( itr->find("Rel") == std::string::npos ) {
       nAbs += 1;
       continue;
     }
