@@ -123,10 +123,9 @@ Bool_t AcdTrendCalib::fillHistograms() {
 	itr != m_trendNames.end(); itr++, iVal++ ) {
     if ( itr->find("Rel") == std::string::npos ) {
       nAbs += 1;
-      continue;
+      m_reference->SetBranchAddress(itr->c_str(),(refVals[iVal]));
+      m_calibs->SetBranchAddress(itr->c_str(),(vals[iVal]));
     }
-    m_reference->SetBranchAddress(itr->c_str(),(refVals[iVal]));
-    m_calibs->SetBranchAddress(itr->c_str(),(vals[iVal]));
   }
   
   // Get the ref vals
