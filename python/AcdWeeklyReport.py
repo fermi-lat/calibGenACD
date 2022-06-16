@@ -96,8 +96,10 @@ if __name__=='__main__':
                 parser.print_help()
                 sys.exit()
 
+            singCommand = "singularity exec -B /afs,/gpfs,/nfs,/u /gpfs/slac/fermi/fs2/software/containers/slac-fermi.img.ext3 python "
             if inputTable <> "":
-                runString = "bsub -W 20:00 -q xlong -Q '127' -R rhel60 -o AcdReport_%s%d.log %s %s -w %d %s"%(cType,options.week,execName,cType,options.week,inputTable)
+                runString = "bsub -W 20:00 -q long -R centos7  -o AcdReport_%s%d.log %s %s %s -w %d %s" % (cType, options.week, singCommand, execName, cType, options.week, inputTable)
+#                runString = "bsub -W 20:00 -q xlong -Q '127' -R rhel60 -o AcdReport_%s%d.log %s %s -w %d %s"%(cType,options.week,execName,cType,options.week,inputTable)
 #                runString = "bsub -q long -R fell -Q '127' -o AcdReport_%s%d.log %s %s -w %d %s"%(cType,options.week,execName,cType,options.week,inputTable)
 #                runString = "%s %s -w %d %s"%(execName,cType,options.week,inputTable)
                 print runString
