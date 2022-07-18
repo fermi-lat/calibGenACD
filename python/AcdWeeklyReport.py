@@ -108,7 +108,10 @@ if __name__=='__main__':
         elif action == "trend":
             if cType <> "check":
 #                runString =  "%s %s"%(trendName,cType)
-                runString =  "bsub -W 20:00 -R rhel60 -o AcdTrend_%s.log %s %s"%(cType,trendName,cType)
+#                runString =  "bsub -W 20:00 -R rhel60 -o AcdTrend_%s.log %s %s"%(cType,trendName,cType)
+                
+                singCommand = "singularity exec -B /afs,/gpfs,/nfs,/u /gpfs/slac/fermi/fs2/software/containers/slac-fermi.img.ext3 python "
+                runString = "bsub -W 20:00 -R centos7 -o AcdTrend_%s.log %s %s %s"%(cType, singCommand, trendName, cType)
                 print runString
                 os.system(runString)
 
