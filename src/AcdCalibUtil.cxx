@@ -97,7 +97,8 @@ Bool_t AcdCalibUtil::makeTrendPlots(AcdHistCalibMap& hTrends,
   for ( UInt_t i(0); i < summaryHists.size(); i++ ) {
     AcdPadMap* pm = drawTrends(hTrends,*(summaryHists)[i],i,summaryHists.size(),filePrefix);
     TString pf("_"); pf += summaryHists[i]->GetName();
-    saveCanvases(pm->canvasList(),pf,suffix); 
+      //saveCanvases(pm->canvasList(),pf,suffix);
+    saveCanvases(pm->canvasList(),pf,".pdf");
     cnv.Clear();
     TVirtualPad* vp = cnv.cd();    
     vp->SetLogz();
@@ -275,12 +276,14 @@ void AcdCalibUtil::drawHighRangePlot(TVirtualPad& vp, TH1& hrData, TH1& hxData, 
 
 void AcdCalibUtil::drawTrendingPlot(TVirtualPad& vp, TH1& tData, const TH2& tRef) {
   vp.cd();
+  vp.SetGrid(kTRUE);
   gStyle->SetOptStat(0);
   tData.SetMaximum( tRef.GetYaxis()->GetXmax() );
   tData.SetMinimum( tRef.GetYaxis()->GetXmin() );
   tData.SetYTitle( tRef.GetYaxis()->GetTitle() );
   tData.SetXTitle( "Test Phase" );
-  tData.SetMarkerStyle(8);
+  tData.SetMarkerStyle(6);
+  tData.SetMarkerColor(kBlue);
   tData.Draw("p");  
 }
 

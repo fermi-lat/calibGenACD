@@ -98,8 +98,11 @@ Bool_t AcdTrendCalib::fillHistograms() {
 
   UInt_t id_ref[216];
   UInt_t pmt_ref[216];
+  Int_t status_ref[216];
   UInt_t id[216];
   UInt_t pmt[216];
+  Int_t status[216];
+
 
   Float_t refVals[10][216];
   Float_t vals[10][216];
@@ -108,20 +111,21 @@ Bool_t AcdTrendCalib::fillHistograms() {
   m_calibs->SetBranchStatus("*",1);
 
   m_reference->SetBranchAddress("id",(id_ref));
-  m_reference->SetBranchAddress("pmt",(pmt_ref));  
+  m_reference->SetBranchAddress("pmt",(pmt_ref));
+  m_reference->SetBranchAddress("status",(status_ref));
   m_calibs->SetBranchAddress("id",(id));
   m_calibs->SetBranchAddress("pmt",(pmt));
+  m_calibs->SetBranchAddress("status",(status));
 
   UInt_t iVal(0);
   UInt_t nAbs(0);
   for ( std::list<std::string>::const_iterator itr = m_trendNames.begin();
 	itr != m_trendNames.end(); itr++, iVal++ ) {
-    if ( itr->find("Rel") == 0 ) {
+    if ( itr->find("Rel") == std::string::npos ) {
       nAbs += 1;
-      continue;
+      m_reference->SetBranchAddress(itr->c_str(),(refVals[iVal]));
+      m_calibs->SetBranchAddress(itr->c_str(),(vals[iVal]));
     }
-    m_reference->SetBranchAddress(itr->c_str(),(refVals[iVal]));
-    m_calibs->SetBranchAddress(itr->c_str(),(vals[iVal]));
   }
   
   // Get the ref vals
@@ -139,6 +143,7 @@ Bool_t AcdTrendCalib::fillHistograms() {
     for ( UInt_t j(0); j < 216; j++ ) {
       if ( id[j] >= 700 ) continue;
       if ( pmt[j] > 1 ) continue;
+      if (( status[j] != 0 ) || (status_ref[j] != 0)) continue;
 
 //    if (i < 161) continue;
       
@@ -222,8 +227,8 @@ void AcdTrendCalib::makeSummaryHists() {
   case AcdCalibData::GAIN:
     addSummaryHist("peak","Trend of MIP Peak","(PHA)",-400.,400.);
     addSummaryHist("width","Trend of MIP Width","(PHA)",-200.,200.);
-    addSummaryHist("RelPeak","Trend of Relative MIP Peak","(PHA)",-0.50,0.50);
-    addSummaryHist("RelWidth","Trend of Relative MIP Width","(PHA)",-0.50,0.50);
+    addSummaryHist("RelPeak","Trend of MIP Peak (relative to reference)","",-0.50,0.50);
+    addSummaryHist("RelWidth","Trend of MIP Width (relative to reference)","",-0.50,0.50);
     break;
   case AcdCalibData::VETO:
     addSummaryHist("veto","Trend of Veto Threshold","(PHA)",-200.,200.,AcdKey::Tiles);

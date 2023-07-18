@@ -76,6 +76,7 @@ namespace AcdReport {
   TString title_range    = "Range Crossover";
   TString title_mip      = "MIP peak";
 
+  TString units_rel      = " ";
   TString units_pha      = "(PHA)";
   TString units_mip      = "(mip)";
   TString units_decay    = "(ticks)";
@@ -423,11 +424,12 @@ Bool_t AcdReport::makeDeltaPlots_Gain( TTree* inTree, const char* outputPrefix,
   TH1* h1(0);
   TH1* h1_rib(0);
   const TString& units = units_pha;
+  const TString& noUnits = units_rel;
   Float_t max = 1500.;
   if ( ! makeDeltaPlot_Relative(inTree,h1,name_sum,
-				title_gain,name_peak,units,cut_chan,100,-1.,1.) ) return kFALSE;
+				title_gain,name_peak,noUnits,cut_chan,100,-1.,1.) ) return kFALSE;
   if ( ! makeDeltaPlot_Relative(inTree,h1_rib,name_sum+"_rib",
-				title_gain,name_peak,units,cut_rib,100,-1.,1.) ) return kFALSE;
+				title_gain,name_peak,noUnits,cut_rib,100,-1.,1.) ) return kFALSE;
   savePlots(cnv,*h1,*h1_rib,outputPrefix,plotNames);
   TH2* h2(0);
   TH2* h2_rib(0);
