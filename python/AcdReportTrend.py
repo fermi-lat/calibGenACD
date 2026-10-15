@@ -122,7 +122,7 @@ if __name__=='__main__':
     
     todayString = datetime.date.today().strftime("%y%m%d")
     saveDir = os.path.join( toDir, "plots_before_%s" % todayString )
-    
+    """
     sysCom = "mkdir -p %s" % saveDir
     os.system(sysCom)
     
@@ -131,3 +131,4 @@ if __name__=='__main__':
 
     sysCom = "mv trend_%s* %s"%(calib,toDir)
     os.system(sysCom)
+    """

@@ -37,7 +37,7 @@ class TTree;
  *  
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibMap.h,v 1.13 2008/08/01 00:08:25 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibMap.h,v 1.13 2008/08/01 00:08:25 echarles Exp $
  */
 
 

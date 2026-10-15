@@ -27,7 +27,7 @@ class ReconEvent;
  *
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibLoop_Recon.h,v 1.1 2014/02/14 03:29:00 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibLoop_Recon.h,v 1.1 2014/02/14 03:29:00 echarles Exp $
  */
 
 class AcdCalibLoop_Recon : public AcdCalibBase {

@@ -26,7 +26,7 @@ namespace CalibData {
  * @brief Various tools to make nice plots of calibration curves
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibUtil.h,v 1.14 2012/09/05 19:27:29 brandt Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibUtil.h,v 1.14 2012/09/05 19:27:29 brandt Exp $
  */
 
 class AcdCalibUtil {

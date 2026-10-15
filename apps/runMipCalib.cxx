@@ -10,10 +10,24 @@
 #include "../src/AcdCalibLoop_Recon.h"
 #include "../src/AcdPadMap.h"
 #include "../src/AcdCalibMap.h"
+#include "TSystem.h"    // AD added
+#include "TROOT.h"     // AD added
+#include "TPluginManager.h" // AD added
 
 
 int main(int argn, char** argc) {
   
+  
+  gROOT->GetPluginManager()->AddHandler("TSystem", "^root:", 
+    "TXNetSystem", "Netx", "TXNetSystem(const char *,Bool_t)");  // AD added
+  gROOT->GetPluginManager()->AddHandler("TFile", "^root:", 
+    "TXNetFile", "Netx", "TXNetFile(const char*,Option_t*,const char*,Int_t)");  // AD added
+
+  
+  TPluginHandler* h = gROOT->GetPluginManager()->FindHandler("TSystem","root://test"); // AD added
+  if (h) h->LoadPlugin(); // AD added
+  
+
   // configure
   AcdJobConfig jc("runMipCalib.exe","This utility runs the MIP calibration code on SVAC files");
 

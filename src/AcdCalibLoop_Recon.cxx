@@ -93,6 +93,8 @@ Bool_t AcdCalibLoop_Recon::attachChains() {
     // activate desired brances
     digiChain->SetBranchStatus("m_timeStamp", 1); 
     digiChain->SetBranchStatus("m_gem", 1);
+    digiChain->SetBranchStatus("m_eventId", 1);  // AD added
+    digiChain->SetBranchStatus("m_runId", 1);    // AD added
   }
   
   TChain* reconChain = getChain(AcdCalib::RECON);
@@ -113,6 +115,7 @@ Bool_t AcdCalibLoop_Recon::readEvent(int ievent, Bool_t& filtered,
 				      int& runId, int& evtId, Double_t& timeStamp) {
   
   if(m_digiEvent) m_digiEvent->Clear();
+  if(m_reconEvent) m_reconEvent->Clear();  // AD added
 
   filtered = kFALSE;
   TChain* digiChain = getChain(AcdCalib::DIGI);

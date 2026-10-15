@@ -28,7 +28,11 @@ int main(int argn, char** argc) {
   if ( ! jc.checkDigi() ) return AcdJobConfig::MissingInput;  
 
   // build filler 
-  AcdCalibLoop_Digi r(AcdCalibData::GAIN,jc.digiChain(),jc.optval_P(),jc.config(),jc.optval_d(),jc.optval_2(),jc.optval_1());
+  /*
+  // AD added: Removing extra arguments
+  // AcdCalibLoop_Digi r(AcdCalibData::GAIN,jc.digiChain(),jc.optval_P(),jc.config(),jc.optval_d(),jc.optval_2(),jc.optval_1());
+  */
+  AcdCalibLoop_Digi r(AcdCalibData::GAIN,jc.digiChain(),jc.optval_P(),jc.config());
   if ( ! r.readCalib(AcdCalibData::PEDESTAL,jc.pedFileName().c_str()) ) return AcdJobConfig::MissingInput;
   if ( ! r.readCalib(AcdCalibData::GAIN,jc.gainFileName().c_str()) ) return AcdJobConfig::MissingInput;
   

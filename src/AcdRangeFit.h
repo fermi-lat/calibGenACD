@@ -26,7 +26,7 @@ class AcdHistCalibMap;
  *    - Scan histograms, looking for first and last bins with entries
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdRangeFit.h,v 1.6 2008/08/01 00:08:26 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdRangeFit.h,v 1.6 2008/08/01 00:08:26 echarles Exp $
  */
 
 

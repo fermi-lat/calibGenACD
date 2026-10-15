@@ -5,7 +5,7 @@
  * @brief Data for ACD calibrations
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibEnum.h,v 1.10 2014/02/14 03:29:00 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibEnum.h,v 1.10 2014/02/14 03:29:00 echarles Exp $
  **/
 
 namespace AcdCalib {

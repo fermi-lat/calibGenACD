@@ -296,8 +296,12 @@ Int_t AcdGainFitLibrary::fitGaussP1(CalibData::AcdCalibObj& result, const TH1& h
   } else {    
     peak = seed->operator[](0);
     width = seed->operator[](1);   
+    /*
     minVal = TMath::Max(20., peak - width);
     minVal = TMath::Min(minVal, 0.5* peak);
+    */
+    minVal = TMath::Max((Double_t)20., (Double_t)(peak - width)); // AD added 
+    minVal = TMath::Min((Double_t)minVal, (Double_t)(0.5 * peak)); // AD added 
     maxVal = 4000.;
   }  
   Float_t norm = hist.GetMaximum();

@@ -104,7 +104,10 @@ Int_t AcdJobConfig::parse(int argn, char** argc) {
   // parse options
   char* endPtr;  
   int opt;
+  /*
   char* optString = "hn:s:I:i:x:o:p:H:g:R:C:Pm12G:d:z:e:";
+  */
+  const char* optString = "hn:s:I:i:x:o:p:H:g:R:C:Pm12G:d:z:e:"; // AD added
 
   m_outputPrefix = "test";
 

@@ -89,9 +89,14 @@ Int_t AcdCarbonFitLibrary::fitGauss(CalibData::AcdCalibObj& result, const TH1& h
     width = seed->operator[](1);
     valAtMax = hist.GetMaximum();
     std::cout << "Using ref " << peakValue << ' ' << width << std::endl;
+    /*
     minValue = TMath::Max(20., peakValue - width);
     minValue = TMath::Min(minValue, 0.5* peakValue);
     endValue = TMath::Min(3*peakValue, 1400.);
+    */
+    minValue = TMath::Max((Double_t)20., (Double_t)(peakValue - width)); //AD Added
+    minValue = TMath::Min((Double_t)minValue, (Double_t)(0.5 * peakValue)); //AD Added
+    endValue = TMath::Min((Double_t)(3*peakValue), (Double_t)1400.); //AD Added
   }
 
   TF1 gauss("gauss","[0] * TMath::Gaus(x,[1],[2])",minValue,endValue);
