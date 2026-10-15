@@ -135,6 +135,8 @@ void AcdReport::makeTrendChain( const std::string& calType,
     trendChain->Add(itr->c_str());
     refChain->Add(refFile.c_str());
   }
+  trendChain->BuildIndex("id","pmt");    // AD changed: match by (id,pmt) not row position
+  refChain->BuildIndex("id","pmt");   // AD changed: ORIGINAL had no BuildIndex causing
   trendChain->AddFriend(refChain,"ref");
 }
 

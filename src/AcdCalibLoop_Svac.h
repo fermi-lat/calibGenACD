@@ -22,7 +22,7 @@
  *   - Checking existing calibrations
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibLoop_Svac.h,v 1.10 2010/06/24 23:52:41 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibLoop_Svac.h,v 1.10 2010/06/24 23:52:41 echarles Exp $
  */
 
 class AcdCalibLoop_Svac : public AcdCalibBase {

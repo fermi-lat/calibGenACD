@@ -21,7 +21,7 @@ class AcdHistCalibMap;
  *  - Linear:  Fit the point to a line
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdDacFit.h,v 1.2 2008/08/01 00:08:25 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdDacFit.h,v 1.2 2008/08/01 00:08:25 echarles Exp $
  */
 
 class AcdDacFitLibrary : public  AcdCalibFit{

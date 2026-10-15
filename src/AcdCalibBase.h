@@ -30,7 +30,7 @@ class TChain;
  * @brief Holder to keep track of events we have processed
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
  */
 
 
@@ -161,7 +161,7 @@ private :
  * then at the end of the event loop, do some fitting.
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibBase.h,v 1.21 2008/09/05 22:57:50 echarles Exp $
  */
 
 

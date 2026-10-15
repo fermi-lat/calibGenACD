@@ -25,7 +25,7 @@ namespace CalibData {
  * just loops on all the channels and calls fit(), which is implemented in the various sub-classes
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibFit.h,v 1.6 2008/09/05 22:57:50 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibFit.h,v 1.6 2008/09/05 22:57:50 echarles Exp $
  */
 
 

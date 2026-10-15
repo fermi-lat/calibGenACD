@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/SConscript,v 1.13 2014/02/14 03:28:28 echarles Exp $ 
+# $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/SConscript,v 1.13 2014/02/14 03:28:28 echarles Exp $ 
 # Authors:  Eric Charles <echarles@slac.stanford.edu>
 # Version: calibGenACD-06-00-00
 Import('baseEnv')
@@ -9,6 +9,14 @@ Import('packages')
 if baseEnv['PLATFORM'] != "win32":
   progEnv = baseEnv.Clone()
   libEnv = baseEnv.Clone()
+
+  # ----------------------------------------------------------
+  # AD FIX: Force C++03 to maintain compatibility with old Boost
+  # headers in GLAST_EXT (boost::shared_ptr copy constructor)
+  # ----------------------------------------------------------
+  libEnv.Append(CXXFLAGS=['-std=c++03'])
+  progEnv.Append(CXXFLAGS=['-std=c++03'])
+  # ----------------------------------------------------------
 
   libEnv.Tool('addLinkDeps', package='calibGenACD', toBuild='shared')
   calibGenACD = libEnv.SharedLibrary('calibGenACD',  listFiles(['src/*.cxx']))

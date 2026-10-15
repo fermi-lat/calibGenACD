@@ -300,7 +300,7 @@ Bool_t AcdCalibMap::writeResultsToTree(const char* newFileName) {
 
   UInt_t id[216];
   UInt_t pmt[216];
-  Int_t status[216];
+  Int_t status[216]; 
   if ( newFileName != 0 ) {
     histFile = TFile::Open(newFileName, "RECREATE");
     if ( histFile == 0 ) return kFALSE;
@@ -318,15 +318,92 @@ Bool_t AcdCalibMap::writeResultsToTree(const char* newFileName) {
     std::string lName = vName + "[216]/F";
     m_tree->Branch(vName.c_str(),&(vals[i][0]),lName.c_str());
   }
-  UInt_t idx(0);
-  for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.begin(); 
-	itr != m_map.end(); itr++, idx++ ) {
-    id[idx] = AcdKey::getId(itr->first);
-    pmt[idx] =  AcdKey::getPmt(itr->first);
-    status[idx] = itr->second->getStatus();
-    for ( UInt_t iV(0); iV < nVal; iV++ ) {
-      vals[iV][idx] = itr->second->operator[](iV);
-    }
+
+
+UInt_t idx(0);
+  // AD CHANGED: Added a if condition as GAIN is written differently than the other ones giving an error!
+  // What was done: replaced m_map iterator loop with face/row/col/pmt ordered loop
+  // ORIGINAL: iterated m_map directly giving split ordering
+  // (all pmt=0 then all pmt=1) because std::map sorts by key
+  // Reference files have interleaved ordering (id0pmt0,id0pmt1,id1pmt0...)
+  // ROOT 5 Project/Draw uses positional row matching so orderings must match
+  // Fix: use same loop order as writeTxt to produce interleaved output
+  if ( m_desc->calibType() == AcdCalibData::GAIN ) {
+    // AD CHANGED: replaced interleaved face/row/col loop with split map-iterator
+    // same as all other calibration types
+    // PMT validity check added to prevent pmt=4294967295 error
+    // that occurred in original code when iterating GAIN map directly
+    std::cout << "[AcdCalibMap::writeResultsToTree] calibType=" << m_desc->calibType() 
+              << " (" << m_desc->calibTypeName() << "): using split map-iterator loop" << std::endl;
+    for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.begin(); 
+          itr != m_map.end(); itr++) {
+        UInt_t debugPmt = AcdKey::getPmt(itr->first);
+        UInt_t debugId  = AcdKey::getId(itr->first);
+        std::cout << "DEBUG GAIN map entry: key=" << itr->first 
+                  << " id=" << debugId 
+                  << " pmt=" << debugPmt 
+                  << " nPmt=" << AcdKey::nPmt
+                  << " invalid=" << (debugPmt >= AcdKey::nPmt ? "YES" : "NO")
+                  << std::endl;
+
+        if ( debugPmt >= AcdKey::nPmt ) {
+            std::cerr << "Warning Code Update: skipping invalid pmt=" 
+                      << debugPmt
+                      << " for id=" << debugId
+                      << " key=" << itr->first
+                      << " Reason: invalid key in GAIN map, skipping to prevent"
+                      << " pmt=4294967295 error in tree" << std::endl;
+            continue;
+        }
+
+        /*if ( idx >= 216 ) {
+            std::cerr << "Warning Code Update: Skipping idx=" << idx 
+                      << " exceeds array size 216 for id=" << AcdKey::getId(itr->first)
+                      << " pmt=" << AcdKey::getPmt(itr->first) << std::endl;
+            continue;
+        }*/
+
+        id[idx]     = AcdKey::getId(itr->first);
+        pmt[idx]    = AcdKey::getPmt(itr->first);
+        status[idx] = itr->second->getStatus();
+        for ( UInt_t iV(0); iV < nVal; iV++ ) {
+            vals[iV][idx] = itr->second->operator[](iV);
+        }
+        idx++;  // outside iV loop — one increment per channel
+      }
+  }
+  else {
+    // SPLIT: all pmt=0 first then all pmt=1 — matches all non-gain reference files
+    std::cout << "[AcdCalibMap::writeResultsToTree] calibType=" << m_desc->calibType() 
+              << " (" << m_desc->calibTypeName() << "): using split map-iterator loop" << std::endl;
+    for ( std::map<UInt_t,CalibData::AcdCalibObj*>::const_iterator itr = m_map.begin(); 
+    itr != m_map.end(); itr++) {  
+      /*if ( AcdKey::getPmt(itr->first) >= AcdKey::nPmt ) {
+          std::cerr << "Warning Code Update: skipping invalid pmt=" << AcdKey::getPmt(itr->first)
+                    << " for id=" << AcdKey::getId(itr->first)
+                    << " key=" << itr->first
+                    << " valid pmt range is 0 to " << AcdKey::nPmt-1
+                    << " Reason: Previous code had no pmt validity check, keeping same gives errors now" << std::endl;
+          continue;
+      }
+      if ( idx >= 216 ) {
+          std::cerr << "Warning Code Update: Skipping  idx=" << idx
+                    << " exceeds array size 216 for id=" << AcdKey::getId(itr->first)
+                    << " pmt=" << AcdKey::getPmt(itr->first)
+                    << " key=" << itr->first
+                    << " original code had no boundary check on idx"
+                    << " Reason: this is a safety catch for any other unexpected channels" << std::endl;
+          continue;
+      }*/
+      /* AD added Everything above */
+      id[idx] = AcdKey::getId(itr->first);
+      pmt[idx] =  AcdKey::getPmt(itr->first);
+      status[idx] = itr->second->getStatus();
+      for ( UInt_t iV(0); iV < nVal; iV++ ) {
+        vals[iV][idx] = itr->second->operator[](iV);
+      }
+      idx++; // AD changed: removed from loop above and added here
+    } 
   }
   m_tree->Fill();
   m_tree->Write();

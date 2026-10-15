@@ -12,7 +12,7 @@
  * Not really sure how this works. 
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdCalibVersion.h,v 1.9 2010/06/24 23:52:41 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdCalibVersion.h,v 1.9 2010/06/24 23:52:41 echarles Exp $
  */
 
 class AcdCalibVersion {

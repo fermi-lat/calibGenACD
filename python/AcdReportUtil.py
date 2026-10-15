@@ -266,6 +266,7 @@ if __name__=='__main__':
         toDir = os.path.join(ACDMONROOT,idFt,options.tag)
         genInName = input.replace('.xml','*')
         
+        """
         if not os.path.exists(toDir): #HF
             os.mkdir(toDir) 
         sysCom = "mv %s %s"%(genInName,toDir)
@@ -280,4 +281,5 @@ if __name__=='__main__':
         calibLstFile.close()
         
         addStore(idFt,options.tag,options.comment,htmlName)
+        """
     

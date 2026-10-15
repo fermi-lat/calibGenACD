@@ -56,7 +56,7 @@ class TChain;
  *
  *
  * @author Eric Charles
- * $Header: /nfs/slac/g/glast/ground/cvs/calibGenACD/src/AcdJobConfig.h,v 1.14 2014/02/14 03:29:00 echarles Exp $
+ * $Header: /sdf/group/fermi/g/glast_ground/cvs/calibGenACD/src/AcdJobConfig.h,v 1.14 2014/02/14 03:29:00 echarles Exp $
  */
 
 class AcdJobConfig {

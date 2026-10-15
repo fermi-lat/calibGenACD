@@ -20,7 +20,7 @@ import time
 from optparse import OptionParser
 from py_mootCore import MootQuery, vectorOfConstitInfo, ConstitInfo
 
-DATACATBIN = "/afs/slac/g/glast/ground/bin/datacat"
+DATACATBIN = "/sdf/group/fermi/a/ground/bin/datacat"
 
 def getDateStamp():
     """

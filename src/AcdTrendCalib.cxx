@@ -98,10 +98,10 @@ Bool_t AcdTrendCalib::fillHistograms() {
 
   UInt_t id_ref[216];
   UInt_t pmt_ref[216];
-  Int_t status_ref[216];
+  Int_t status_ref[216]; 
   UInt_t id[216];
   UInt_t pmt[216];
-  Int_t status[216];
+  Int_t status[216]; 
 
 
   Float_t refVals[10][216];
@@ -143,39 +143,79 @@ Bool_t AcdTrendCalib::fillHistograms() {
     for ( UInt_t j(0); j < 216; j++ ) {
       if ( id[j] >= 700 ) continue;
       if ( pmt[j] > 1 ) continue;
-      if (( status[j] != 0 ) || (status_ref[j] != 0)) continue;
-
-//    if (i < 161) continue;
+      /*if (( status[j] != 0 ) || (status_ref[j] != 0)) continue; // AD changed  */
+      // AD changed : Everything below
+      if (status[j]!=0) continue; 
+      UInt_t jRef = 216;
+      for ( UInt_t jj(0); jj < 216; jj++ ) {
+        if ( id_ref[jj] == id[j] && pmt_ref[jj] == pmt[j] ) {
+          jRef = jj;
+          break;
+        }
+      }
+      if ( jRef == 216 ) {
+        std::cerr << "Warning Code Update: No reference match for id=" << id[j]
+                  << " pmt=" << pmt[j] << " skipping" << std::endl;
+        continue;
+      }
+      if ( status_ref[jRef] != 0 ) {
+        std::cerr << "Warning Code Update: Bad reference status at jRef=" << jRef
+                  << " for id=" << id[j] << " pmt=" << pmt[j]
+                  << " status_ref=" << status_ref[jRef] << " skipping" << std::endl;
+        continue;
+      }
+      int offset = (int)jRef - (int)j;
+      // AD changed : Everything above
+      //    if (i < 161) continue;
       
 //      int offset = (i > 161 && j > 108)? 1 : 0;
 //      int offset = (i > 161)? 1 : 0;
-      int offset = 0;
+      /*int offset = 0;*/
 
 
-      if ( id[j] != id_ref[j+offset] ) {
-	std::cerr << "Id numbers do no match " << i << ' ' << j << ' ' <<  id[j] << ' ' << id_ref[j] << std::endl << "Luckily (hopefully), Eric, Dave, and Terri fixed it."<< std::endl ;
+      
+        /*
+        // Diagnostic code
+        std::cerr << "Id numbers do no match " << i << ' ' << j << ' ' <<  id[j] << ' ' << id_ref[j] 
+                  << " calib_entry=" << input 
+                  << " id[j]=" << id[j] << " id_ref[j]=" << id_ref[j+offset]
+                  << " pmt[j]=" << pmt[j] << " pmt_ref[j]=" << pmt_ref[j+offset]
+                  << " status[j]=" << status[j] << " status_ref[j]=" << status_ref[j+offset]
+                  << " id[j-1]=" << (j>0 ? (int)id[j-1] : -1) 
+                  << " id_ref[j-1]=" << (j>0 ? (int)id_ref[j-1] : -1)
+                  << std::endl << "Luckily (hopefully), Eric, Dave, and Terri fixed it."<< std::endl ; 
+                  
+        */
+       // AD changed everything above
+	/*std::cerr << "Id numbers do no match " << i << ' ' << j << ' ' <<  id[j] << ' ' << id_ref[j] << std::endl << "Luckily (hopefully), Eric, Dave, and Terri fixed it."<< std::endl ;
 //	return kFALSE;
 	continue;
-      }
+      }*/
 
-      // Loop on the values
-      for ( UInt_t k(0); k < m_trendNames.size(); k++ ) {
-	if ( ! AcdKey::useChannel( id[j], m_channels[k] ) ) continue;
-	Float_t delta = 0.;
-	Float_t error = 1.;
-	if (  k >= nAbs ) {
-	  delta = vals[k-nAbs][j] - refVals[k-nAbs][j+offset];
-	  if ( refVals[k-nAbs][j+offset] > 0.5 ) {
-	    delta /= float(refVals[k-nAbs][j+offset]);
-	  } else {
-	    delta = 0.42;
-	  }
-	  error = 0.01;
-	} else {
-	  delta = vals[k][j] - refVals[k][j+offset];
-	}
-	fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,error,k);
-	m_summaryHists[k]->Fill((Float_t)i,delta);
+  // Loop on the values
+  for ( UInt_t k(0); k < m_trendNames.size(); k++ ) {
+	    if ( ! AcdKey::useChannel( id[j], m_channels[k] ) ) continue;
+      Float_t delta = 0.;
+      Float_t error = 1.;
+      if (  k >= nAbs ) {
+        /*delta = vals[k-nAbs][j] - refVals[k-nAbs][j+offset]; 
+        if ( refVals[k-nAbs][j+offset] > 0.5 ) {
+          delta /= float(refVals[k-nAbs][j+offset]);*/
+          // AD Changed start: based on above
+        delta = vals[k-nAbs][j] - refVals[k-nAbs][jRef]; 
+          if ( refVals[k-nAbs][jRef] > 0.5 ) {
+            delta /= float(refVals[k-nAbs][jRef]);
+            // AD Changed end: based on above
+        } else {
+          delta = 0.42;
+        }
+        error = 0.01;
+      } else {
+        /*delta = vals[k][j] - refVals[k][j+offset];*/
+        delta = vals[k][j] - refVals[k][jRef];
+      }
+      fillHistBin(*m_trendHists,id[j],pmt[j],i+1,delta,error,k);
+      m_summaryHists[k]->Fill((Float_t)i,delta);
       }
     }    
   }
